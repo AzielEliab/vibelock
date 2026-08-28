@@ -1,20 +1,22 @@
 # VibeLock download tracker (Cloudflare Worker)
 
-Counts downloads of GitHub release assets for VibeLock **across the
-canonical repository, other branches, and forks**. Forks are identified
-by GitHub `owner/repo`.
+Counts GitHub-release downloads for VibeLock across the canonical
+repository, other branches, and forks. Forks are identified by GitHub
+`owner/repo`.
 
-No secrets belong in this directory. KV namespace IDs in
-`wrangler.toml` are placeholders until you create a namespace.
+**This worker must be deployed** before `https://downloads.vibelock.dev`
+resolves. Until then, send people to
+[GitHub Releases](https://github.com/AzielEliab/vibelock/releases).
+
+No secrets belong in this directory. The KV namespace id in
+`wrangler.toml` is the placeholder `REPLACE_ME` until you create a
+namespace.
 
 ## Bindings
 
-| Binding     | Type | Purpose                                      |
-|-------------|------|----------------------------------------------|
-| `DOWNLOADS` | KV   | JSON blob of counts keyed `stats:v1`         |
-
-Vars (not secrets): `PROJECT`, `CANONICAL_OWNER`, `CANONICAL_REPO`,
-`GITHUB_RELEASES`.
+| Binding     | Type | Purpose |
+|-------------|------|---------|
+| `DOWNLOADS` | KV   | Counters keyed `project|owner|repo|branch|fork` |
 
 ## Deploy
 
@@ -25,9 +27,8 @@ cd workers/download-tracker
 npx wrangler login
 
 # 2. Create the KV namespace. Paste the id into wrangler.toml
-#    as kv_namespaces.id (binding name MUST stay DOWNLOADS).
+#    replacing REPLACE_ME. Binding name MUST stay DOWNLOADS.
 npx wrangler kv namespace create DOWNLOADS
-npx wrangler kv namespace create DOWNLOADS --preview
 
 # 3. Deploy
 npx wrangler deploy
@@ -41,45 +42,45 @@ then, the `workers.dev` subdomain wrangler prints is enough.
 | Method | Path | Behavior |
 |--------|------|----------|
 | GET | `/` | Index page with the GitHub Releases link |
-| GET | `/stats` | JSON counts, dimensions `project, owner, repo, branch, fork` |
-| POST | `/event` | A fork (or any replica) reports a download |
-| GET | `/download/:owner/:repo/:tag/:asset` | Increment, 302 to GitHub |
-| GET | `/go?owner=&repo=&tag=&asset=&branch=` | Same, query-string form |
+| GET | `/download?repo=&tag=&asset=` | Increment KV, 302 to the GitHub asset (default: latest releases page) |
+| GET | `/stats` | JSON totals plus per-repo and per-branch breakdown |
+| POST | `/event` | A fork reports a download |
 
-Tracked download (canonical):
+Query params on `/download`: `owner`, `repo` (`AzielEliab/vibelock` is
+accepted), `branch`, `fork` (`1` or `owner/repo`), `tag`, `asset`.
+
+Default redirect with no asset:
 
 ```
-https://downloads.vibelock.dev/download/AzielEliab/vibelock/latest/vibelock-0.1.0.tar.gz
+https://github.com/AzielEliab/vibelock/releases/latest
 ```
 
-A fork reports its own asset:
+Tracked asset URL (after deploy):
+
+```
+https://downloads.vibelock.dev/download?repo=AzielEliab/vibelock&tag=latest&asset=vibelock-0.1.0.tar.gz
+```
+
+A fork reports its own download:
 
 ```bash
-curl -X POST https://downloads.vibelock.dev/event \
-  -H "content-type: application/json" \
-  -d '{
-    "project": "vibelock",
+curl -X POST https://downloads.vibelock.dev/event   -H "content-type: application/json"   -d '{
     "owner": "YourFork",
     "repo": "vibelock",
     "branch": "main",
-    "fork": true,
-    "tag": "v0.1.0",
+    "fork": "1",
     "asset": "vibelock-0.1.0.tar.gz"
   }'
 ```
 
-`fork` is inferred from `owner/repo` versus `AzielEliab/vibelock` when
-omitted.
+`fork=1` or `fork=YourFork/vibelock`. If `owner/repo` is not
+`AzielEliab/vibelock`, the worker records `fork=1` automatically.
 
-## Dimensions
+## Stats
 
-Every increment stores:
+`GET /stats` returns `total`, `by_repo`, `by_branch`, `by_fork`, and a
+`breakdown` array so forks can read aggregates.
 
-- `project` (default `vibelock`)
-- `owner`, `repo` — GitHub identity of the tree that was downloaded
-- `branch` (default `main`; pass `?branch=` on `/download/...`)
-- `fork` — `true` when `owner/repo` is not the canonical tree
-- optional `tag` and `asset`
+## CORS
 
-The worker redirects. It does not proxy bytes, so GitHub remains the
-file host.
+All responses include `Access-Control-Allow-Origin: *`.

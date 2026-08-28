@@ -2,36 +2,18 @@
 
 Physical-consistency evaluation of speech audio.
 
-**Author:** Aziel Eliab  
-**Date:** July 2026  
+**Author:** Aziel Eliab
+**Date:** July 2026
 **License:** [Apache-2.0](LICENSE)
 
 > Sound can be forged. Physics is harder to fake.
 
 VibeLock asks whether a recording is physically consistent with human
-vocal vibration and biomechanical resonance. It is local DSP, not a
-cloud model and not a speech-to-text pipeline.
+vocal vibration and biomechanical resonance. It is local DSP (numpy +
+scipy), not a cloud model and not a speech-to-text pipeline.
 
-Two modes:
-
-1. **Dual-channel** — air microphone plus body-coupled vibration (jaw
-   accelerometer, contact mic, or IMU). Sync, drift-correct, then test
-   coherence, the vibration-to-air transfer function, latency, and
-   resonance decay.
-2. **Audio-only forensic** — when vibration is absent. Spectral
-   smoothness, phase continuity, formant stability, decay, splices,
-   vocoder buzz. This is a **risk assessment, not a proof of liveness.**
-
-Output: a score in `[0, 1]` and machine-readable reason codes
-(`COHERENCE_LOW`, `PHASE_DISCONTINUITY`, `TRANSFER_RESIDUAL_HIGH`,
-`DECAY_IMPLAUSIBLE`, `FORMANT_UNSTABLE`, `TEMPORAL_SPLICE`, …).
-
-The transfer-function baseline is learned from **synthetic
-physically-plausible pairs**, not from a published human dataset. That
-is documented in `vibelock/synth.py` and `docs/whitepaper.md`.
-
-Privacy: no STT, no identity, raw audio is not retained by default.
-Processing is local.
+See the spec: [docs/whitepaper.md](docs/whitepaper.md).
+How to contribute: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **Forks are welcome and always allowed.**
 
@@ -39,34 +21,60 @@ Processing is local.
 
 ## Download
 
-**Get release builds here:**
+**Release builds (canonical):**
 
 # → [https://github.com/AzielEliab/vibelock/releases](https://github.com/AzielEliab/vibelock/releases) ←
 
-Counted downloads (canonical tree, branches, and forks) are tracked by
-the Cloudflare Worker:
+**Tracked download endpoint (Cloudflare Worker placeholder):**
 
-- Tracker: [https://downloads.vibelock.dev](https://downloads.vibelock.dev)
-- Stats JSON: [https://downloads.vibelock.dev/stats](https://downloads.vibelock.dev/stats)
+- Worker: [https://downloads.vibelock.dev](https://downloads.vibelock.dev)
+- Stats: [https://downloads.vibelock.dev/stats](https://downloads.vibelock.dev/stats)
 
-Prefer a tracked asset URL so branch and fork dimensions are recorded:
+The worker **must be deployed** before those URLs work. Until then, use
+the GitHub Releases link above. Source, wrangler config, and deploy
+steps live in [`workers/download-tracker/`](workers/download-tracker/).
+
+Tracked asset URL (after deploy):
 
 ```
-https://downloads.vibelock.dev/download/AzielEliab/vibelock/latest/vibelock-0.1.0.tar.gz
+https://downloads.vibelock.dev/download?repo=AzielEliab/vibelock&tag=latest&asset=vibelock-0.1.0.tar.gz
 ```
 
-Forks identified by GitHub `owner/repo` can POST `/event` — see
-`workers/download-tracker/README.md`. Source stays this repository;
-the worker only counts.
+Query params: `owner`, `repo` (`owner/repo` is accepted), `branch`,
+`fork` (`1` or `owner/repo`), `tag`, `asset`. Forks can POST `/event`
+so their downloads are counted separately. See the worker README.
 
 ---
 
+## Dual-channel vs audio-only
+
+1. **Dual-channel** — air microphone plus body-coupled vibration (jaw
+   accelerometer, contact mic, or IMU). Sync, drift-correct, then test
+   coherence, the vibration-to-air transfer function, latency, and
+   resonance decay. This is the strong physical test.
+2. **Audio-only forensic** — when vibration is absent. Spectral
+   smoothness, phase continuity, formant stability, decay, splices,
+   vocoder buzz. This is a **risk assessment, not a proof of liveness.**
+
+Output: a score in `[0, 1]` and machine-readable reason codes
+(`COHERENCE_LOW`, `LATENCY_OUT_OF_BOUNDS`, `PHASE_DISCONTINUITY`,
+`TRANSFER_RESIDUAL_HIGH`, `DECAY_IMPLAUSIBLE`, `FORMANT_UNSTABLE`,
+`TEMPORAL_SPLICE`, `VOCODER_BUZZ`, …).
+
+The transfer-function baseline is learned from **synthetic
+physically-plausible pairs**, not from a published human dataset. That
+is documented in `vibelock/synth.py` and `docs/whitepaper.md`. This
+README does not invent evaluation numbers.
+
+Privacy: no STT, no identity, raw audio is not retained by default.
+Processing is local.
+
 ## Install
 
-Python 3.10+ . numpy and scipy only (no ML stack).
+Python 3.10+. numpy and scipy only (no ML stack).
 
 ```bash
-python -m pip install -e ".[dev]"
+pip install -e ".[dev]"
 ```
 
 From a release artifact:
@@ -114,22 +122,22 @@ print(result.score, result.reason_codes)
 No hardware required:
 
 ```bash
-python examples/synthetic_pair.py
+python examples/analyze_synthetic.py
 ```
 
-That script writes a physically-plausible dual-channel pair and runs
-`vibelock analyze` on it.
+That script generates a physically-plausible dual-channel pair with
+`vibelock.synth.make_pair`, writes WAVs, runs `analyze`, and prints
+the score and reason codes.
 
 ## Tests
 
 ```bash
-cd /workspace/vibelock   # or the clone root
-python -m pip install -e ".[dev]"
-pytest -q
+pip install -e ".[dev]"
+python -m pytest -q
 ```
 
-Fixtures are synthetic. They prove each physical check moves the score
-the right way.
+Fixtures in `tests/conftest.py` are synthetic. They prove each physical
+check moves the score the right way (authentic higher than attacked).
 
 ## Layout
 
@@ -139,6 +147,7 @@ tests/              pytest, synthetic attacks
 docs/whitepaper.md  July 2026 spec
 examples/           generate a pair and analyze it
 workers/download-tracker/   Cloudflare Worker + wrangler.toml
+CONTRIBUTING.md     forks are first-class
 ```
 
 ## License

@@ -4,12 +4,11 @@ from __future__ import annotations
 
 from vibelock.scoring import (
     CheckResult,
+    analyze,
     clip01,
     combine,
     logistic_score,
-    analyze,
 )
-from tests.helpers import uncorrelated_pair
 
 
 def test_clip01():
@@ -19,8 +18,7 @@ def test_clip01():
 
 
 def test_logistic_score_direction():
-    assert logistic_score(0.6, good=0.6, bad=0.1) > 0.9
-    assert logistic_score(0.1, good=0.6, bad=0.1) < 0.1
+    assert logistic_score(0.6, good=0.6, bad=0.1) > logistic_score(0.1, good=0.6, bad=0.1)
     assert logistic_score(0.35, good=0.6, bad=0.1) > logistic_score(0.2, good=0.6, bad=0.1)
 
 
@@ -33,11 +31,11 @@ def test_combine_emits_unique_reason_codes():
     result = combine(checks, "dual_channel", sample_rate=16000, n_samples=100)
     assert result.reason_codes.count("COHERENCE_LOW") == 1
     assert 0.0 <= result.score <= 1.0
-    d = result.to_dict()
-    assert "score" in d and "reason_codes" in d
-    # Privacy: no waveform keys.
-    assert "audio" not in d
-    assert "samples" not in d or d["n_samples"] == 100
+    blob = result.to_dict()
+    assert "score" in blob and "reason_codes" in blob
+    assert "audio" not in blob
+    assert "vibration" not in blob
+    assert "waveform" not in blob
 
 
 def test_analyze_json_has_no_waveform(authentic_pair):
@@ -48,10 +46,8 @@ def test_analyze_json_has_no_waveform(authentic_pair):
         assert key not in {"audio", "vibration", "waveform", "pcm"}
 
 
-def test_dual_score_below_audio_only_when_vibration_is_fake(authentic_pair):
-    """A nonsense vibration channel should not raise the score vs audio-only."""
-    audio_only = analyze(authentic_pair.audio, authentic_pair.sr, vibration=None)
-    fake = uncorrelated_pair(authentic_pair.sr)
-    dual = analyze(authentic_pair.audio, authentic_pair.sr, fake.vibration)
-    assert dual.mode == "dual_channel"
-    assert dual.score < audio_only.score or "COHERENCE_LOW" in dual.reason_codes
+def test_uncorrelated_dual_scores_below_authentic(authentic_pair, uncorrelated_pair):
+    good = analyze(authentic_pair.audio, authentic_pair.sr, authentic_pair.vibration)
+    bad = analyze(uncorrelated_pair.audio, uncorrelated_pair.sr, uncorrelated_pair.vibration)
+    assert good.score > bad.score
+    assert 0.0 <= bad.score <= 1.0

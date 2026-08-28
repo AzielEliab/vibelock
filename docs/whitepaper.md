@@ -225,3 +225,12 @@ forks.
 Forks are welcome and always allowed.
 
 Sound can be forged. Physics is harder to fake.
+
+---
+
+Sound can be forged. Physics is harder to fake.
+
+Signed,
+
+Aziel
+July 2026
