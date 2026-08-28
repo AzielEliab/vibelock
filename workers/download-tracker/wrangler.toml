@@ -1,0 +1,24 @@
+# VibeLock download tracker. No secrets in this file.
+# Create a KV namespace and paste its id below:
+#   npx wrangler kv namespace create DOWNLOADS
+#
+# The binding name MUST remain DOWNLOADS (code reads env.DOWNLOADS).
+
+name = "vibelock-download-tracker"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+workers_dev = true
+
+# Public hostname once DNS is attached (placeholder).
+# routes = [{ pattern = "downloads.vibelock.dev/*", zone_name = "vibelock.dev" }]
+
+[[kv_namespaces]]
+binding = "DOWNLOADS"
+id = "00000000000000000000000000000000"
+preview_id = "00000000000000000000000000000000"
+
+[vars]
+PROJECT = "vibelock"
+CANONICAL_OWNER = "AzielEliab"
+CANONICAL_REPO = "vibelock"
+GITHUB_RELEASES = "https://github.com/AzielEliab/vibelock/releases"
