@@ -166,9 +166,10 @@ function indexHtml() {
 <body>
   <h1>VibeLock downloads</h1>
   <p>Sound can be forged. Physics is harder to fake.</p>
-  <p><strong>Download releases:</strong> <a href="${GITHUB_LATEST}">${GITHUB_LATEST}</a></p>
+  <p><strong>Hosted download:</strong> <a href="/download?asset=vibelock-0.1.0.tar.gz">vibelock-0.1.0.tar.gz</a></p>
+  <p>GitHub releases: <a href="${GITHUB_LATEST}">${GITHUB_LATEST}</a></p>
   <p>Counts (canonical repo, branches, and forks): <a href="/stats">/stats</a></p>
-  <p>GET /download?repo=AzielEliab/vibelock&amp;tag=latest&amp;asset=...</p>
+  <p>GET /download hosts the tarball. GET /go 302s to GitHub.</p>
   <p>Forks are welcome and always allowed. Report a download with POST /event.</p>
 </body>
 </html>`;
@@ -213,10 +214,23 @@ export default {
       });
     }
 
-    if (url.pathname === "/download" && request.method === "GET") {
+    if (url.pathname === "/go" && request.method === "GET") {
       const dims = parseDims(url.searchParams);
       await increment(env, dims);
-      return redirect(githubAssetUrl(dims.owner, dims.repo, dims.tag, dims.asset));
+      const asset = dims.asset || "vibelock-0.1.0.tar.gz";
+      return redirect(githubAssetUrl(dims.owner, dims.repo, dims.tag, asset));
+    }
+
+    if ((url.pathname === "/download" || url.pathname.startsWith("/download/")) && request.method === "GET") {
+      const dims = parseDims(url.searchParams);
+      if (!dims.asset && url.pathname.startsWith("/download/")) {
+        dims.asset = decodeURIComponent(url.pathname.slice("/download/".length));
+      }
+      const asset = dims.asset || "vibelock-0.1.0.tar.gz";
+      dims.asset = asset;
+      await increment(env, dims);
+      const hosted = new URL("/" + asset, request.url);
+      return redirect(hosted.href);
     }
 
     return json({ error: "not found" }, 404);

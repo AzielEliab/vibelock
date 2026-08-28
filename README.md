@@ -21,24 +21,17 @@ How to contribute: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Download
 
-**Release builds (canonical):**
+**Hosted (Cloudflare Worker, counted across branches and forks):**
 
-# → [https://github.com/AzielEliab/vibelock/releases](https://github.com/AzielEliab/vibelock/releases) ←
+# → [https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.1.0.tar.gz](https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.1.0.tar.gz) ←
 
-**Tracked download endpoint (Cloudflare Worker placeholder):**
+Direct file: [vibelock-0.1.0.tar.gz](https://vibelock-download-tracker.vibelock.workers.dev/vibelock-0.1.0.tar.gz)
 
-- Worker: [https://downloads.vibelock.dev](https://downloads.vibelock.dev)
-- Stats: [https://downloads.vibelock.dev/stats](https://downloads.vibelock.dev/stats)
+- Tracker home: [https://vibelock-download-tracker.vibelock.workers.dev/](https://vibelock-download-tracker.vibelock.workers.dev/)
+- Stats: [https://vibelock-download-tracker.vibelock.workers.dev/stats](https://vibelock-download-tracker.vibelock.workers.dev/stats)
+- GitHub releases: [https://github.com/AzielEliab/vibelock/releases](https://github.com/AzielEliab/vibelock/releases)
 
-The worker **must be deployed** before those URLs work. Until then, use
-the GitHub Releases link above. Source, wrangler config, and deploy
-steps live in [`workers/download-tracker/`](workers/download-tracker/).
-
-Tracked asset URL (after deploy):
-
-```
-https://downloads.vibelock.dev/download?repo=AzielEliab/vibelock&tag=latest&asset=vibelock-0.1.0.tar.gz
-```
+`downloads.vibelock.dev` can be pointed at this Worker later if you add DNS.
 
 Query params: `owner`, `repo` (`owner/repo` is accepted), `branch`,
 `fork` (`1` or `owner/repo`), `tag`, `asset`. Forks can POST `/event`

@@ -6,3 +6,6 @@ dist/
 .pytest_cache/
 
 examples/_out/
+node_modules/
+bun.lock
+workers/download-tracker/node_modules/
