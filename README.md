@@ -91,6 +91,17 @@ vibelock analyze path/to/air.wav --vibration path/to/jaw.wav --json
 vibelock analyze path/to/air.wav --vibration path/to/jaw.wav --sr 16000
 
 vibelock version
+vibelock ui            # localhost UI on 127.0.0.1:8760
+```
+
+## Local UI
+
+Local UI: `pip install -e . && vibelock ui` then open http://127.0.0.1:8760
+
+Binds to `127.0.0.1` only. Self-contained HTML (no CDN, no tracking). WAV files and synthetic pairs are scored in-process and never uploaded.
+
+```bash
+vibelock ui --host 127.0.0.1 --port 8760
 ```
 
 `analyze` exits 0 when the run completes, including low scores. A
