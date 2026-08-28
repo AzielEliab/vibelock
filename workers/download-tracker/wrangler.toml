@@ -1,8 +1,5 @@
 # VibeLock download tracker. No secrets in this file.
-# Create a KV namespace and paste its id below, replacing REPLACE_ME:
-#   npx wrangler kv namespace create DOWNLOADS
-#
-# The binding name MUST remain DOWNLOADS (code reads env.DOWNLOADS).
+# KV namespace created via Cloudflare bindings: vibelock-DOWNLOADS
 
 name = "vibelock-download-tracker"
 main = "src/index.js"
@@ -11,4 +8,4 @@ workers_dev = true
 
 [[kv_namespaces]]
 binding = "DOWNLOADS"
-id = "REPLACE_ME"
+id = "79858f716ca04a0f95d6944a7663e425"
