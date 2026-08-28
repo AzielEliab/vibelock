@@ -1,3 +1,5 @@
+import { handleRuntime } from "./runtime.js";
+
 /**
  * VibeLock download tracker (Cloudflare Worker).
  *
@@ -192,7 +194,7 @@ async function indexHtml(env) {
     <a class="dl" href="/download?asset=vibelock-0.1.0.tar.gz">Download vibelock-0.1.0.tar.gz — ${n} counted</a>
     <p class="meta">The count ticks on this click. Nobody reports anything. Forks using this same link are counted automatically.</p>
     <p class="iso">Isolated counter: Worker <code>vibelock-download-tracker</code>, project <code>vibelock</code>. Not mixed with any other *Lock.</p>
-    <p class="meta"><a href="/stats">JSON stats</a> · <a href="${github}">GitHub releases</a></p>
+    <p class="meta"><a href="/stats">JSON stats</a> · <a href="/v1/health">runtime /v1/health</a> · <a href="/openapi.json">OpenAPI</a> · <a href="/ai">Use with Grok, ChatGPT, Venice</a> · <a href="${github}">GitHub releases</a></p>
   </div>
 </body>
 </html>`;
@@ -205,6 +207,10 @@ export default {
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: corsHeaders() });
     }
+
+    const runtime = await handleRuntime(request, url, env);
+    if (runtime) return runtime;
+
 
     if (url.pathname === "/" && request.method === "GET") {
       return new Response(await indexHtml(env), {

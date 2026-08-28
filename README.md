@@ -188,6 +188,32 @@ mobile/             Flutter iPhone & Android client
 CONTRIBUTING.md     forks are first-class
 ```
 
+## Use with Grok, ChatGPT, Venice
+
+Live HTTPS runtime on the download-tracker Worker (does **not** increment the download counter):
+
+- OpenAPI 3.1: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json
+- Health: https://vibelock-download-tracker.vibelock.workers.dev/v1/health
+- How to wire tools: https://vibelock-download-tracker.vibelock.workers.dev/ai
+- MCP catalog: https://aziel-runtime.vibelock.workers.dev/mcp
+
+POST /v1/analyze with `features:{rms,zcr,...}` or limited `pcm_b64`+rate. **Risk assessment, not a liveness proof.** Hosted is not a live mic; desktop `listen` stays local.
+
+**ChatGPT Actions:** GPT Editor → Actions → Import from URL → `https://vibelock-download-tracker.vibelock.workers.dev/openapi.json` (no auth).
+
+**Grok / xAI tools:** add an HTTP/OpenAPI tool pointing at `https://vibelock-download-tracker.vibelock.workers.dev/openapi.json`.
+
+**Venice HTTP tools:** add an HTTP tool with method, URL, and JSON body from that spec. Start with GET `https://vibelock-download-tracker.vibelock.workers.dev/v1/health`.
+
+```bash
+curl -sS -X POST https://vibelock-download-tracker.vibelock.workers.dev/v1/analyze \
+  -H 'content-type: application/json' \
+  -d '{"features":{"rms":0.08,"zcr":0.07}}'
+```
+
+GET `/download` still serves the gzip tarball and is counted.
+
+
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).
