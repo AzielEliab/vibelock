@@ -19,6 +19,7 @@ from vibelock.synth import make_pair
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8760
+LOOPBACK = frozenset({"127.0.0.1", "localhost", "::1"})
 MAX_BODY = 12 * 1024 * 1024
 
 PAGE = r"""<!DOCTYPE html>
@@ -301,6 +302,8 @@ class Handler(BaseHTTPRequestHandler):
 
 
 def make_server(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> ThreadingHTTPServer:
+    if host not in LOOPBACK:
+        raise ValueError("VibeLock UI binds loopback only (127.0.0.1)")
     return ThreadingHTTPServer((host, port), Handler)
 
 

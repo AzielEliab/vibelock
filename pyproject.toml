@@ -37,6 +37,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest>=7.4"]
+tether = ["sounddevice>=0.4"]
 
 [project.scripts]
 vibelock = "vibelock.cli:main"

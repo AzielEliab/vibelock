@@ -8,6 +8,25 @@ Physical-consistency evaluation of speech audio.
 
 > Sound can be forged. Physics is harder to fake.
 
+## Quick start
+
+```bash
+python -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"
+vibelock ui
+```
+
+Open http://127.0.0.1:8760 (loopback only). No CDN, no telemetry.
+
+Counted download: [https://vibelock-download-tracker.vibelock.workers.dev/](https://vibelock-download-tracker.vibelock.workers.dev/)
+
+Optional mic gate (YOUR default input only; extra `[tether]`):
+
+```bash
+pip install -e ".[tether]"
+vibelock listen --gate
+```
+
+
 VibeLock asks whether a recording is physically consistent with human
 vocal vibration and biomechanical resonance. It is local DSP (numpy +
 scipy), not a cloud model and not a speech-to-text pipeline.
@@ -16,6 +35,7 @@ See the spec: [docs/whitepaper.md](docs/whitepaper.md).
 How to contribute: [CONTRIBUTING.md](CONTRIBUTING.md).
 
 **Forks are welcome and always allowed.**
+
 
 ---
 
@@ -35,6 +55,20 @@ Direct tarball (also counted): [vibelock-0.1.0.tar.gz](https://vibelock-download
 - Live count JSON: [https://vibelock-download-tracker.vibelock.workers.dev/count](https://vibelock-download-tracker.vibelock.workers.dev/count)
 - Stats: [https://vibelock-download-tracker.vibelock.workers.dev/stats](https://vibelock-download-tracker.vibelock.workers.dev/stats)
 - GitHub releases: [https://github.com/AzielEliab/vibelock/releases](https://github.com/AzielEliab/vibelock/releases)
+
+---
+
+## iPhone & Android
+
+A local-first Flutter client lives in [`mobile/`](mobile/). Open that
+folder in Android Studio or Xcode through Flutter (`flutter create .`
+first if `android/` / `ios/` still hold the skeleton READMEs). Record
+from the mic; energy / ZCR heuristics labeled as a **risk assessment,
+not a liveness proof**.
+
+Counted desktop download: [https://vibelock-download-tracker.vibelock.workers.dev/](https://vibelock-download-tracker.vibelock.workers.dev/)
+
+Forks are welcome and always allowed.
 
 ---
 
@@ -150,6 +184,7 @@ tests/              pytest, synthetic attacks
 docs/whitepaper.md  July 2026 spec
 examples/           generate a pair and analyze it
 workers/download-tracker/   Cloudflare Worker + wrangler.toml
+mobile/             Flutter iPhone & Android client
 CONTRIBUTING.md     forks are first-class
 ```
 
