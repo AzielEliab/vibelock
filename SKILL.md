@@ -49,3 +49,18 @@ Counted download (gzip HTTP 200, no 302): https://vibelock-download-tracker.vibe
 GitHub: https://github.com/AzielEliab/vibelock
 
 Paper: DOI https://doi.org/10.5281/zenodo.21431610 · https://zenodo.org/records/21431610 · Apache-2.0. Forks welcome.
+
+## Catalog + local UI
+
+Author: **Aziel Eliab**. Honest scope: Physical-consistency evaluation of speech audio. Risk assessment, not a liveness proof.
+
+- Catalog product: https://aziel-runtime.vibelock.workers.dev/p/vibelock/
+- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json
+- Catalog MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`
+- This Worker skill: `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/skill`
+- This Worker OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json
+- Sample payload: `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/example`
+
+Local UI: **Import JSON file** (`type=file`) and **Export JSON**. Then `vibelock doctor`.
+
+Grok: import catalog or Worker OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.

@@ -167,6 +167,18 @@ PAGE = r"""<!DOCTYPE html>
     · <code>vibelock ui</code>
     · advisory, not courtroom proof
   </footer>
+
+<section class="card" id="aziel-json-io">
+  <h2>Import / Export JSON</h2>
+  <p class="help">Tap Import JSON file to pick a .json. Export JSON saves the current session locally. Nothing is uploaded.</p>
+  <input id="aziel-import-json" type="file" accept="application/json,.json">
+  <p>
+    <button type="button" id="aziel-import-json-btn">Import JSON file</button>
+    <button type="button" id="aziel-export-json-btn">Export JSON</button>
+  </p>
+  <p class="help" id="aziel-json-status"></p>
+</section>
+
 </main>
 <script>
 (function () {
@@ -325,6 +337,64 @@ PAGE = r"""<!DOCTYPE html>
   setView(false);
 })();
 </script>
+
+<script>
+(function(){
+  var file = document.getElementById("aziel-import-json");
+  var imp = document.getElementById("aziel-import-json-btn");
+  var exp = document.getElementById("aziel-export-json-btn");
+  var status = document.getElementById("aziel-json-status");
+  if (!file || !imp || !exp) return;
+  function say(m){ if (status) status.textContent = m; }
+  function collect(){
+    var data = { product: document.title || "", exported_at: new Date().toISOString(), author: "Aziel Eliab" };
+    document.querySelectorAll("input, select, textarea").forEach(function(el){
+      if (!el.id || el.type === "file" || el.type === "password") return;
+      data[el.id] = el.type === "checkbox" ? el.checked : el.value;
+    });
+    if (window.__azielLastJson && typeof window.__azielLastJson === "object") {
+      data.last = window.__azielLastJson;
+    }
+    return data;
+  }
+  function apply(obj){
+    if (!obj || typeof obj !== "object") return;
+    window.__azielLastJson = obj;
+    Object.keys(obj).forEach(function(k){
+      if (k === "last" || k === "product" || k === "exported_at" || k === "author") return;
+      var el = document.getElementById(k);
+      if (!el || el.type === "file" || el.type === "password") return;
+      if (el.type === "checkbox") el.checked = !!obj[k];
+      else if ("value" in el) el.value = obj[k];
+    });
+    var ta = document.querySelector("textarea");
+    if (ta && obj && !obj[ta.id] && typeof obj === "object") {
+      try { if (!ta.value) ta.value = JSON.stringify(obj, null, 2); } catch (e) {}
+    }
+  }
+  imp.addEventListener("click", function(){ file.click(); });
+  file.addEventListener("change", function(){
+    var f = file.files && file.files[0];
+    if (!f) return;
+    var r = new FileReader();
+    r.onload = function(){
+      try { apply(JSON.parse(String(r.result || "{}"))); say("Imported " + f.name); }
+      catch (e) { say("Invalid JSON"); }
+    };
+    r.readAsText(f);
+  });
+  exp.addEventListener("click", function(){
+    var blob = new Blob([JSON.stringify(collect(), null, 2)], {type: "application/json"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "session.json";
+    a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 800);
+    say("Exported JSON");
+  });
+})();
+</script>
+
 </body>
 </html>
 """.replace("__VERSION__", __version__)

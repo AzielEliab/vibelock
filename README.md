@@ -230,6 +230,8 @@ CONTRIBUTING.md     forks are first-class
 
 ## Use with Grok, ChatGPT, Venice
 
+- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json
+
 Live HTTPS runtime on the download-tracker Worker (does **not** increment the download counter):
 
 - OpenAPI 3.1: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json

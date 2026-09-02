@@ -75,7 +75,11 @@ function aiHowTo(base) {
 }
 
 const PRODUCT = "vibelock";
-const SKILL_MARKDOWN = "---\nname: VibeLock\ndescription: Use when calling VibeLock hosted /v1 or installing the local package. Author Aziel Eliab.\n---\n\n# VibeLock\n\nPhysical-consistency evaluation of speech audio. Risk assessment, not a liveness proof. Hosted is not a live mic. Not courtroom audio proof. Author: Aziel Eliab.\n\n**THIS IS:** physical-consistency evaluation of speech audio (local CLI + hosted advisory /v1/analyze).\n\n**THIS IS NOT:** courtroom audio proof, a liveness detector, a live microphone, or a claim that physics cannot be forged.\n\nAuthor: **Aziel Eliab**. Forks are welcome and always allowed. Apache-2.0.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\n## Call these URLs\n\n- Worker OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- Live skill (this markdown): `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/skill`\n\nOps (do **not** increment downloads or views):\n\n| Method | Path | What |\n|--------|------|------|\n| GET | `/v1/health` | Liveness. Does not increment downloads. |\n| GET | `/v1/skill` | This markdown. Does not increment downloads. |\n| POST | `/v1/analyze` | Advisory physical-consistency score of posted audio metadata/features. Not a live mic. |\n\nGrok: import OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.\n\n## Example\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/skill\ncurl -s -A 'Mozilla/5.0' -X POST https://vibelock-download-tracker.vibelock.workers.dev/v1/analyze \\\n  -H 'content-type: application/json' \\\n  -d '{\"note\":\"advisory features only; not a live mic\"}'\n```\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://vibelock-download-tracker.vibelock.workers.dev/install.sh | bash\nvibelock ui\n```\n\nThen open http://127.0.0.1:8760 (loopback only).\n\nDOI: https://doi.org/10.5281/zenodo.21431610  \nRecord: https://zenodo.org/records/21431610  \n\nCounted download (gzip HTTP 200, no 302): https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.2.0.tar.gz\nGitHub: https://github.com/AzielEliab/vibelock\n";
+const EXAMPLE_PAYLOAD = {
+  "summary": "synthetic dual-channel notes; local WAV scoring is in the Python package"
+};
+
+const SKILL_MARKDOWN = "---\nname: VibeLock\ndescription: Use when calling VibeLock hosted /v1 or installing the local package. Author Aziel Eliab.\n---\n\n# VibeLock\n\nPhysical-consistency evaluation of speech audio. Risk assessment, not a liveness proof. Hosted is not a live mic. Not courtroom audio proof. Author: Aziel Eliab.\n\n**THIS IS:** physical-consistency evaluation of speech audio (local CLI + hosted advisory /v1/analyze).\n\n**THIS IS NOT:** courtroom audio proof, a liveness detector, a live microphone, or a claim that physics cannot be forged.\n\nAuthor: **Aziel Eliab**. Forks are welcome and always allowed. Apache-2.0.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\n## Call these URLs\n\n- Worker OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- Live skill (this markdown): `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/skill`\n\nOps (do **not** increment downloads or views):\n\n| Method | Path | What |\n|--------|------|------|\n| GET | `/v1/health` | Liveness. Does not increment downloads. |\n| GET | `/v1/skill` | This markdown. Does not increment downloads. |\n| POST | `/v1/analyze` | Advisory physical-consistency score of posted audio metadata/features. Not a live mic. |\n\nGrok: import OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.\n\n## Example\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/skill\ncurl -s -A 'Mozilla/5.0' -X POST https://vibelock-download-tracker.vibelock.workers.dev/v1/analyze \\\n  -H 'content-type: application/json' \\\n  -d '{\"note\":\"advisory features only; not a live mic\"}'\n```\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://vibelock-download-tracker.vibelock.workers.dev/install.sh | bash\nvibelock ui\n```\n\nThen open http://127.0.0.1:8760 (loopback only).\n\nDOI: https://doi.org/10.5281/zenodo.21431610  \nRecord: https://zenodo.org/records/21431610  \n\nCounted download (gzip HTTP 200, no 302): https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.2.0.tar.gz\nGitHub: https://github.com/AzielEliab/vibelock\n\n## Catalog + local UI\n\nAuthor: **Aziel Eliab**. Honest scope: Physical-consistency evaluation of speech audio. Risk assessment, not a liveness proof.\n\n- Catalog product: https://aziel-runtime.vibelock.workers.dev/p/vibelock/\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- Catalog MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- This Worker skill: `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/skill`\n- This Worker OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json\n- Sample payload: `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/example`\n\nLocal UI: **Import JSON file** (`type=file`) and **Export JSON**. Then `vibelock doctor`.\n\nGrok: import catalog or Worker OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.\n";
 
 const VERSION = "0.2.0";
 const BASE = "https://vibelock-download-tracker.vibelock.workers.dev";
@@ -286,6 +290,7 @@ function openapiDoc() {
     },
     servers: [{ url: BASE }],
     paths: {
+            "/v1/example": { get: { operationId: "vibelockExample", summary: "Sample JSON payload. Does not increment downloads.", responses: { "200": { description: "OK" } } } },
       "/v1/health": { get: { operationId: "vibelockHealth", summary: "Liveness", responses: { "200": { description: "OK" } } } },
       "/v1/analyze": {
         post: {
@@ -367,8 +372,18 @@ async function handleAnalyze(body) {
 export async function handleRuntime(request, url, env) {
   const path = url.pathname;
   if (path === "/v1/health" && request.method === "GET") {
-    return runtimeJson({ ok: true, product: PRODUCT, version: VERSION, label: LABEL, hosted_mic: false, liveness_proof: false, courtroom_proof: false, advisory: true });
+    return runtimeJson({ ok: true, author: "Aziel Eliab", product: PRODUCT, version: VERSION, label: LABEL, hosted_mic: false, liveness_proof: false, courtroom_proof: false, advisory: true });
   }
+  if ((path === "/v1/example" || path === "/v1/example/") && (request.method === "GET" || request.method === "HEAD")) {
+    return runtimeJson({
+      ok: true,
+      product: PRODUCT,
+      author: "Aziel Eliab",
+      example: EXAMPLE_PAYLOAD,
+      note: "Sample payload only. Does not increment downloads.",
+    });
+  }
+
 
   if (path === "/v1/skill" && request.method === "GET") {
     return new Response(SKILL_MARKDOWN, {
