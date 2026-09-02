@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vibelock"
-version = "0.1.0"
+version = "0.2.0"
 description = "Physical-consistency evaluation of speech via vibration–audio coherence and forensic audio analysis (VibeLock, July 2026)."
 readme = "README.md"
 license = {file = "LICENSE"}

@@ -4,8 +4,8 @@ import { handleRuntime } from "./runtime.js";
  * VibeLock download tracker (Cloudflare Worker).
  *
  * GET  /download?repo=AzielEliab/vibelock&tag=latest&asset=...
- *      increments KV, 302 to the GitHub release asset
- *      (default https://github.com/AzielEliab/vibelock/releases/latest)
+ *      increments KV, 200 gzip from Worker ASSETS (not a 302 to GitHub)
+ *      default asset vibelock-0.2.0.tar.gz
  * GET  /stats   JSON totals + per-repo + per-branch breakdown
  * POST /event   forks report a download {owner,repo,branch,fork,asset}
  *
@@ -14,7 +14,7 @@ import { handleRuntime } from "./runtime.js";
  */
 
 const PROJECT = "vibelock";
-const DEFAULT_ASSET = "vibelock-0.1.0.tar.gz";
+const DEFAULT_ASSET = "vibelock-0.2.0.tar.gz";
 const DEFAULT_OWNER = "AzielEliab";
 const DEFAULT_REPO = "vibelock";
 const DEFAULT_BRANCH = "main";
@@ -191,7 +191,7 @@ async function indexHtml(env) {
   <p class="motto">Sound can be forged. Physics is harder to fake.</p>
   <div class="card">
     <p class="count">${n}<span> downloads of this project</span></p>
-    <a class="dl" href="/download?asset=vibelock-0.1.0.tar.gz">Download vibelock-0.1.0.tar.gz — ${n} counted</a>
+    <a class="dl" href="/download?asset=vibelock-0.2.0.tar.gz">Download vibelock-0.2.0.tar.gz — ${n} counted</a>
     <p class="meta">The count ticks on this click. Nobody reports anything. Forks using this same link are counted automatically.</p>
     <p class="iso">Isolated counter: Worker <code>vibelock-download-tracker</code>, project <code>vibelock</code>. Not mixed with any other *Lock.</p>
     <p class="meta"><a href="/stats">JSON stats</a> · <a href="/v1/health">runtime /v1/health</a> · <a href="/openapi.json">OpenAPI</a> · <a href="/ai">Use with Grok, ChatGPT, Venice</a> · <a href="${github}">GitHub releases</a></p>
@@ -251,7 +251,7 @@ export default {
     if (url.pathname === "/go" && request.method === "GET") {
       const dims = parseDims(url.searchParams);
       await increment(env, dims);
-      const asset = dims.asset || "vibelock-0.1.0.tar.gz";
+      const asset = dims.asset || "vibelock-0.2.0.tar.gz";
       return redirect(githubAssetUrl(dims.owner, dims.repo, dims.tag, asset));
     }
 
@@ -260,7 +260,7 @@ export default {
       if (!dims.asset && url.pathname.startsWith("/download/")) {
         dims.asset = decodeURIComponent(url.pathname.slice("/download/".length));
       }
-      const asset = dims.asset || "vibelock-0.1.0.tar.gz";
+      const asset = dims.asset || "vibelock-0.2.0.tar.gz";
       dims.asset = asset;
       await increment(env, dims);
       if (!env.ASSETS) return json({ error: "assets binding missing" }, 500);

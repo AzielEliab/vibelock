@@ -7,6 +7,11 @@ import 'dart:typed_data';
 /// uses numpy/scipy dual-channel and forensic checks. The phone v1 scores
 /// a mono PCM clip with RMS energy and ZCR only, then emits placeholder
 /// reason codes in the same family as the desktop list.
+///
+/// This is an audio authenticity advisory, not courtroom proof.
+const String kLimitation =
+    'This is an audio authenticity advisory, not courtroom proof.';
+
 class HeuristicResult {
   HeuristicResult({
     required this.score,
@@ -14,6 +19,8 @@ class HeuristicResult {
     required this.rms,
     required this.zcr,
     required this.note,
+    this.sha256 = '',
+    this.filename = '',
   });
 
   final double score;
@@ -21,6 +28,32 @@ class HeuristicResult {
   final double rms;
   final double zcr;
   final String note;
+  final String sha256;
+  final String filename;
+
+  String get plain => score >= 0.5 ? 'consistent' : 'inconsistent';
+
+  String get plainSentence => score >= 0.5
+      ? 'This recording looks consistent with a real voice.'
+      : 'This recording looks inconsistent — it might not match a real voice.';
+
+  Map<String, Object?> toReport() => {
+        'product': 'vibelock',
+        'version': '0.2.0',
+        'limitation': kLimitation,
+        'advisory': true,
+        'courtroom_proof': false,
+        'plain': plain,
+        'plain_sentence': plainSentence,
+        'score': score,
+        'reason_codes': reasonCodes,
+        'rms': rms,
+        'zcr': zcr,
+        'note': note,
+        'hashes': sha256.isEmpty ? <String, String>{} : {'sha256': sha256},
+        'filename': filename,
+        'telemetry': false,
+      };
 }
 
 double _rms(List<double> x) {
@@ -77,7 +110,12 @@ Uint8List stripWavHeader(Uint8List bytes) {
   return bytes;
 }
 
-HeuristicResult scoreSamples(List<double> samples, {int sampleRate = 16000}) {
+HeuristicResult scoreSamples(
+  List<double> samples, {
+  int sampleRate = 16000,
+  String sha256 = '',
+  String filename = '',
+}) {
   final codes = <String>[];
   if (samples.isEmpty) {
     return HeuristicResult(
@@ -85,7 +123,9 @@ HeuristicResult scoreSamples(List<double> samples, {int sampleRate = 16000}) {
       reasonCodes: const ['VIBRATION_UNUSABLE'],
       rms: 0,
       zcr: 0,
-      note: 'Empty buffer. Risk assessment only — not a liveness proof.',
+      note: 'Empty buffer. $kLimitation',
+      sha256: sha256,
+      filename: filename,
     );
   }
   final rms = _rms(samples);
@@ -137,8 +177,10 @@ HeuristicResult scoreSamples(List<double> samples, {int sampleRate = 16000}) {
     reasonCodes: codes,
     rms: rms,
     zcr: zcr,
-    note: 'Audio-only time-domain energy/ZCR. Risk assessment, not a '
-        'proof of liveness. Dual-channel vibration is desktop-only.',
+    note:
+        'Audio-only time-domain energy/ZCR. $kLimitation Dual-channel vibration is desktop-only.',
+    sha256: sha256,
+    filename: filename,
   );
 }
 

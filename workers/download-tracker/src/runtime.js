@@ -75,10 +75,10 @@ function aiHowTo(base) {
 }
 
 const PRODUCT = "vibelock";
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 const BASE = "https://vibelock-download-tracker.vibelock.workers.dev";
 const MOTTO = "Sound can be forged. Physics is harder to fake.";
-const LABEL = "Risk assessment, not a liveness proof.";
+const LABEL = "Audio authenticity advisory, not courtroom proof.";
 const HOSTED_NOTE = "Hosted endpoint is not a live microphone. Desktop `listen` stays local.";
 const MAX_PCM_BYTES = 65536;
 const MAX_SAMPLES = 32000;
@@ -356,13 +356,16 @@ async function handleAnalyze(body) {
     n_samples,
     notes,
     motto: MOTTO,
+    limitation: LABEL,
+    courtroom_proof: false,
+    advisory: true,
   });
 }
 
 export async function handleRuntime(request, url, env) {
   const path = url.pathname;
   if (path === "/v1/health" && request.method === "GET") {
-    return runtimeJson({ ok: true, product: PRODUCT, version: VERSION, label: LABEL, hosted_mic: false, liveness_proof: false });
+    return runtimeJson({ ok: true, product: PRODUCT, version: VERSION, label: LABEL, hosted_mic: false, liveness_proof: false, courtroom_proof: false, advisory: true });
   }
   if (path === "/openapi.json" && request.method === "GET") return runtimeJson(openapiDoc());
   if (path === "/ai" && request.method === "GET") {

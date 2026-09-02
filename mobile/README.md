@@ -4,7 +4,7 @@ Local-first Flutter client for VibeLock. Record from the microphone,
 score with time-domain energy and zero-crossing heuristics, show a
 score and reason-code placeholders.
 
-**Risk assessment, not a liveness proof.** Dual-channel vibration
+**Audio authenticity advisory, not courtroom proof.** Dual-channel vibration
 lives on the desktop package. Offline. No analytics. No STT.
 
 Application id: `com.azieeliab.vibelock`
@@ -34,3 +34,9 @@ This phone app does not replace the desktop package.
 GitHub: https://github.com/AzielEliab/vibelock
 
 **Forks are welcome and always allowed.**
+
+
+## 0.2.0
+
+Giant **Add file** (WAV) and **Export JSON report** (hashes, scores, limitation).
+Simple / Advanced views. Kid-plain consistent / inconsistent.

@@ -228,3 +228,20 @@ def bootstrap_pairs(
             )
         )
     return pairs
+
+
+
+def sample_tone(
+    duration_s: float = 0.8,
+    sr: int = 16000,
+    freq: float = 440.0,
+    amplitude: float = 0.2,
+) -> Array:
+    """Short 440 Hz tone for the UI sample button. Not speech."""
+    n = max(1, int(float(duration_s) * int(sr)))
+    t = np.arange(n, dtype=np.float64) / float(sr)
+    attack = np.minimum(1.0, t / 0.02)
+    tail = float(duration_s) - t
+    release = np.minimum(1.0, np.maximum(0.0, tail / 0.08))
+    env = attack * release
+    return (float(amplitude) * env * np.sin(2.0 * np.pi * float(freq) * t)).astype(np.float64)

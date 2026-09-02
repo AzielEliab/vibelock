@@ -10,12 +10,11 @@ Physical-consistency evaluation of speech audio.
 
 ## Quick start
 
-```bash
-python -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"
-vibelock ui
-```
+1. Install: `python -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"`
+2. Open the local UI: `vibelock ui`
+3. In the browser at http://127.0.0.1:8760, tap **Add file** (WAV; FLAC/MP3 if this build can read them), then **Export JSON report**. Optional check: `vibelock doctor --verify`.
 
-Open http://127.0.0.1:8760 (loopback only). No CDN, no telemetry.
+Loopback only (`127.0.0.1`). No CDN, no telemetry. This is an **audio authenticity advisory, not courtroom proof.**
 
 Counted download: [https://vibelock-download-tracker.vibelock.workers.dev/](https://vibelock-download-tracker.vibelock.workers.dev/)
 
@@ -50,7 +49,7 @@ The big button on that page is the download. The number next to it is
 anything else. Clicking it increments the counter. Nobody reports
 anything. Forks that use the same link are counted too.
 
-Direct tarball (also counted): [vibelock-0.1.0.tar.gz](https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.1.0.tar.gz)
+Direct tarball (also counted): [vibelock-0.2.0.tar.gz](https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.2.0.tar.gz)
 
 - Live count JSON: [https://vibelock-download-tracker.vibelock.workers.dev/count](https://vibelock-download-tracker.vibelock.workers.dev/count)
 - Stats: [https://vibelock-download-tracker.vibelock.workers.dev/stats](https://vibelock-download-tracker.vibelock.workers.dev/stats)
@@ -106,7 +105,7 @@ pip install -e ".[dev]"
 From a release artifact:
 
 ```bash
-python -m pip install vibelock-0.1.0.tar.gz
+python -m pip install vibelock-0.2.0.tar.gz
 ```
 
 ## CLI
@@ -125,14 +124,18 @@ vibelock analyze path/to/air.wav --vibration path/to/jaw.wav --json
 vibelock analyze path/to/air.wav --vibration path/to/jaw.wav --sr 16000
 
 vibelock version
-vibelock ui            # localhost UI on 127.0.0.1:8760
+vibelock doctor --verify   # local health + WAV round-trip (no network)
+vibelock ui                # localhost UI on 127.0.0.1:8760
 ```
+
+`--verify` on `analyze` re-reads the file and confirms the score and SHA-256 match.
+`--export PATH` writes a JSON report (hashes, scores, limitation).
 
 ## Local UI
 
 Local UI: `pip install -e . && vibelock ui` then open http://127.0.0.1:8760
 
-Binds to `127.0.0.1` only. Self-contained HTML (no CDN, no tracking). WAV files and synthetic pairs are scored in-process and never uploaded.
+Binds to `127.0.0.1` only. Self-contained HTML (no CDN, no tracking, no telemetry). Giant **Add file** (WAV, plus FLAC/MP3 when a decoder is present), **Sample tone**, **Export JSON report** (hashes, scores, limitation). **Simple** view: one score and kid-plain *consistent* / *inconsistent*. **Advanced** view: hashes and per-check codes. Hard max size; truncated or non-audio files are rejected in plain language without crashing.
 
 ```bash
 vibelock ui --host 127.0.0.1 --port 8760

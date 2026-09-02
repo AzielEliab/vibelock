@@ -1,7 +1,7 @@
 name: vibelock
-description: Local-first VibeLock mic client. Energy/ZCR risk assessment, not liveness proof.
+description: Local-first VibeLock mic client. Energy/ZCR authenticity advisory, not courtroom proof.
 publish_to: "none"
-version: 0.1.0+1
+version: 0.2.0+1
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
@@ -11,6 +11,8 @@ dependencies:
     sdk: flutter
   record: ^5.2.1
   path_provider: ^2.1.5
+  file_picker: ^8.1.4
+  crypto: ^3.0.6
 
 dev_dependencies:
   flutter_test:
