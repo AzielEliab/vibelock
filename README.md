@@ -254,6 +254,17 @@ curl -sS -X POST https://vibelock-download-tracker.vibelock.workers.dev/v1/analy
 GET `/download` still serves the gzip tarball and is counted.
 
 
+## Cite this
+
+Aziel Eliab. VibeLock. https://github.com/AzielEliab/vibelock. https://vibelock-download-tracker.vibelock.workers.dev. https://doi.org/10.5281/zenodo.21431610.
+
+- Catalog: https://aziel-runtime.vibelock.workers.dev/
+- Worker homepage: https://vibelock-download-tracker.vibelock.workers.dev/
+- Counted download (gzip HTTP 200, no 302): https://vibelock-download-tracker.vibelock.workers.dev/download
+- GitHub: https://github.com/AzielEliab/vibelock
+- Citation JSON: https://vibelock-download-tracker.vibelock.workers.dev/cite.json
+- DOI: https://doi.org/10.5281/zenodo.21431610
+
 ## License
 
 Apache-2.0. See [LICENSE](LICENSE).
