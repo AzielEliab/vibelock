@@ -8,6 +8,43 @@ Physical-consistency evaluation of speech audio.
 
 > Sound can be forged. Physics is harder to fake.
 
+
+## One-click install
+
+```bash
+curl -fsSL https://vibelock-download-tracker.vibelock.workers.dev/install.sh | bash
+```
+
+The script curls the **counted** tarball from this project's Worker
+(`/download`, User-Agent `Mozilla/5.0`), extracts, makes a venv, and
+`pip install -e .`. Then run `vibelock ui`.
+
+Or tap **Download** / **One-click install** on the Worker homepage
+(a 6th-grader can tap it):
+https://vibelock-download-tracker.vibelock.workers.dev/
+
+## Counted download (Cloudflare Worker)
+
+**This is the counted download.** GitHub releases exist as a mirror.
+The Worker serves the gzip itself (HTTP 200, no 302 to GitHub).
+
+# → [https://vibelock-download-tracker.vibelock.workers.dev/](https://vibelock-download-tracker.vibelock.workers.dev/) ←
+
+Direct tarball (also counted):
+[vibelock-0.2.0.tar.gz](https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.2.0.tar.gz)
+
+- Live count JSON: [https://vibelock-download-tracker.vibelock.workers.dev/stats](https://vibelock-download-tracker.vibelock.workers.dev/stats)
+- OpenAPI: [https://vibelock-download-tracker.vibelock.workers.dev/openapi.json](https://vibelock-download-tracker.vibelock.workers.dev/openapi.json)
+- Skill: [https://vibelock-download-tracker.vibelock.workers.dev/v1/skill](https://vibelock-download-tracker.vibelock.workers.dev/v1/skill)
+- One-click install: [https://vibelock-download-tracker.vibelock.workers.dev/install.sh](https://vibelock-download-tracker.vibelock.workers.dev/install.sh)
+- GitHub: [https://github.com/AzielEliab/vibelock](https://github.com/AzielEliab/vibelock)
+
+- DOI: [10.5281/zenodo.21431610](https://doi.org/10.5281/zenodo.21431610)
+- Zenodo: [https://zenodo.org/records/21431610](https://zenodo.org/records/21431610)
+
+Isolated counter: Worker `vibelock-download-tracker`, KV `VIBELOCK_DOWNLOADS`. Not mixed with any other product. `/v1` does not increment downloads.
+
+
 ## Quick start
 
 1. Install: `python -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"`
