@@ -179,13 +179,19 @@ def check_buzz(audio: np.ndarray, sr: int) -> CheckResult:
 
 
 def analyze_audio(audio: np.ndarray, sr: int) -> list[CheckResult]:
-    """Run the audio-only forensic battery."""
+    """Run the audio-only forensic battery, including pitch / phase-shift."""
+    from vibelock.pitch import check_phase_shift, check_pitch
+
     audio = dsp.as_mono_float(audio)
-    return [
+    checks = [
         check_spectral(audio, sr),
         check_phase_continuity(audio, sr),
         check_formant(audio, sr),
         check_decay(audio, sr),
         check_temporal(audio, sr),
         check_buzz(audio, sr),
+        check_pitch(audio, sr),
     ]
+    # Extra STFT phase-vocoder evidence, averaged into phase_continuity.
+    checks.append(check_phase_shift(audio, sr))
+    return checks

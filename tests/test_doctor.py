@@ -33,12 +33,14 @@ def test_doctor_verify_json(capsys) -> None:
     assert rc == 0
     payload = json.loads(captured.out)
     assert payload["ok"] is True
-    assert payload["version"] == "0.2.0"
+    assert payload["version"] == "0.3.0"
     assert payload["telemetry"] is False
     assert payload["courtroom_proof"] is False
     names = {c["name"] for c in payload["checks"]}
     assert "verify" in names
     assert "wav_roundtrip" in names
+    assert "png_roundtrip" in names
+    assert "vision" in names
     assert "reject_non_audio" in names
     assert "truncated" in names
     assert all(c["ok"] for c in payload["checks"])

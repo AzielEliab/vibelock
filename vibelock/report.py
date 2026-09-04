@@ -12,12 +12,14 @@ from vibelock import __version__
 from vibelock.scoring import AnalysisResult, format_human
 
 LIMITATION = (
-    "This is an audio authenticity advisory, not courtroom proof."
+    "This is a media authenticity advisory (audio, image, and video), not courtroom proof."
 )
 PLAIN_CONSISTENT = "This recording looks consistent with a real voice."
 PLAIN_INCONSISTENT = (
     "This recording looks inconsistent — it might not match a real voice."
 )
+PLAIN_MEDIA_OK = "This media looks consistent with a real camera or microphone."
+PLAIN_MEDIA_FAKE = "This media looks altered — it might be a deepfake."
 CONSISTENT_THRESHOLD = 0.5
 PRODUCT = "vibelock"
 
@@ -27,7 +29,9 @@ def kid_plain(score: float) -> str:
     return "consistent" if float(score) >= CONSISTENT_THRESHOLD else "inconsistent"
 
 
-def kid_sentence(score: float) -> str:
+def kid_sentence(score: float, mode: str = "audio_only") -> str:
+    if mode in {"image", "video", "av"}:
+        return PLAIN_MEDIA_OK if float(score) >= CONSISTENT_THRESHOLD else PLAIN_MEDIA_FAKE
     return PLAIN_CONSISTENT if kid_plain(score) == "consistent" else PLAIN_INCONSISTENT
 
 
@@ -54,7 +58,10 @@ def build_report(
             "advisory": True,
             "courtroom_proof": False,
             "plain": kid_plain(result.score),
-            "plain_sentence": kid_sentence(result.score),
+            "plain_sentence": kid_sentence(result.score, result.mode),
+            "verdict": result.verdict or result.to_dict().get("verdict"),
+            "signals": list(result.signals),
+            "engine": "deepfake",
             "hashes": hashes,
             "filename": filename,
             "telemetry": False,
@@ -76,11 +83,13 @@ def format_report(report: Mapping[str, Any]) -> str:
         str(report.get("plain_sentence") or kid_sentence(float(report.get("score") or 0))),
         f"Limitation: {report.get('limitation') or LIMITATION}",
     ]
-    resultish = report
-    # format_human wants an AnalysisResult; rebuild a short header then checks.
     score = float(report.get("score") or 0.0)
     lines.append(f"VibeLock authenticity score: {score:.3f}")
+    if report.get("verdict"):
+        lines.append(f"Verdict: {report.get('verdict')}")
     lines.append(f"Mode: {report.get('mode')}")
+    if report.get("signals"):
+        lines.append("Signals: " + ", ".join(report.get("signals") or []))
     codes = report.get("reason_codes") or []
     lines.append("Reason codes: " + (", ".join(codes) if codes else "(none)"))
     hashes = report.get("hashes") or {}

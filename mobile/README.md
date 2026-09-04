@@ -2,10 +2,12 @@
 
 Local-first Flutter client for VibeLock. Record from the microphone,
 score with time-domain energy and zero-crossing heuristics, show a
-score and reason-code placeholders.
+score and reason-code placeholders. Desktop `vibelock detect` is the
+full A/V deepfake engine (physics + image/video + pitch/phase).
 
-**Audio authenticity advisory, not courtroom proof.** Dual-channel vibration
-lives on the desktop package. Offline. No analytics. No STT.
+**Media authenticity advisory, not courtroom proof.** Dual-channel
+vibration and spatial/temporal detectors live on the desktop package.
+Offline. No analytics. No STT.
 
 Application id: `com.azieeliab.vibelock`
 
@@ -36,7 +38,8 @@ GitHub: https://github.com/AzielEliab/vibelock
 **Forks are welcome and always allowed.**
 
 
-## 0.2.0
+## 0.3.0
 
-Giant **Add file** (WAV) and **Export JSON report** (hashes, scores, limitation).
+Desktop engine: physics + A/V deepfake detection (PNG/PPM/VLVD + WAV).
+Giant **Add file**, **Sample photo**, **Sample deepfake**, **Export JSON report**.
 Simple / Advanced views. Kid-plain consistent / inconsistent.

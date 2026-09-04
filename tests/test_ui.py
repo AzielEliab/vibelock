@@ -78,6 +78,8 @@ def test_ui_root_has_add_file_and_views() -> None:
             assert b"Simple" in body
             assert b"Advanced" in body
             assert b"Sample tone" in body
+            assert b"Sample photo" in body
+            assert b"Sample deepfake" in body
             assert b"courtroom" in body
             assert b"consistent" in body
     finally:
@@ -98,6 +100,29 @@ def test_ui_capabilities() -> None:
             assert "wav" in payload["formats"]
             assert payload["courtroom_proof"] is False
             assert "courtroom" in payload["limitation"]
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+        thread.join(timeout=2)
+
+
+def test_ui_photo_and_deepfake() -> None:
+    httpd, thread = _start()
+    try:
+        port = httpd.server_address[1]
+        for path, flag in (("/api/photo", "sample_photo"), ("/api/deepfake", "sample_deepfake")):
+            req = urllib.request.Request(
+                f"http://127.0.0.1:{port}{path}",
+                data=b"{}",
+                headers={"Content-Type": "application/json"},
+                method="POST",
+            )
+            with urllib.request.urlopen(req, timeout=45) as res:
+                payload = json.loads(res.read().decode("utf-8"))
+                assert res.status == 200
+                assert 0.0 <= payload["score"] <= 1.0
+                assert payload[flag] is True
+                assert "courtroom" in payload["limitation"]
     finally:
         httpd.shutdown()
         httpd.server_close()

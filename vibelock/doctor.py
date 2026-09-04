@@ -25,8 +25,10 @@ from vibelock.io import (
     write_wav,
 )
 from vibelock.report import LIMITATION, build_report
+from vibelock.media import decode_png, encode_png
 from vibelock.scoring import analyze
 from vibelock.synth import make_pair
+from vibelock.synth_media import authentic_image, deepfake_image
 from vibelock.ui import LOOPBACK, Handler
 
 TELEMETRY = False
@@ -158,6 +160,28 @@ def _check_verify(tmp: Path) -> dict[str, Any]:
     )
 
 
+def _check_png(tmp: Path) -> dict[str, Any]:
+    img = authentic_image(48, 48, seed=3)
+    raw = encode_png(img)
+    path = tmp / "roundtrip.png"
+    path.write_bytes(raw)
+    got = decode_png(path.read_bytes())
+    if got.shape != img.shape:
+        return _bad("png_roundtrip", f"shape {got.shape} != {img.shape}")
+    err = float(np.mean(np.abs(got - img)))
+    if err > 0.02:
+        return _bad("png_roundtrip", f"mae {err:.4f} > 0.02")
+    return _ok("png_roundtrip", f"mae={err:.4f}")
+
+
+def _check_vision() -> dict[str, Any]:
+    good = analyze(image=authentic_image(64, 64, seed=2))
+    bad = analyze(image=deepfake_image(64, 64, seed=8))
+    if good.score <= bad.score:
+        return _bad("vision", f"authentic {good.score:.3f} <= deepfake {bad.score:.3f}")
+    return _ok("vision", f"authentic={good.score:.3f} deepfake={bad.score:.3f}")
+
+
 def run(*, verify: bool = False) -> dict[str, Any]:
     """Run doctor checks. Never talks to the network."""
     dlog(f"doctor start verify={verify} debug={debug_on()}")
@@ -175,6 +199,8 @@ def run(*, verify: bool = False) -> dict[str, Any]:
         tmp = Path(raw)
         checks.append(_check_roundtrip(tmp))
         checks.extend(_check_hardening(tmp))
+        checks.append(_check_png(tmp))
+        checks.append(_check_vision())
         if verify:
             checks.append(_check_verify(tmp))
     ok = all(bool(c.get("ok")) for c in checks)

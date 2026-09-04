@@ -42,7 +42,7 @@ then, the `workers.dev` subdomain wrangler prints is enough.
 | Method | Path | Behavior |
 |--------|------|----------|
 | GET | `/` | Index page with the GitHub Releases link |
-| GET | `/download?repo=&tag=&asset=` | Increment KV, **200 gzip** from Worker ASSETS (`vibelock-0.2.0.tar.gz`). Not a 302 to GitHub. |
+| GET | `/download?repo=&tag=&asset=` | Increment KV, **200 gzip** from Worker ASSETS (`vibelock-0.3.0.tar.gz`). Not a 302 to GitHub. |
 | GET | `/stats` | JSON totals plus per-repo and per-branch breakdown |
 | POST | `/event` | A fork reports a download |
 
@@ -58,7 +58,7 @@ https://github.com/AzielEliab/vibelock/releases/latest
 Tracked asset URL (after deploy):
 
 ```
-https://downloads.vibelock.dev/download?repo=AzielEliab/vibelock&tag=latest&asset=vibelock-0.2.0.tar.gz
+https://downloads.vibelock.dev/download?repo=AzielEliab/vibelock&tag=latest&asset=vibelock-0.3.0.tar.gz
 ```
 
 A fork reports its own download:
@@ -69,7 +69,7 @@ curl -X POST https://downloads.vibelock.dev/event   -H "content-type: applicatio
     "repo": "vibelock",
     "branch": "main",
     "fork": "1",
-    "asset": "vibelock-0.2.0.tar.gz"
+    "asset": "vibelock-0.3.0.tar.gz"
   }'
 ```
 
@@ -92,6 +92,9 @@ This Worker also hosts the product runtime API (CORS `*`). `/v1` routes do **not
 | Method | Path | Notes |
 |--------|------|-------|
 | GET | `/v1/health` | Liveness |
+| GET | `/v1/skill` | Live SKILL.md |
+| POST | `/v1/analyze` | Advisory multi-signal score (features / limited PCM / visual / pitch / A/V) |
+| POST | `/v1/detect` | Same engine; deepfake-oriented body |
 | GET | `/openapi.json` | OpenAPI 3.1 |
 | GET | `/ai` | ChatGPT Actions, Grok/xAI tools, Venice HTTP tools; MCP catalog |
 

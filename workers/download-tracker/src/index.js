@@ -5,7 +5,7 @@ import { handleRuntime } from "./runtime.js";
  *
  * GET  /download?repo=AzielEliab/vibelock&tag=latest&asset=...
  *      increments KV, 200 gzip from Worker ASSETS (not a 302 to GitHub)
- *      default asset vibelock-0.2.0.tar.gz
+ *      default asset vibelock-0.3.0.tar.gz
  * GET  /stats   JSON totals + per-repo + per-branch breakdown
  * POST /event   forks report a download {owner,repo,branch,fork,asset}
  *
@@ -14,7 +14,7 @@ import { handleRuntime } from "./runtime.js";
  */
 
 const PROJECT = "vibelock";
-const DEFAULT_ASSET = "vibelock-0.2.0.tar.gz";
+const DEFAULT_ASSET = "vibelock-0.3.0.tar.gz";
 const DEFAULT_OWNER = "AzielEliab";
 const DEFAULT_REPO = "vibelock";
 const DEFAULT_BRANCH = "main";
@@ -304,8 +304,8 @@ async function indexHtml(env) {
 </style>
 <body>
   <h1>VibeLock</h1>
-  <p class="motto">Sound can be forged. Physics is harder to fake. Author Aziel Eliab.</p>
-  <p class="banner">Physical-consistency evaluation of speech audio. Risk assessment, not a liveness proof. Hosted is not a live mic. Not courtroom audio proof. Author: Aziel Eliab.</p>
+  <p class="motto">Sound can be forged. Pixels can be forged. Physics is harder to fake. Author Aziel Eliab.</p>
+  <p class="banner">Physics + A/V deepfake detection (audio, image, video, talking-head sync). Risk assessment, not a liveness proof. Hosted is not a live mic. Not courtroom proof. Author: Aziel Eliab.</p>
   <div class="card">
     <div class="nums">
       <p class="count">${v}<span>Views</span></p>

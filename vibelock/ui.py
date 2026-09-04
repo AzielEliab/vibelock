@@ -20,8 +20,10 @@ from vibelock.io import (
     sha256_bytes,
     supported_suffixes,
 )
+from vibelock.media import MediaError, decode_image_bytes, decode_video_bytes
 from vibelock.report import LIMITATION, build_report, kid_plain, kid_sentence
 from vibelock.synth import make_pair, sample_tone
+from vibelock.synth_media import authentic_image, deepfake_av
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8760
@@ -111,23 +113,25 @@ PAGE = r"""<!DOCTYPE html>
 <body>
 <main>
   <header>
-    <p class="mark">Aziel Eliab · July 2026</p>
+    <p class="mark">Aziel Eliab · September 2026</p>
     <h1>VibeLock</h1>
-    <p class="motto">Sound can be forged. Physics is harder to fake.</p>
+    <p class="motto">Sound can be forged. Pixels can be forged. Physics is harder to fake.</p>
     <span class="local">localhost · 127.0.0.1 · never uploaded · no telemetry</span>
-    <p class="limit">This is an audio authenticity advisory, not courtroom proof.</p>
+    <p class="limit">This is a media authenticity advisory (audio, image, and video), not courtroom proof.</p>
   </header>
 
   <section class="card">
-    <h2>Add a recording</h2>
-    <p class="help">Tap the giant button. Your file stays on this computer. Nothing is sent to the internet.</p>
-    <input id="air" class="sr-only" type="file" accept=".wav,audio/wav">
+    <h2>Add media</h2>
+    <p class="help">Tap the giant button. Audio, a photo, or a frame stack. Your file stays on this computer. Nothing is sent to the internet.</p>
+    <input id="air" class="sr-only" type="file" accept=".wav,.png,.ppm,audio/wav,image/png">
     <button class="addfile" id="add" type="button">Add file</button>
-    <p class="help" id="formats">WAV files</p>
+    <p class="help" id="formats">WAV / PNG / PPM</p>
     <label class="adv-only hidden">Vibration WAV (optional)</label>
     <input id="vib" class="adv-only hidden" type="file" accept=".wav,audio/wav">
     <div class="row">
       <button class="ghost" id="tone" type="button">Sample tone</button>
+      <button class="ghost" id="photo" type="button">Sample photo</button>
+      <button class="ghost" id="fake" type="button">Sample deepfake</button>
       <button class="ghost adv-only hidden" id="synth" type="button">Generate synthetic pair</button>
     </div>
   </section>
@@ -210,7 +214,8 @@ PAGE = r"""<!DOCTYPE html>
       : "This recording looks inconsistent — it might not match a real voice.");
     $("plain").textContent = plain;
     $("plain").className = "plain " + ((data.plain === "consistent") ? "ok" : "bad");
-    $("limit-again").textContent = data.limitation || "This is an audio authenticity advisory, not courtroom proof.";
+    $("limit-again").textContent = data.limitation || "This is a media authenticity advisory (audio, image, and video), not courtroom proof.";
+    if (data.verdict) $("mode").textContent = (data.mode || "") + " · " + data.verdict;
     const codes = data.reason_codes || [];
     const box = $("codes");
     box.innerHTML = "";
@@ -260,10 +265,15 @@ PAGE = r"""<!DOCTYPE html>
   }
 
   async function runFile(file) {
-    if (!file) { fail("Add a file first. WAV is always ok."); return; }
+    if (!file) { fail("Add a file first. WAV, PNG, or PPM is always ok."); return; }
     $("add").disabled = true;
     try {
-      const payload = { audio_b64: await b64(file), filename: file.name };
+      const name = String(file.name || "").toLowerCase();
+      const blob = await b64(file);
+      const payload = { filename: file.name };
+      if (name.endsWith(".vlvd") || name.endsWith(".npy")) payload.frames_b64 = blob;
+      else if (name.endsWith(".png") || name.endsWith(".ppm") || name.endsWith(".pgm") || name.endsWith(".jpg") || name.endsWith(".jpeg")) payload.image_b64 = blob;
+      else payload.audio_b64 = blob;
       const vib = $("vib").files[0];
       if (vib) payload.vibration_b64 = await b64(vib);
       show(await post("/api/analyze", payload));
@@ -298,6 +308,18 @@ PAGE = r"""<!DOCTYPE html>
     try { show(await post("/api/tone", {})); }
     catch (e) { fail(String(e.message || e)); }
     finally { $("tone").disabled = false; }
+  };
+  $("photo").onclick = async () => {
+    $("photo").disabled = true;
+    try { show(await post("/api/photo", {})); }
+    catch (e) { fail(String(e.message || e)); }
+    finally { $("photo").disabled = false; }
+  };
+  $("fake").onclick = async () => {
+    $("fake").disabled = true;
+    try { show(await post("/api/deepfake", {})); }
+    catch (e) { fail(String(e.message || e)); }
+    finally { $("fake").disabled = false; }
   };
   $("synth").onclick = async () => {
     $("synth").disabled = true;
@@ -336,8 +358,10 @@ def capabilities() -> dict[str, Any]:
         "ok": True,
         "product": "vibelock",
         "version": __version__,
-        "formats": [s.lstrip(".") for s in suffixes],
-        "accept": accept_attr(),
+        "formats": [s.lstrip(".") for s in suffixes] + ["png", "ppm", "vlvd"],
+        "accept": accept_attr() + ",.png,image/png,.ppm,.vlvd",
+        "engine": "deepfake",
+        "signals": ["audio", "spatial", "temporal", "av_sync", "physics"],
         "max_bytes": MAX_BODY,
         "limitation": LIMITATION,
         "loopback": True,
@@ -417,33 +441,62 @@ class Handler(BaseHTTPRequestHandler):
                 dlog(f"tone score={result.score:.3f} plain={kid_plain(result.score)}")
                 self._json(200, payload)
                 return
+            if path == "/api/photo":
+                img = authentic_image(96, 96, seed=20260904)
+                result = analyze(image=img)
+                payload = build_report(result, filename="sample-photo.png", extra={"sample_photo": True})
+                dlog(f"photo score={result.score:.3f} plain={kid_plain(result.score)}")
+                self._json(200, payload)
+                return
+            if path == "/api/deepfake":
+                clip = deepfake_av(duration_s=0.40, sr=16000, fps=25.0, seed=20260904)
+                result = analyze(clip.audio, clip.sr, frames=clip.frames, fps=clip.fps)
+                payload = build_report(result, filename="sample-deepfake.vlvd", extra={"sample_deepfake": True})
+                dlog(f"deepfake score={result.score:.3f} plain={kid_plain(result.score)}")
+                self._json(200, payload)
+                return
             if path == "/api/analyze":
                 body = self._read_json()
-                audio_b64 = body.get("audio_b64")
-                if not audio_b64:
-                    self._json(400, {"error": "Add a file first."})
-                    return
-                filename = str(body.get("filename") or "audio.wav")
-                audio, sr, digest = _decode_field(str(audio_b64), filename)
+                filename = str(body.get("filename") or "media")
+                audio = None
+                sr = 0
+                digest = None
                 vibration = None
                 vib_hash = None
-                if body.get("vibration_b64"):
-                    vib, vsr, vib_hash = _decode_field(str(body["vibration_b64"]), str(body.get("vibration_name") or "vib.wav"))
-                    if vsr != sr:
-                        vib = resample(vib, vsr, sr)
-                    n = min(audio.size, vib.size)
-                    audio, vibration = audio[:n], vib[:n]
-                result = analyze(audio, sr, vibration=vibration)
+                image = None
+                frames = None
+                fps = float(body.get("fps") or 0.0)
+                if body.get("audio_b64"):
+                    audio, sr, digest = _decode_field(str(body["audio_b64"]), filename)
+                    if body.get("vibration_b64"):
+                        vib, vsr, vib_hash = _decode_field(str(body["vibration_b64"]), str(body.get("vibration_name") or "vib.wav"))
+                        if vsr != sr:
+                            vib = resample(vib, vsr, sr)
+                        n = min(audio.size, vib.size)
+                        audio, vibration = audio[:n], vib[:n]
+                if body.get("image_b64"):
+                    raw = _b64_to_bytes(str(body["image_b64"]))
+                    image = decode_image_bytes(raw, name=filename)
+                    digest = digest or sha256_bytes(raw)
+                if body.get("frames_b64"):
+                    raw = _b64_to_bytes(str(body["frames_b64"]))
+                    frames, file_fps = decode_video_bytes(raw, name=filename)
+                    fps = fps or file_fps
+                    digest = digest or sha256_bytes(raw)
+                if audio is None and image is None and frames is None:
+                    self._json(400, {"error": "Add a file first."})
+                    return
+                result = analyze(audio, sr or None, vibration=vibration, image=image, frames=frames, fps=fps or None)
                 payload = build_report(
                     result,
                     sha256=digest,
                     sha256_vibration=vib_hash,
                     filename=filename,
                 )
-                dlog(f"analyze {filename} score={result.score:.3f} sha256={digest[:12]}")
+                dlog(f"analyze {filename} score={result.score:.3f}")
                 self._json(200, payload)
                 return
-        except AudioError as exc:
+        except (AudioError, MediaError) as exc:
             self._json(400, {"error": str(exc), "limitation": LIMITATION})
             return
         except Exception as exc:  # noqa: BLE001 — never crash the UI process

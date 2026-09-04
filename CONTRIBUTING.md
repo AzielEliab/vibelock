@@ -39,6 +39,11 @@ Python 3.10+, numpy, scipy, pytest. No hardware. Fixtures in
 
 - Dual-channel checks: `vibelock/dual_channel.py`
 - Audio-only checks: `vibelock/forensic.py`
+- Pitch / phase-shift: `vibelock/pitch.py`
+- Spatial image: `vibelock/vision.py`
+- Temporal video: `vibelock/temporal.py`
+- Talking-head sync: `vibelock/avsync.py`
+- Image/video I/O: `vibelock/media.py`
 - Shared DSP: `vibelock/dsp.py`
 - Reason codes / scoring: `vibelock/scoring.py`
 - New checks need a synthetic fixture that moves the score in the
