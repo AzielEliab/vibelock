@@ -25,10 +25,20 @@ python -m mialock map
 
 Open http://127.0.0.1:8765/
 
+Use **Search mode** for:
+
+- `archives` — old newspapers, library digital collections, publishing
+- `doe_cold` — John Doe / Jane Doe / unidentified remains
+- `cold_missing` — long-term missing + archives + Doe cross-match
+
 ```bash
 python -m mialock people
-python -m mialock geojson subj-christina-demo -o /tmp/christina.geojson
+python -m mialock search-options
+python -m mialock queries doe_cold --name "Elena Vargas" --jurisdiction Illinois --age-band 20-30 --sex female
+python -m mialock geojson subj-elena-cold-demo --mode doe_cold
 ```
+
+See [cold-case-archives.md](cold-case-archives.md).
 
 ## Data shape
 

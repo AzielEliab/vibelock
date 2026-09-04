@@ -130,13 +130,19 @@ class PersonCase:
     subject_id: str
     display_name: str
     summary: str = ""
+    case_kind: str = "active"
     pins: list[EventPin] = field(default_factory=list)
 
     def sorted_pins(self) -> list[EventPin]:
         return sorted(self.pins, key=lambda p: p.start_at)
 
-    def to_geojson(self) -> dict[str, Any]:
-        pins = self.sorted_pins()
+    def pins_for_mode(self, mode_id: str = "all") -> list[EventPin]:
+        from mialock.search_options import filter_pins_by_mode
+
+        return filter_pins_by_mode(self.sorted_pins(), mode_id)
+
+    def to_geojson(self, mode_id: str = "all") -> dict[str, Any]:
+        pins = self.pins_for_mode(mode_id)
         features = [p.to_map_feature() for p in pins]
         line_coords = [[p.lon, p.lat] for p in pins if p.verification_state != "rejected"]
         if len(line_coords) >= 2:
@@ -157,6 +163,8 @@ class PersonCase:
                 "subject_id": self.subject_id,
                 "display_name": self.display_name,
                 "summary": self.summary,
+                "case_kind": self.case_kind,
+                "search_mode": mode_id,
                 "pin_count": len(pins),
                 "boundary": "Historical documented events. Not live tracking.",
             },
@@ -168,6 +176,7 @@ class PersonCase:
             "subject_id": self.subject_id,
             "display_name": self.display_name,
             "summary": self.summary,
+            "case_kind": self.case_kind,
             "pins": [asdict(p) | {
                 "start_at": p.start_at.isoformat(),
                 "end_at": p.end_at.isoformat() if p.end_at else None,
@@ -187,6 +196,7 @@ class PersonCase:
             subject_id=subject_id,
             display_name=str(raw.get("display_name") or subject_id),
             summary=str(raw.get("summary") or ""),
+            case_kind=str(raw.get("case_kind") or "active"),
             pins=pins,
         )
 
@@ -209,6 +219,7 @@ def casebook_index(cases: Iterable[PersonCase]) -> dict[str, Any]:
                 "subject_id": c.subject_id,
                 "display_name": c.display_name,
                 "summary": c.summary,
+                "case_kind": c.case_kind,
                 "pin_count": len(c.pins),
                 "span": {
                     "start": c.sorted_pins()[0].start_at.isoformat() if c.pins else None,

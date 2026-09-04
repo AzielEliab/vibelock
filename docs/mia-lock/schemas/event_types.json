@@ -2,8 +2,8 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://azieleliab.example/mia-lock/event_types.json",
   "title": "M.I.A.Lock Event Types",
-  "description": "Event classes and subject roles the evidence normalizer must represent for missing-person discovery across registries, arrests, crimes, homicides, courts, and obituaries.",
-  "version": "1.1.0",
+  "description": "Event classes for missing-person discovery including archives, cold cases, and John/Jane Doe unidentified notices.",
+  "version": "1.2.0",
   "definitions": {
     "event_class": {
       "type": "string",
@@ -11,6 +11,10 @@
         "missing_person_notice",
         "missing_person_update",
         "unidentified_remains",
+        "john_doe_notice",
+        "jane_doe_notice",
+        "cold_case_unidentified",
+        "cold_case_missing",
         "found_person_notice",
         "arrest",
         "booking",
@@ -32,11 +36,18 @@
         "obituary",
         "death_notice",
         "funeral_notice",
+        "archive_obituary",
         "vital_death_index",
         "medical_examiner_case",
         "news_missing_report",
         "news_crime_report",
         "news_identification",
+        "newspaper_archive_hit",
+        "historical_publication",
+        "periodical_clipping",
+        "library_digital_collection",
+        "archive_missing_report",
+        "archive_crime_report",
         "discovery_lead"
       ]
     },
@@ -48,6 +59,7 @@
         "suspect_mention",
         "witness_mention",
         "decedent",
+        "unidentified",
         "unspecified"
       ]
     },
@@ -64,6 +76,8 @@
         "service",
         "last_seen",
         "reported_missing",
+        "discovered",
+        "estimated_death",
         "retrieval",
         "unknown"
       ]
@@ -75,8 +89,13 @@
         "authorized_institutional",
         "independent_reporting",
         "death_remembrance",
+        "archive",
         "discovery"
       ]
+    },
+    "search_mode": {
+      "type": "string",
+      "enum": ["active", "archives", "doe_cold", "cold_missing", "all"]
     }
   },
   "event_class_groups": {
@@ -84,6 +103,10 @@
       "missing_person_notice",
       "missing_person_update",
       "unidentified_remains",
+      "john_doe_notice",
+      "jane_doe_notice",
+      "cold_case_unidentified",
+      "cold_case_missing",
       "found_person_notice"
     ],
     "arrest_booking_custody": [
@@ -113,8 +136,18 @@
       "obituary",
       "death_notice",
       "funeral_notice",
+      "archive_obituary",
       "vital_death_index",
       "medical_examiner_case"
+    ],
+    "archives_and_publishing": [
+      "newspaper_archive_hit",
+      "historical_publication",
+      "periodical_clipping",
+      "library_digital_collection",
+      "archive_missing_report",
+      "archive_crime_report",
+      "archive_obituary"
     ],
     "news_and_discovery": [
       "news_missing_report",
@@ -129,6 +162,21 @@
     "court_filing",
     "obituary",
     "news_crime_report",
+    "newspaper_archive_hit",
+    "jane_doe_notice",
+    "john_doe_notice",
+    "unidentified_remains",
     "discovery_lead"
+  ],
+  "cold_case_required_event_classes": [
+    "cold_case_missing",
+    "cold_case_unidentified",
+    "john_doe_notice",
+    "jane_doe_notice",
+    "unidentified_remains",
+    "newspaper_archive_hit",
+    "library_digital_collection",
+    "archive_missing_report",
+    "archive_crime_report"
   ]
 }

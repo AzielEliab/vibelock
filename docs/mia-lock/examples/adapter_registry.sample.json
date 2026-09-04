@@ -144,5 +144,64 @@
       "max_requests_per_minute": 30
     },
     "coverage_notes": "Often nameless; useful for jurisdiction-time scaffolding when names appear."
+  },
+  {
+    "source_id": "adapter.archive.newspaper_backfiles",
+    "name": "Historical newspaper / library digital archives",
+    "tier": "archive",
+    "event_classes": [
+      "newspaper_archive_hit",
+      "library_digital_collection",
+      "archive_missing_report",
+      "archive_crime_report",
+      "archive_obituary",
+      "periodical_clipping"
+    ],
+    "jurisdictions": ["US"],
+    "confirmation_capable": false,
+    "access_basis": "public",
+    "rate_limit_policy": {
+      "respect_robots": true,
+      "max_requests_per_minute": 8,
+      "notes": "Prefer licensed APIs / library terms; publication date ≠ event date."
+    },
+    "coverage_notes": "OCR backfiles; cold-case and publishing search option."
+  },
+  {
+    "source_id": "adapter.archive.publishing_periodicals",
+    "name": "Periodicals / gazettes / historical publishing",
+    "tier": "archive",
+    "event_classes": [
+      "historical_publication",
+      "periodical_clipping"
+    ],
+    "jurisdictions": ["US"],
+    "confirmation_capable": false,
+    "access_basis": "public",
+    "rate_limit_policy": {
+      "respect_robots": true,
+      "max_requests_per_minute": 6
+    }
+  },
+  {
+    "source_id": "adapter.doe.unidentified_cold",
+    "name": "John/Jane Doe + unidentified cold-case listings",
+    "tier": "authoritative_public",
+    "event_classes": [
+      "john_doe_notice",
+      "jane_doe_notice",
+      "unidentified_remains",
+      "cold_case_unidentified",
+      "medical_examiner_case",
+      "cold_case_missing"
+    ],
+    "jurisdictions": ["US"],
+    "confirmation_capable": true,
+    "access_basis": "public",
+    "rate_limit_policy": {
+      "respect_robots": true,
+      "max_requests_per_minute": 6
+    },
+    "coverage_notes": "Compatibility leads only — never auto-identify a named subject as a Doe."
   }
 ]

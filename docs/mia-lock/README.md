@@ -14,6 +14,7 @@ This folder holds the concept and software design for M.I.A.Lock. It is **design
 | [whitepaper.md](whitepaper.md) | Concept + software design (v1.1) |
 | [source-catalog.md](source-catalog.md) | Lawful source classes: missing persons, homicides, arrests, courts, obituaries, and related public records |
 | [map.md](map.md) | Per-person event map (date × time × event × duration pins) |
+| [cold-case-archives.md](cold-case-archives.md) | Old newspapers / publishing archives + John/Jane Doe cold-case options |
 | [schemas/](schemas/) | Machine-readable event types and adapter contracts |
 | [examples/](examples/) | Worked candidate report and query families |
 

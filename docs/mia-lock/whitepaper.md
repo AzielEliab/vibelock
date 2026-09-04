@@ -447,6 +447,12 @@ infer a person's current location from a historical record.
 visual weight (e.g. multi-day custody vs instant discovery lead). Chronology
 paths follow documented order only.
 
+**Cold-case / archive search modes:** operators can switch to `archives`
+(old newspapers, library digital collections, publishing), `doe_cold`
+(John Doe / Jane Doe / unidentified remains), or `cold_missing` (long-horizon
+missing + archives + Doe cross-match). See [cold-case-archives.md](cold-case-archives.md).
+Doe hits are compatibility leads only — never auto-identification.
+
 **TrajectoryLock (optional):** geometric consistency checks apply only to
 *verified* event nodes. No extrapolated travel paths between UNKNOWN gaps.
 

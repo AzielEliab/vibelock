@@ -15,6 +15,7 @@ from typing import Any
 from urllib.parse import parse_qs, urlparse
 
 from mialock.models import PersonCase, casebook_index, load_casebook
+from mialock.search_options import list_search_modes, render_queries
 
 DEFAULT_HOST = "127.0.0.1"
 DEFAULT_PORT = 8765
@@ -122,6 +123,27 @@ PAGE = r"""<!DOCTYPE html>
   }
   .timeline .title { margin: 0.15rem 0; font-weight: 600; }
   .timeline .meta { color: var(--muted); font-size: 0.82rem; }
+  .queries { margin: 1.1rem 0 0; }
+  .queries h3 {
+    font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--muted); font-weight: 600; margin: 0 0 0.55rem;
+  }
+  .queries details {
+    border: 1px solid var(--line); border-radius: 8px; padding: 0.45rem 0.55rem;
+    margin: 0 0 0.4rem; background: rgba(255,255,255,0.02);
+  }
+  .queries summary { cursor: pointer; font-weight: 600; font-size: 0.88rem; }
+  .queries pre {
+    white-space: pre-wrap; font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.72rem; color: var(--accent); margin: 0.45rem 0 0;
+  }
+  .queries .note { color: var(--muted); font-size: 0.78rem; margin: 0.35rem 0 0; }
+  .mode-flags { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0 0 0.85rem; }
+  .mode-flags span {
+    font-size: 0.7rem; border: 1px solid var(--line); border-radius: 999px;
+    padding: 0.15rem 0.45rem; color: var(--muted);
+  }
+  .mode-flags span.on { border-color: var(--accent); color: var(--accent); }
   .pin-popup h3 { margin: 0 0 0.35rem; font-size: 1rem; }
   .pin-popup dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 0.2rem 0.65rem; }
   .pin-popup dt { color: #5b7268; font-size: 0.75rem; text-transform: uppercase; }
@@ -148,19 +170,26 @@ PAGE = r"""<!DOCTYPE html>
     <label>Subject
       <select id="person"></select>
     </label>
+    <label>Search mode
+      <select id="mode">
+        <option value="all">All pins</option>
+      </select>
+    </label>
     <button type="button" id="fit">Fit pins</button>
     <button type="button" class="ghost" id="reload">Reload</button>
   </div>
 </header>
 <main>
   <aside class="side">
-    <p class="warn">Historical presence only. UNKNOWN gaps stay unknown. A pin is not an identification.</p>
+    <p class="warn">Historical presence only. Archive publication dates ≠ event dates. Doe hits are compatibility leads — never auto-ID. A pin is not an identification.</p>
     <div class="person-head">
       <h2 id="personName">—</h2>
       <p id="personSummary"></p>
     </div>
+    <div class="mode-flags" id="modeFlags"></div>
     <div class="legend" id="legend"></div>
     <ol class="timeline" id="timeline"></ol>
+    <div class="queries" id="queries"></div>
   </aside>
   <div id="map" role="application" aria-label="Subject event map"></div>
 </main>
@@ -169,6 +198,7 @@ PAGE = r"""<!DOCTYPE html>
 const EVENT_COLORS = {
   missing_person_notice: "#c4a35a",
   missing_person_update: "#c4a35a",
+  cold_case_missing: "#b8923f",
   booking: "#3d9b84",
   arrest: "#2f8f9a",
   custody: "#267a6c",
@@ -184,9 +214,20 @@ const EVENT_COLORS = {
   obituary: "#8b7a9e",
   death_notice: "#8b7a9e",
   funeral_notice: "#8b7a9e",
+  archive_obituary: "#7a6a8e",
   news_crime_report: "#a0895a",
   discovery_lead: "#7a8790",
-  unidentified_remains: "#9a6b6b"
+  unidentified_remains: "#9a6b6b",
+  jane_doe_notice: "#d08a9a",
+  john_doe_notice: "#8a9ad0",
+  cold_case_unidentified: "#a67c7c",
+  newspaper_archive_hit: "#c4b07a",
+  archive_missing_report: "#b8a56e",
+  archive_crime_report: "#a89460",
+  historical_publication: "#9a8b6a",
+  periodical_clipping: "#8f8060",
+  library_digital_collection: "#7e7358",
+  news_identification: "#b09070"
 };
 
 const map = L.map("map", { zoomControl: true, attributionControl: true });
@@ -331,29 +372,95 @@ function drawPerson(geojson) {
   }
 }
 
+async function loadModes() {
+  const data = await fetchJSON("/api/search-options");
+  const select = document.getElementById("mode");
+  const keep = select.value || "all";
+  select.innerHTML = '<option value="all">All pins</option>';
+  (data.modes || []).forEach(m => {
+    const opt = document.createElement("option");
+    opt.value = m.mode_id;
+    const tags = [
+      m.archive ? "archives" : null,
+      m.doe_match ? "Doe" : null,
+      m.cold_case ? "cold" : null
+    ].filter(Boolean).join(", ");
+    opt.textContent = tags ? `${m.title} (${tags})` : m.title;
+    select.appendChild(opt);
+  });
+  select.value = [...select.options].some(o => o.value === keep) ? keep : "all";
+}
+
+function renderModeFlags(payload) {
+  const root = document.getElementById("modeFlags");
+  if (!payload || !payload.mode_id || payload.mode_id === "all") {
+    root.innerHTML = '<span class="on">showing all pins</span>';
+    return;
+  }
+  root.innerHTML = `
+    <span class="on">${payload.title || payload.mode_id}</span>
+    <span class="${payload.archive ? "on" : ""}">archives</span>
+    <span class="${payload.doe_match ? "on" : ""}">John/Jane Doe</span>
+    <span class="${payload.cold_case ? "on" : ""}">cold case</span>`;
+}
+
+function renderQueries(payload) {
+  const root = document.getElementById("queries");
+  if (!payload || !payload.queries || !payload.queries.length) {
+    root.innerHTML = "";
+    return;
+  }
+  const items = payload.queries.map(q => `
+    <details>
+      <summary>${q.title}</summary>
+      <pre>${q.rendered || q.template}</pre>
+      ${q.notes ? `<p class="note">${q.notes}</p>` : ""}
+    </details>`).join("");
+  root.innerHTML = `<h3>Query families — ${payload.title}</h3>${items}
+    <p class="note">${payload.boundary || ""}</p>`;
+}
+
 async function loadPeople() {
+  await loadModes();
   const data = await fetchJSON("/api/people");
   const select = document.getElementById("person");
   select.innerHTML = "";
   data.people.forEach(p => {
     const opt = document.createElement("option");
     opt.value = p.subject_id;
-    opt.textContent = `${p.display_name} (${p.pin_count} pins)`;
+    const kind = p.case_kind && p.case_kind !== "active" ? ` · ${p.case_kind}` : "";
+    opt.textContent = `${p.display_name} (${p.pin_count} pins${kind})`;
     select.appendChild(opt);
   });
   if (data.people.length) {
-    select.value = data.people[0].subject_id;
+    const cold = data.people.find(p => p.case_kind === "cold_missing");
+    select.value = cold ? cold.subject_id : data.people[0].subject_id;
+    if (cold) document.getElementById("mode").value = "cold_missing";
     await loadSelected();
   }
 }
 
 async function loadSelected() {
   const id = document.getElementById("person").value;
-  const geojson = await fetchJSON(`/api/people/${encodeURIComponent(id)}/geojson`);
+  const mode = document.getElementById("mode").value || "all";
+  const geojson = await fetchJSON(
+    `/api/people/${encodeURIComponent(id)}/geojson?mode=${encodeURIComponent(mode)}`
+  );
   drawPerson(geojson);
+  if (mode === "all") {
+    renderModeFlags({ mode_id: "all" });
+    renderQueries(null);
+  } else {
+    const q = await fetchJSON(
+      `/api/people/${encodeURIComponent(id)}/queries?mode=${encodeURIComponent(mode)}`
+    );
+    renderModeFlags(q);
+    renderQueries(q);
+  }
 }
 
 document.getElementById("person").addEventListener("change", loadSelected);
+document.getElementById("mode").addEventListener("change", loadSelected);
 document.getElementById("fit").addEventListener("click", () => {
   const pts = currentFeatures
     .filter(f => f.geometry && f.geometry.type === "Point")
@@ -421,13 +528,47 @@ def make_handler(state: MapState) -> type[BaseHTTPRequestHandler]:
                 self._json(200, casebook_index(state.cases.values()))
                 return
 
+            if path == "/api/search-options":
+                self._json(
+                    200,
+                    {
+                        "boundary": (
+                            "Archive publication dates are not event dates. "
+                            "Doe hits are compatibility leads — never confirmed identity."
+                        ),
+                        "modes": list_search_modes(),
+                    },
+                )
+                return
+
             if path.startswith("/api/people/") and path.endswith("/geojson"):
                 subject_id = path[len("/api/people/") : -len("/geojson")]
                 case = state.cases.get(subject_id)
                 if case is None:
                     self._json(404, {"error": "unknown subject"})
                     return
-                self._json(200, case.to_geojson())
+                mode = parse_qs(parsed.query).get("mode", ["all"])[0]
+                self._json(200, case.to_geojson(mode))
+                return
+
+            if path.startswith("/api/people/") and path.endswith("/queries"):
+                subject_id = path[len("/api/people/") : -len("/queries")]
+                case = state.cases.get(subject_id)
+                if case is None:
+                    self._json(404, {"error": "unknown subject"})
+                    return
+                mode = parse_qs(parsed.query).get("mode", ["active"])[0]
+                if mode == "all":
+                    self._json(200, {"mode_id": "all", "queries": []})
+                    return
+                name = case.display_name.split("(")[0].strip()
+                payload = render_queries(
+                    mode,
+                    name=name,
+                    aliases=name,
+                    jurisdiction=case.pins[0].jurisdiction if case.pins else "US",
+                )
+                self._json(200, payload)
                 return
 
             if path.startswith("/api/people/") and path.endswith("/pins"):

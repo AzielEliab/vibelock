@@ -43,8 +43,14 @@ yet implemented every adapter.
 | --- | --- | --- |
 | `missing_person_notice` | Active or historical missing-person report / poster | Government missing portals, sheriff public missing pages, nonprofit registries with public listings, NamUs public where available |
 | `missing_person_update` | Status change on an existing notice | Same as above |
+| `cold_case_missing` | Long-term / cold missing listing | Cold-case public pages, long-horizon registries |
 | `unidentified_remains` | Unidentified deceased / Doe notices | Medical examiner public Doe pages, NamUs Unidentified, state clearinghouses |
+| `john_doe_notice` | Public unidentified **male** Doe notice | ME / NamUs / agency Doe pages |
+| `jane_doe_notice` | Public unidentified **female** Doe notice | ME / NamUs / agency Doe pages |
+| `cold_case_unidentified` | Explicit cold-case unidentified listing | Cold-case units’ public pages, clearinghouses |
 | `found_person_notice` | Public “located / recovered” notices | Agency public releases |
+
+Doe notices are **compatibility leads only** — never auto-merged to a named subject.
 
 ### 2.2 Arrest, booking, custody
 
@@ -94,18 +100,25 @@ yet implemented every adapter.
 Obituaries are **outcome-class leads**. They require name + age/DOB + geography
 + chronology corroboration; they are not automatic identification.
 
-### 2.6 News and discovery
+### 2.6 News, archives, publishing, and discovery
 
 | Code | Description | Typical sources |
 | --- | --- | --- |
-| `news_missing_report` | News coverage of missing person | Local/regional news |
+| `news_missing_report` | Current news coverage of missing person | Local/regional news |
 | `news_crime_report` | Crime / arrest / court / homicide reporting | Local/regional news, wire |
 | `news_identification` | “Identified as…” remains or victim stories | News + official release cross-check |
+| `newspaper_archive_hit` | Hit in **old newspaper** / backfile OCR | Chronicling America–class corpora, regional archives, licensed newspaper APIs |
+| `historical_publication` | Book, pamphlet, county history, published notice | Library catalogs, digital book archives |
+| `periodical_clipping` | Magazine / gazette / periodical clip | Periodical indexes, police-gazette–style archives |
+| `library_digital_collection` | Library-hosted digital collection item | University / public library digital collections |
+| `archive_missing_report` | Historical missing story in archives | Newspaper archives |
+| `archive_crime_report` | Historical crime / Doe / homicide clip | Newspaper archives |
+| `archive_obituary` | Obituary found in newspaper backfiles | Newspaper archives |
 | `discovery_lead` | Search engine / aggregator / people-index hit | Google/Bing/caches, public people finders, inmate aggregators |
 
 Discovery leads never confirm identity alone. Aggregator inmate/court copies
 collapse into the provenance family of the underlying authoritative record when
-detectable.
+detectable. Archive **publication** dates must not be conflated with event dates.
 
 ---
 
@@ -183,13 +196,37 @@ jurisdiction-time anchors when names appear)
 
 **Emits:** `vital_death_index`
 
-### I. News and archives
+### I. News (current)
 
 - Local news crime / courts / missing desks
-- Newspaper archives and library digital collections
 - Wire stories that cite official releases
 
 **Emits:** `news_missing_report`, `news_crime_report`, `news_identification`, and role-tagged homicide/arrest mentions
+
+### I2. Newspaper archives, libraries, and publishing
+
+- Historical newspaper archives (regional and national backfiles)
+- Library digital newspaper collections (Chronicling America–class and peers)
+- Licensed OCR newspaper APIs / dumps under ToS
+- Periodical and magazine indexes; historical crime gazettes
+- Published pamphlets, county histories, true-crime books (usually discovery tier)
+- Genealogical news-clip mirrors (discovery unless original paper provenance is clear)
+
+**Emits:** `newspaper_archive_hit`, `library_digital_collection`, `periodical_clipping`,
+`historical_publication`, `archive_missing_report`, `archive_crime_report`, `archive_obituary`
+
+See [cold-case-archives.md](cold-case-archives.md).
+
+### I3. Cold-case Doe / unidentified
+
+- NamUs Unidentified (public + authorized professional when held)
+- County medical examiner public Doe / unidentified pages
+- State unidentified / cold-case clearinghouses
+- Agency cold-case public listings
+- Archive clippings describing unidentified remains
+
+**Emits:** `john_doe_notice`, `jane_doe_notice`, `unidentified_remains`,
+`cold_case_unidentified`, `medical_examiner_case`, `news_identification`
 
 ### J. Discovery layer
 
@@ -220,8 +257,9 @@ Never impersonate or bypass.
 | P0 | Court public docket (one state or one large county) | Independent corroboration of booking |
 | P0 | Obituary / death notice (one aggregator or regional papers) | Death-outcome class |
 | P1 | News crime / missing search | Independent reporting + homicide/arrest mentions |
+| P1 | **Newspaper / library archive adapter** | Old publishing + cold-case clips |
+| P1 | **Doe / unidentified (John & Jane)** | Cold-case remains matching options |
 | P1 | DOC inmate locator (state of last known residence) | Longer custody window |
-| P2 | Unidentified remains / ME Doe pages | Remains matching leads |
 | P2 | Open-data crime incidents | Geographic-temporal scaffolding |
 | P2 | Discovery web search | Lead generation only |
 
@@ -262,14 +300,32 @@ window substituted at runtime):
 ("{name}" OR {aliases}) (obituary OR "death notice" OR "passed away" OR funeral) {jurisdiction_or_region}
 ```
 
-**Unidentified remains**
+**Unidentified remains / Doe**
 
 ```
-(unidentified OR "Jane Doe" OR "John Doe") {jurisdiction} ({age_band} OR {sex} OR {date_window})
+(unidentified OR "Jane Doe" OR "John Doe" OR "unknown female" OR "unknown male")
+{jurisdiction} ({age_band} OR {sex} OR {date_window})
+```
+
+**Old newspapers / archives**
+
+```
+("{name}" OR {aliases}) ({year_from}-{year_to} OR {decade})
+(newspaper OR "news archive" OR microfilm OR "digital collection")
+{jurisdiction} (missing OR arrested OR court OR homicide OR unidentified)
+```
+
+**Historical publishing**
+
+```
+("{name}" OR {aliases}) (magazine OR periodical OR gazette OR pamphlet OR yearbook)
+{jurisdiction_or_region}
 ```
 
 After a high-value ID appears, collapse to identifier-centric queries regardless
 of event class.
+
+Full mode definitions: [cold-case-archives.md](cold-case-archives.md).
 
 ---
 
@@ -284,10 +340,13 @@ of event class.
    news without release stays `independent_reporting` / investigate.
 5. **Warrant lists** — only where the agency publishes them for public
    consumption; still not confirmation of identity match without corroboration.
-6. **Unidentified remains** — score as biological/demographic compatibility
-   leads; never auto-merge to subject without authoritative ID process.
-7. **Derivative aggregators** — set `original_or_derivative=derivative` and
-   attempt provenance clustering to the originating jail/court URL when present.
+6. **Unidentified remains / Doe** — score as biological/demographic compatibility
+   leads; never auto-merge to subject without authoritative ID process. Prefer
+   `john_doe_notice` / `jane_doe_notice` when sex is stated on the source.
+7. **Archive publication dates** — store as `publication`; do not treat print day
+   as arrest/death/last-seen unless the article states that event date.
+8. **Derivative aggregators** — set `original_or_derivative=derivative` and
+   attempt provenance clustering to the originating jail/court/paper URL when present.
 
 ---
 

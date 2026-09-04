@@ -78,6 +78,20 @@
           "verification_state": "unverified",
           "source_tier": "independent_reporting",
           "notes": "Low geo confidence; duration unknown (instant pin)."
+        },
+        {
+          "pin_id": "cg-6",
+          "lat": 41.8837,
+          "lon": -87.6289,
+          "start_at": "2019-03-12T00:00:00-05:00",
+          "event_class": "newspaper_archive_hit",
+          "label": "Archived Tribune-style name clip (demo)",
+          "place_name": "Chicago — newspaper archive geo approx",
+          "jurisdiction": "US-IL-COOK",
+          "geo_confidence": 0.3,
+          "verification_state": "unverified",
+          "source_tier": "archive",
+          "notes": "Publication date only; not an event date."
         }
       ]
     },
@@ -141,6 +155,126 @@
           "verification_state": "unverified",
           "source_tier": "death_remembrance",
           "notes": "Outcome-class lead only; not confirmed identity."
+        },
+        {
+          "pin_id": "jh-5",
+          "lat": 43.0389,
+          "lon": -87.9065,
+          "start_at": "1998-06-18T00:00:00-05:00",
+          "event_class": "archive_crime_report",
+          "label": "1998 newspaper crime blotter clip (demo)",
+          "place_name": "Milwaukee — archive clip geo approx",
+          "jurisdiction": "US-WI-MILWAUKEE",
+          "geo_confidence": 0.28,
+          "verification_state": "unverified",
+          "source_tier": "archive",
+          "notes": "Archive publishing hit; publication date typed separately from any crime date."
+        }
+      ]
+    },
+    {
+      "subject_id": "subj-elena-cold-demo",
+      "display_name": "Elena Vargas (cold-case demo)",
+      "summary": "Synthetic cold missing case with Jane Doe compatibility leads and old newspaper archive hits.",
+      "case_kind": "cold_missing",
+      "pins": [
+        {
+          "pin_id": "ev-1",
+          "lat": 41.9742,
+          "lon": -87.9073,
+          "start_at": "1994-09-02T22:15:00-05:00",
+          "end_at": "1994-09-02T23:00:00-05:00",
+          "event_class": "cold_case_missing",
+          "label": "Last seen — O'Hare area (reported 1994)",
+          "place_name": "Chicago O'Hare vicinity (reported)",
+          "jurisdiction": "US-IL-COOK",
+          "geo_confidence": 0.5,
+          "verification_state": "probable",
+          "source_tier": "authoritative_public",
+          "notes": "Long-horizon missing anchor."
+        },
+        {
+          "pin_id": "ev-2",
+          "lat": 41.8781,
+          "lon": -87.6298,
+          "start_at": "1994-09-10T00:00:00-05:00",
+          "event_class": "newspaper_archive_hit",
+          "label": "1994 missing-person newspaper notice",
+          "place_name": "Chicago — historical newspaper archive",
+          "jurisdiction": "US-IL-COOK",
+          "geo_confidence": 0.35,
+          "verification_state": "unverified",
+          "source_tier": "archive",
+          "notes": "Publication date from archive OCR."
+        },
+        {
+          "pin_id": "ev-3",
+          "lat": 41.7508,
+          "lon": -87.7136,
+          "start_at": "1995-04-03T06:40:00-05:00",
+          "end_at": "1995-04-03T18:00:00-05:00",
+          "event_class": "jane_doe_notice",
+          "label": "Jane Doe ME notice (compatibility lead)",
+          "place_name": "Cook County ME — public Doe page (demo geo)",
+          "jurisdiction": "US-IL-COOK",
+          "geo_confidence": 0.65,
+          "verification_state": "unverified",
+          "source_tier": "authoritative_public",
+          "notes": "Age/sex/jurisdiction compatible only — NOT an identification."
+        },
+        {
+          "pin_id": "ev-4",
+          "lat": 41.7508,
+          "lon": -87.7136,
+          "start_at": "1995-04-03T06:40:00-05:00",
+          "event_class": "unidentified_remains",
+          "label": "Unidentified remains clearinghouse entry",
+          "place_name": "Cook County — unidentified listing",
+          "jurisdiction": "US-IL-COOK",
+          "geo_confidence": 0.7,
+          "verification_state": "unverified",
+          "source_tier": "authoritative_public",
+          "notes": "Linked Doe family; still unverified vs subject."
+        },
+        {
+          "pin_id": "ev-5",
+          "lat": 40.1164,
+          "lon": -88.2434,
+          "start_at": "1996-01-20T00:00:00-06:00",
+          "event_class": "library_digital_collection",
+          "label": "University library digital clip",
+          "place_name": "Champaign — library digital collection geo approx",
+          "jurisdiction": "US-IL-CHAMPAIGN",
+          "geo_confidence": 0.22,
+          "verification_state": "unverified",
+          "source_tier": "archive"
+        },
+        {
+          "pin_id": "ev-6",
+          "lat": 41.8819,
+          "lon": -87.6278,
+          "start_at": "2012-11-05T00:00:00-06:00",
+          "event_class": "john_doe_notice",
+          "label": "John Doe notice (rejected — sex mismatch demo)",
+          "place_name": "Chicago — Doe listing",
+          "jurisdiction": "US-IL-COOK",
+          "geo_confidence": 0.4,
+          "verification_state": "rejected",
+          "source_tier": "authoritative_public",
+          "notes": "Shown to illustrate Doe option + contradiction reject."
+        },
+        {
+          "pin_id": "ev-7",
+          "lat": 41.8781,
+          "lon": -87.6298,
+          "start_at": "2018-08-14T00:00:00-05:00",
+          "event_class": "historical_publication",
+          "label": "Cold-case magazine feature mention",
+          "place_name": "Chicago — publishing archive approx",
+          "jurisdiction": "US-IL-COOK",
+          "geo_confidence": 0.2,
+          "verification_state": "unverified",
+          "source_tier": "archive"
         }
       ]
     }
