@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://azieleliab.example/mia-lock/source_adapter.schema.json",
+  "title": "M.I.A.Lock Source Adapter Metadata",
+  "description": "Contract metadata every source adapter must expose so the Query Planner and coverage map know what missing-person-relevant records it can lawfully fetch.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "source_id",
+    "name",
+    "tier",
+    "event_classes",
+    "jurisdictions",
+    "confirmation_capable",
+    "access_basis",
+    "rate_limit_policy"
+  ],
+  "properties": {
+    "source_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "tier": {
+      "$ref": "event_types.json#/definitions/source_tier"
+    },
+    "event_classes": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "event_types.json#/definitions/event_class"
+      },
+      "uniqueItems": true
+    },
+    "jurisdictions": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "description": "ISO-like or free-text jurisdiction codes, e.g. US-IL, US-IL-COOK, US-federal"
+      },
+      "uniqueItems": true
+    },
+    "confirmation_capable": {
+      "type": "boolean",
+      "description": "True only if hits may support verification, not merely discovery leads."
+    },
+    "access_basis": {
+      "type": "string",
+      "enum": ["public", "authorized", "attested"]
+    },
+    "rate_limit_policy": {
+      "type": "object",
+      "required": ["respect_robots", "max_requests_per_minute"],
+      "properties": {
+        "respect_robots": { "type": "boolean" },
+        "max_requests_per_minute": { "type": "number", "minimum": 0 },
+        "notes": { "type": "string" }
+      }
+    },
+    "coverage_notes": {
+      "type": "string"
+    },
+    "requires_human_auth": {
+      "type": "boolean",
+      "default": false
+    },
+    "derivative_only": {
+      "type": "boolean",
+      "default": false,
+      "description": "True for aggregators that republish other sources."
+    },
+    "terms_url": {
+      "type": "string",
+      "format": "uri"
+    }
+  }
+}

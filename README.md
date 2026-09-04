@@ -72,6 +72,10 @@ pitch/phase shifts. Not a cloud model and not a speech-to-text pipeline.
 See the spec: [docs/whitepaper.md](docs/whitepaper.md).
 How to contribute: [CONTRIBUTING.md](CONTRIBUTING.md).
 
+Related design (separate product concept): [M.I.A.Lock](docs/mia-lock/README.md) —
+missing-person discovery / identity correlation whitepaper and lawful source
+catalog (arrests, courts, homicides, obituaries, registries).
+
 **Forks are welcome and always allowed.**
 
 
