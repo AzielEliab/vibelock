@@ -1,0 +1,148 @@
+{
+  "boundary": "Synthetic demo cases only. Historical documented events — not live tracking.",
+  "people": [
+    {
+      "subject_id": "subj-christina-demo",
+      "display_name": "Christina Green (demo)",
+      "summary": "Synthetic missing-person timeline across Cook County public-record style events.",
+      "pins": [
+        {
+          "pin_id": "cg-1",
+          "lat": 41.8781,
+          "lon": -87.6298,
+          "start_at": "2026-08-01T18:40:00-05:00",
+          "end_at": "2026-08-01T19:10:00-05:00",
+          "event_class": "missing_person_notice",
+          "label": "Last-seen report filed",
+          "place_name": "Downtown Chicago — reported last seen",
+          "jurisdiction": "US-IL-COOK",
+          "geo_confidence": 0.55,
+          "verification_state": "probable",
+          "source_tier": "authoritative_public",
+          "notes": "Family report; place approximate."
+        },
+        {
+          "pin_id": "cg-2",
+          "lat": 41.8299,
+          "lon": -87.7431,
+          "start_at": "2026-08-07T09:15:00-05:00",
+          "end_at": "2026-08-07T14:00:00-05:00",
+          "event_class": "booking",
+          "label": "County jail booking",
+          "place_name": "Cook County Jail complex",
+          "jurisdiction": "US-IL-COOK",
+          "geo_confidence": 0.9,
+          "verification_state": "unverified",
+          "source_tier": "authoritative_public",
+          "notes": "Candidate booking — identity not confirmed."
+        },
+        {
+          "pin_id": "cg-3",
+          "lat": 41.8847,
+          "lon": -87.6322,
+          "start_at": "2026-08-12T10:00:00-05:00",
+          "end_at": "2026-08-12T11:30:00-05:00",
+          "event_class": "hearing",
+          "label": "Bond hearing",
+          "place_name": "Leighton Criminal Court Building",
+          "jurisdiction": "US-IL-COOK",
+          "geo_confidence": 0.85,
+          "verification_state": "unverified",
+          "source_tier": "authoritative_public"
+        },
+        {
+          "pin_id": "cg-4",
+          "lat": 41.8299,
+          "lon": -87.7431,
+          "start_at": "2026-08-12T16:00:00-05:00",
+          "end_at": "2026-08-15T09:00:00-05:00",
+          "event_class": "custody",
+          "label": "Remanded in custody",
+          "place_name": "Cook County Jail complex",
+          "jurisdiction": "US-IL-COOK",
+          "geo_confidence": 0.88,
+          "verification_state": "unverified",
+          "source_tier": "authoritative_public",
+          "notes": "Multi-day custody duration from roster window."
+        },
+        {
+          "pin_id": "cg-5",
+          "lat": 41.8500,
+          "lon": -87.6500,
+          "start_at": "2026-08-20T00:00:00-05:00",
+          "event_class": "discovery_lead",
+          "label": "News crime mention (role unspecified)",
+          "place_name": "Chicago — news desk geo approx",
+          "jurisdiction": "US-IL-COOK",
+          "geo_confidence": 0.25,
+          "verification_state": "unverified",
+          "source_tier": "independent_reporting",
+          "notes": "Low geo confidence; duration unknown (instant pin)."
+        }
+      ]
+    },
+    {
+      "subject_id": "subj-jordan-demo",
+      "display_name": "Jordan Hale (demo)",
+      "summary": "Synthetic multi-jurisdiction path: last-seen Wisconsin → Illinois court → obituary lead.",
+      "pins": [
+        {
+          "pin_id": "jh-1",
+          "lat": 43.0389,
+          "lon": -87.9065,
+          "start_at": "2025-11-03T21:05:00-06:00",
+          "end_at": "2025-11-03T21:45:00-06:00",
+          "event_class": "missing_person_notice",
+          "label": "Last seen near riverwalk",
+          "place_name": "Milwaukee riverwalk (reported)",
+          "jurisdiction": "US-WI-MILWAUKEE",
+          "geo_confidence": 0.6,
+          "verification_state": "probable",
+          "source_tier": "authoritative_public"
+        },
+        {
+          "pin_id": "jh-2",
+          "lat": 42.2711,
+          "lon": -89.0940,
+          "start_at": "2025-12-01T13:20:00-06:00",
+          "end_at": "2025-12-01T18:00:00-06:00",
+          "event_class": "arrest",
+          "label": "Arrest log hit",
+          "place_name": "Rockford area — arrest log",
+          "jurisdiction": "US-IL-WINNEBAGO",
+          "geo_confidence": 0.7,
+          "verification_state": "unverified",
+          "source_tier": "authoritative_public"
+        },
+        {
+          "pin_id": "jh-3",
+          "lat": 42.2711,
+          "lon": -89.0940,
+          "start_at": "2025-12-02T09:00:00-06:00",
+          "end_at": "2025-12-02T10:15:00-06:00",
+          "event_class": "court_filing",
+          "label": "Initial court filing",
+          "place_name": "Winnebago County courthouse area",
+          "jurisdiction": "US-IL-WINNEBAGO",
+          "geo_confidence": 0.8,
+          "verification_state": "unverified",
+          "source_tier": "authoritative_public"
+        },
+        {
+          "pin_id": "jh-4",
+          "lat": 41.7606,
+          "lon": -88.3201,
+          "start_at": "2026-01-14T00:00:00-06:00",
+          "event_class": "obituary",
+          "label": "Obituary / death notice lead",
+          "place_name": "Aurora region — funeral notice geo approx",
+          "jurisdiction": "US-IL-KANE",
+          "geo_confidence": 0.35,
+          "verification_state": "unverified",
+          "source_tier": "death_remembrance",
+          "notes": "Outcome-class lead only; not confirmed identity."
+        }
+      ]
+    }
+  ]
+}

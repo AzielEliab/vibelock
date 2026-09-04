@@ -442,6 +442,11 @@ Unknown intervals remain **UNKNOWN**.
 The system may expand searches around a verified jurisdiction. It does **not**
 infer a person's current location from a historical record.
 
+**Per-person event map:** each subject gets a custom map. Every pin carries
+**date × time × event × duration** (see [map.md](map.md)). Duration drives
+visual weight (e.g. multi-day custody vs instant discovery lead). Chronology
+paths follow documented order only.
+
 **TrajectoryLock (optional):** geometric consistency checks apply only to
 *verified* event nodes. No extrapolated travel paths between UNKNOWN gaps.
 

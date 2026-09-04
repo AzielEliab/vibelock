@@ -1,4 +1,8 @@
 include LICENSE README.md pyproject.toml
 recursive-include vibelock *.py
+recursive-include mialock *.py
+recursive-include mialock/data *
+recursive-include mialock/static *
 recursive-include tests *.py
 include docs/whitepaper.md
+recursive-include docs/mia-lock *
