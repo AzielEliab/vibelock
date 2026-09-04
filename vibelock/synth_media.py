@@ -61,7 +61,7 @@ def deepfake_image(h: int = 96, w: int = 96, seed: int = 21) -> Array:
     cx0, cx1 = w // 4, 3 * w // 4
     img[cy0:cy1, cx0:cx1] = ndimage.gaussian_filter(img[cy0:cy1, cx0:cx1], sigma=1.6)
     img[cy0:cy1, cx0:cx1] = np.clip(
-        img[cy0:cy1, cx0:cx1] + rng.normal(0.0, 0.055, img[cy0:cy1, cx0:cx1].shape),
+        img[cy0:cy1, cx0:cx1] + rng.normal(0.0, 0.09, img[cy0:cy1, cx0:cx1].shape),
         0.0,
         1.0,
     )
@@ -209,21 +209,24 @@ def pitch_flat(duration_s: float = 1.0, sr: int = 16000, f0: float = 140.0) -> A
     return (y / peak).astype(np.float64)
 
 
-def phase_stretched(audio: np.ndarray, sr: int, rate: float = 1.55) -> Array:
-    """Phase-vocoder time-stretch (unnatural horizontal phase)."""
+def phase_stretched(audio: np.ndarray, sr: int, rate: float = 1.8) -> Array:
+    """Phase-vocoder time-stretch with locked instantaneous frequency."""
     from scipy import signal as sp
 
     x = np.asarray(audio, dtype=np.float64)
     nper = 256
     _f, _t, zxx = sp.stft(x, fs=sr, nperseg=nper, noverlap=nper // 2)
-    # Stretch by repeating columns (classic cheap vocoder).
-    cols = []
     n = zxx.shape[1]
-    target = int(round(n * rate))
+    target = max(n + 4, int(round(n * rate)))
     idx = np.linspace(0, n - 1, target)
-    for i in idx:
-        cols.append(zxx[:, int(round(i))])
-    z2 = np.stack(cols, axis=1)
+    mag = np.abs(zxx)
+    # Horizontal lock: copy magnitude along a slow path, constant IF per bin.
+    cols = [mag[:, int(round(i))] for i in idx]
+    mag2 = np.stack(cols, axis=1)
+    freqs = np.fft.rfftfreq(nper, 1.0 / sr)[:, None]
+    hop = nper // 2
+    phase = 2.0 * np.pi * freqs * (hop / float(sr)) * np.arange(target)[None, :]
+    z2 = mag2 * np.exp(1j * phase)
     _t, y = sp.istft(z2, fs=sr, nperseg=nper, noverlap=nper // 2)
     y = np.real(y)
     peak = float(np.max(np.abs(y)) + 1e-12)

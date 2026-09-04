@@ -259,6 +259,25 @@ def combine(
         if code not in seen:
             seen.add(code)
             ordered.append(code)
+    # Smoking-gun cues reject altered media. Support codes alone do not
+    # (a translating blob can look like "motion roughness").
+    smoking = {
+        FREQ_FINGERPRINT,
+        NOISE_INCONSISTENT,
+        BLEND_BOUNDARY,
+        CHROMA_INCONSISTENT,
+        TEMPORAL_FLICKER,
+        IDENTITY_FLICKER,
+        INTERP_ARTIFACT,
+        PITCH_JUMP,
+        PHASE_SHIFT_UNNATURAL,
+        AV_SYNC_FAIL,
+    }
+    n_smoke = sum(1 for c in ordered if c in smoking)
+    if mode in {"image", "video", "av"} and n_smoke >= 2:
+        score = min(score, 0.26)
+    elif mode in {"image", "video", "av"} and n_smoke == 1:
+        score = min(score, 0.36)
     result = AnalysisResult(
         score=score,
         mode=mode,

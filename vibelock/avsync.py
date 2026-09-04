@@ -54,17 +54,26 @@ def check_av_sync(
     stack = frames_to_rgb01(frames)
     if stack.shape[0] < 4:
         return CheckResult("av_sync", 0.5, None, {}, "Need at least 4 frames for A/V sync.")
+    # Mouth-aperture proxy: center-crop mean (level), plus MAD (change).
+    from vibelock.media import to_gray01
+
+    grays = np.stack([to_gray01(f) for f in stack], axis=0)
+    h, w = grays.shape[1], grays.shape[2]
+    center = grays[:, h // 4 : 3 * h // 4, w // 4 : 3 * w // 4].mean(axis=(1, 2))
     motion = motion_energy(stack)
-    # motion_energy is length T-1; pad to T with an edge sample.
     motion_t = np.concatenate([motion[:1], motion])
     env = audio_envelope(audio, sr, int(stack.shape[0]))
-    n = min(env.size, motion_t.size)
-    env, motion_t = env[:n], motion_t[:n]
-    # Normalize motion the same way.
+    n = min(env.size, motion_t.size, center.size)
+    env, motion_t, center = env[:n], motion_t[:n], center[:n]
+    c = center - np.mean(center)
+    c = c / (float(np.max(np.abs(c)) + 1e-12))
     m = motion_t - np.mean(motion_t)
-    peak = float(np.max(np.abs(m)) + 1e-12)
-    m = m / peak
-    corr = _corr(env, m)
+    m = m / (float(np.max(np.abs(m)) + 1e-12))
+    # Envelope level ↔ aperture; envelope change ↔ motion energy.
+    d_env = np.diff(env, prepend=env[0])
+    d_env = d_env - np.mean(d_env)
+    d_env = d_env / (float(np.max(np.abs(d_env)) + 1e-12))
+    corr = max(_corr(env, c), _corr(d_env, m), _corr(env, m))
     # GCC-PHAT-ish delay on the two envelopes (sample = one frame).
     delay_frames = 0.0
     if n >= 8:

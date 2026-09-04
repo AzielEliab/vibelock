@@ -190,7 +190,7 @@ def check_block(image: np.ndarray) -> CheckResult:
             ratios.append(b / inn)
     spread = float(np.std(ratios)) if len(ratios) > 1 else 0.0
     score = clip01(min(logistic_score(ratio, good=1.05, bad=1.85), logistic_score(spread, good=0.08, bad=0.55)))
-    code = BLOCK_ARTIFACT if (ratio > 1.55 or spread > 0.38) else None
+    code = BLOCK_ARTIFACT if (ratio > 1.70 and spread > 0.22) or ratio > 2.05 else None
     if code:
         score = min(score, 0.32)
     return CheckResult(
@@ -270,7 +270,7 @@ def check_blend(image: np.ndarray) -> CheckResult:
     else:
         color_jump = 0.0
     score = clip01(min(logistic_score(seam, good=0.18, bad=0.62), logistic_score(color_jump, good=0.04, bad=0.28)))
-    code = BLEND_BOUNDARY if (seam > 0.42 and color_jump > 0.10) or seam > 0.72 else None
+    code = BLEND_BOUNDARY if (seam > 0.36 and color_jump > 0.08) or seam > 0.62 or color_jump > 0.20 else None
     if code:
         score = min(score, 0.26)
     return CheckResult(
@@ -289,7 +289,11 @@ def check_lighting(image: np.ndarray) -> CheckResult:
     # Second differences of the shade field — a point light / window is smooth.
     d2y = np.diff(shade, n=2, axis=0)
     d2x = np.diff(shade, n=2, axis=1)
-    rough = float(np.mean(d2y * d2x[: d2y.shape[0], : d2x.shape[1]] ** 2 + d2y**2 + d2x[: d2y.shape[0]] ** 2))
+    h2 = min(d2y.shape[0], d2x.shape[0])
+    w2 = min(d2y.shape[1], d2x.shape[1])
+    yy = d2y[:h2, :w2]
+    xx = d2x[:h2, :w2]
+    rough = float(np.mean(yy * yy + xx * xx))
     # Local mean jumps on a coarse grid.
     step = max(8, min(gray.shape) // 6)
     means = []

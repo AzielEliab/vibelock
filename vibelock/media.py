@@ -348,15 +348,15 @@ def encode_vlvd(frames: np.ndarray, fps: float = 25.0) -> bytes:
 
 
 def decode_vlvd(raw: bytes) -> tuple[Array, float]:
-    if not raw.startswith(VLVD_MAGIC) or len(raw) < 24:
+    if not raw.startswith(VLVD_MAGIC) or len(raw) < 28:
         raise MediaError(PPM_PLAIN_BROKEN)
-    version, t, h, w, c, fps = struct.unpack("<IIiiif", raw[4:24])
+    version, t, h, w, c, fps = struct.unpack("<IIiiif", raw[4:28])
     if version != VLVD_VERSION or t < 1 or h < 2 or w < 2 or c not in {1, 3}:
         raise MediaError(PPM_PLAIN_BROKEN)
     if t > MAX_FRAMES or h * w > MAX_PIXELS or h > MAX_EDGE or w > MAX_EDGE:
         raise MediaError(PPM_PLAIN_TOO_BIG)
     need = t * h * w * c
-    payload = raw[24:]
+    payload = raw[28:]
     if len(payload) < need:
         raise MediaError(PPM_PLAIN_BROKEN)
     pixels = np.frombuffer(payload[:need], dtype=np.uint8).reshape(t, h, w, c)

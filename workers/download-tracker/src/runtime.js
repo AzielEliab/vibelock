@@ -402,11 +402,19 @@ function combine(checks) {
     nume += w * mean;
     den += w;
   }
-  const score = clip01(den > 0 ? nume / den : 0);
+  let score = clip01(den > 0 ? nume / den : 0);
   const codes = [];
   for (const c of checks) {
     if (c.reason_code && !codes.includes(c.reason_code)) codes.push(c.reason_code);
   }
+  const smoking = new Set([
+    "FREQ_FINGERPRINT", "NOISE_INCONSISTENT", "BLEND_BOUNDARY", "CHROMA_INCONSISTENT",
+    "TEMPORAL_FLICKER", "IDENTITY_FLICKER", "INTERP_ARTIFACT", "PITCH_JUMP",
+    "PHASE_SHIFT_UNNATURAL", "AV_SYNC_FAIL",
+  ]);
+  const nSmoke = codes.filter((c) => smoking.has(c)).length;
+  if (nSmoke >= 2) score = Math.min(score, 0.26);
+  else if (nSmoke === 1) score = Math.min(score, 0.36);
   let verdict = "inconclusive";
   if (score < 0.42 && codes.length) verdict = "deepfake";
   else if (score >= 0.55) verdict = "consistent";

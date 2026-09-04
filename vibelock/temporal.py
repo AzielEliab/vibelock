@@ -87,12 +87,19 @@ def check_flicker(frames: np.ndarray) -> CheckResult:
         return CheckResult("flicker", 0.55, None, {}, "Need at least 3 frames.")
     means = g.mean(axis=(1, 2))
     stds = g.std(axis=(1, 2))
-    dmean = float(np.max(np.abs(np.diff(means))))
+    # Detrend: smooth camera / talking-head motion is a slow mean drift.
+    kern = np.ones(3) / 3.0
+    if means.size >= 3:
+        pad = np.pad(means, 1, mode="edge")
+        trend = np.convolve(pad, kern, mode="valid")[: means.size]
+        resid = means - trend
+        dmean = float(np.max(np.abs(resid)))
+    else:
+        dmean = float(np.max(np.abs(np.diff(means))))
     dstd = float(np.max(np.abs(np.diff(stds))))
-    # Normalized flicker vs the clip's own dynamic range.
     rel = dmean / (float(np.std(means)) + 1e-6)
-    score = clip01(min(logistic_score(dmean, good=0.012, bad=0.09), logistic_score(dstd, good=0.008, bad=0.06)))
-    code = TEMPORAL_FLICKER if (dmean > 0.055 or dstd > 0.04) else None
+    score = clip01(min(logistic_score(dmean, good=0.008, bad=0.07), logistic_score(dstd, good=0.012, bad=0.08)))
+    code = TEMPORAL_FLICKER if (dmean > 0.045 or dstd > 0.055) else None
     if code:
         score = min(score, 0.24)
     return CheckResult(
@@ -112,14 +119,14 @@ def check_motion(frames: np.ndarray) -> CheckResult:
     mags = [float(np.mean(np.sqrt(f[:, 0] ** 2 + f[:, 1] ** 2))) for f in flows]
     # Acceleration of the mean flow — natural motion is smooth.
     acc = float(np.max(np.abs(np.diff(mags)))) if len(mags) > 1 else 0.0
-    # Spatial roughness of the last flow field.
     last = flows[-1]
     if last.shape[0] > 2:
         rough = float(np.mean(np.std(last, axis=0)))
     else:
         rough = 0.0
-    score = clip01(min(logistic_score(acc, good=0.15, bad=1.8), logistic_score(rough, good=0.35, bad=2.2)))
-    code = MOTION_INCONSISTENT if (acc > 1.15 or rough > 1.55) else None
+    # A single translating object raises acc; only flag chaotic fields.
+    score = clip01(logistic_score(rough, good=0.45, bad=2.4))
+    code = MOTION_INCONSISTENT if rough > 1.75 else None
     if code:
         score = min(score, 0.28)
     return CheckResult(
@@ -149,16 +156,16 @@ def check_identity(frames: np.ndarray) -> CheckResult:
         hb, _ = np.histogram(centers[i + 1], bins=bins, range=(0.0, 1.0), density=True)
         hist_l1.append(float(np.mean(np.abs(ha - hb))))
     energy = motion_energy(frames)
-    # Identity flicker: large hist jump on a *still* pair.
-    still = energy < (0.35 * (float(np.median(energy)) + 1e-6) + 0.008)
+    # Identity flicker: large hist jump on a *truly still* pair.
+    still = energy < 0.012
     still = still[: len(hist_l1)]
     if np.any(still):
         still_jump = float(np.max(np.asarray(hist_l1)[still]))
     else:
-        still_jump = float(np.max(hist_l1))
+        still_jump = 0.0
     max_jump = float(np.max(hist_l1))
-    score = clip01(logistic_score(still_jump, good=0.08, bad=0.55))
-    code = IDENTITY_FLICKER if still_jump > 0.32 else None
+    score = clip01(logistic_score(still_jump if still_jump else 0.05, good=0.08, bad=0.55))
+    code = IDENTITY_FLICKER if still_jump > 0.36 else None
     if code:
         score = min(score, 0.26)
     return CheckResult(
@@ -203,10 +210,16 @@ def check_lighting_drift(frames: np.ndarray) -> CheckResult:
     g = _grays(frames)
     if g.shape[0] < 3:
         return CheckResult("lighting", 0.55, None, {}, "Need at least 3 frames.")
-    shade = np.array([float(np.mean(_gaussian(f, 3.0))) for f in g], dtype=np.float64)
+    # Background shade: ignore high-gradient (moving) pixels.
+    jumps = []
+    for f in g:
+        mag = _sobel_mag(f)
+        bg = f[mag < float(np.percentile(mag, 60))]
+        jumps.append(float(np.mean(bg)) if bg.size else float(np.mean(f)))
+    shade = np.asarray(jumps, dtype=np.float64)
     jump = float(np.max(np.abs(np.diff(shade))))
-    score = clip01(logistic_score(jump, good=0.01, bad=0.08))
-    code = LIGHTING_INCONSISTENT if jump > 0.055 else None
+    score = clip01(logistic_score(jump, good=0.012, bad=0.09))
+    code = LIGHTING_INCONSISTENT if jump > 0.065 else None
     if code:
         score = min(score, 0.30)
     return CheckResult(

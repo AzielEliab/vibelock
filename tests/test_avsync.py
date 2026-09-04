@@ -15,5 +15,6 @@ def test_authentic_av_outranks_desynced():
     assert b.mode == "av"
     assert g.score > b.score
     assert b.score < 0.42
-    assert AV_SYNC_FAIL in b.reason_codes or b.verdict == "deepfake"
+    assert AV_SYNC_FAIL in b.reason_codes
+    assert g.verdict != "deepfake"
     assert "av_sync" in g.signals
