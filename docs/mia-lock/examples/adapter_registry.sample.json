@@ -1,0 +1,207 @@
+[
+  {
+    "source_id": "adapter.missing.namus_public",
+    "name": "NamUs public missing / unidentified",
+    "tier": "authoritative_public",
+    "event_classes": [
+      "missing_person_notice",
+      "missing_person_update",
+      "unidentified_remains",
+      "found_person_notice"
+    ],
+    "jurisdictions": ["US"],
+    "confirmation_capable": true,
+    "access_basis": "public",
+    "rate_limit_policy": {
+      "respect_robots": true,
+      "max_requests_per_minute": 10,
+      "notes": "Prefer official APIs/pages; no credential sharing."
+    },
+    "coverage_notes": "Public subset only unless authorized professional access is configured separately."
+  },
+  {
+    "source_id": "adapter.jail.county_inmate_search",
+    "name": "County sheriff inmate / booking search",
+    "tier": "authoritative_public",
+    "event_classes": ["arrest", "booking", "custody", "release"],
+    "jurisdictions": ["US-IL-COOK"],
+    "confirmation_capable": true,
+    "access_basis": "public",
+    "rate_limit_policy": {
+      "respect_robots": true,
+      "max_requests_per_minute": 6
+    },
+    "coverage_notes": "County jail only; municipal lockups may be uncovered."
+  },
+  {
+    "source_id": "adapter.court.state_public_docket",
+    "name": "State judiciary public docket",
+    "tier": "authoritative_public",
+    "event_classes": [
+      "charge",
+      "court_filing",
+      "hearing",
+      "disposition",
+      "warrant_public"
+    ],
+    "jurisdictions": ["US-IL"],
+    "confirmation_capable": true,
+    "access_basis": "public",
+    "rate_limit_policy": {
+      "respect_robots": true,
+      "max_requests_per_minute": 6
+    }
+  },
+  {
+    "source_id": "adapter.doc.state_inmate_locator",
+    "name": "State DOC inmate locator",
+    "tier": "authoritative_public",
+    "event_classes": ["incarceration", "release"],
+    "jurisdictions": ["US-IL"],
+    "confirmation_capable": true,
+    "access_basis": "public",
+    "rate_limit_policy": {
+      "respect_robots": true,
+      "max_requests_per_minute": 6
+    }
+  },
+  {
+    "source_id": "adapter.me.county_doe",
+    "name": "County medical examiner public Doe / case pages",
+    "tier": "authoritative_public",
+    "event_classes": [
+      "unidentified_remains",
+      "medical_examiner_case",
+      "homicide_victim"
+    ],
+    "jurisdictions": ["US-IL-COOK"],
+    "confirmation_capable": true,
+    "access_basis": "public",
+    "rate_limit_policy": {
+      "respect_robots": true,
+      "max_requests_per_minute": 4
+    }
+  },
+  {
+    "source_id": "adapter.obit.regional_notices",
+    "name": "Regional obituaries and death notices",
+    "tier": "death_remembrance",
+    "event_classes": ["obituary", "death_notice", "funeral_notice"],
+    "jurisdictions": ["US-IL"],
+    "confirmation_capable": false,
+    "access_basis": "public",
+    "rate_limit_policy": {
+      "respect_robots": true,
+      "max_requests_per_minute": 8
+    },
+    "coverage_notes": "Outcome-class leads; require DOB/age/geo corroboration."
+  },
+  {
+    "source_id": "adapter.news.local_crime_missing",
+    "name": "Local news crime / missing / courts",
+    "tier": "independent_reporting",
+    "event_classes": [
+      "news_missing_report",
+      "news_crime_report",
+      "news_identification",
+      "homicide_victim",
+      "homicide_suspect_mention",
+      "arrest"
+    ],
+    "jurisdictions": ["US-IL"],
+    "confirmation_capable": false,
+    "access_basis": "public",
+    "rate_limit_policy": {
+      "respect_robots": true,
+      "max_requests_per_minute": 10
+    },
+    "coverage_notes": "Subject role tagging required on every hit."
+  },
+  {
+    "source_id": "adapter.discovery.web_search",
+    "name": "Terms-compliant web search API",
+    "tier": "discovery",
+    "event_classes": ["discovery_lead"],
+    "jurisdictions": ["US"],
+    "confirmation_capable": false,
+    "access_basis": "public",
+    "derivative_only": true,
+    "rate_limit_policy": {
+      "respect_robots": true,
+      "max_requests_per_minute": 20
+    }
+  },
+  {
+    "source_id": "adapter.crime.open_data_incidents",
+    "name": "City/county open-data crime incidents",
+    "tier": "authoritative_public",
+    "event_classes": ["crime_incident"],
+    "jurisdictions": ["US-IL-COOK"],
+    "confirmation_capable": false,
+    "access_basis": "public",
+    "rate_limit_policy": {
+      "respect_robots": true,
+      "max_requests_per_minute": 30
+    },
+    "coverage_notes": "Often nameless; useful for jurisdiction-time scaffolding when names appear."
+  },
+  {
+    "source_id": "adapter.archive.newspaper_backfiles",
+    "name": "Historical newspaper / library digital archives",
+    "tier": "archive",
+    "event_classes": [
+      "newspaper_archive_hit",
+      "library_digital_collection",
+      "archive_missing_report",
+      "archive_crime_report",
+      "archive_obituary",
+      "periodical_clipping"
+    ],
+    "jurisdictions": ["US"],
+    "confirmation_capable": false,
+    "access_basis": "public",
+    "rate_limit_policy": {
+      "respect_robots": true,
+      "max_requests_per_minute": 8,
+      "notes": "Prefer licensed APIs / library terms; publication date ≠ event date."
+    },
+    "coverage_notes": "OCR backfiles; cold-case and publishing search option."
+  },
+  {
+    "source_id": "adapter.archive.publishing_periodicals",
+    "name": "Periodicals / gazettes / historical publishing",
+    "tier": "archive",
+    "event_classes": [
+      "historical_publication",
+      "periodical_clipping"
+    ],
+    "jurisdictions": ["US"],
+    "confirmation_capable": false,
+    "access_basis": "public",
+    "rate_limit_policy": {
+      "respect_robots": true,
+      "max_requests_per_minute": 6
+    }
+  },
+  {
+    "source_id": "adapter.doe.unidentified_cold",
+    "name": "John/Jane Doe + unidentified cold-case listings",
+    "tier": "authoritative_public",
+    "event_classes": [
+      "john_doe_notice",
+      "jane_doe_notice",
+      "unidentified_remains",
+      "cold_case_unidentified",
+      "medical_examiner_case",
+      "cold_case_missing"
+    ],
+    "jurisdictions": ["US"],
+    "confirmation_capable": true,
+    "access_basis": "public",
+    "rate_limit_policy": {
+      "respect_robots": true,
+      "max_requests_per_minute": 6
+    },
+    "coverage_notes": "Compatibility leads only — never auto-identify a named subject as a Doe."
+  }
+]

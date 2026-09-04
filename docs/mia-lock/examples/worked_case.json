@@ -1,0 +1,61 @@
+{
+  "case_id": "demo-2026-0001",
+  "note": "Synthetic example only. Not a real person or case.",
+  "fingerprint": {
+    "canonical_name": "Christina Green",
+    "aliases": [
+      { "text": "Christy Green", "type": "nickname", "speculative": false },
+      { "text": "Tina Green", "type": "nickname", "speculative": true }
+    ],
+    "dob": { "kind": "partial", "year": 1994 },
+    "historical_jurisdictions": ["US-IL", "US-IL-COOK"],
+    "name_frequency_band": "common"
+  },
+  "query_families": [
+    {
+      "event_classes": ["missing_person_notice", "missing_person_update"],
+      "template": "(\"Christina Green\" OR \"Christy Green\" OR \"Tina Green\") Illinois (missing OR \"last seen\")"
+    },
+    {
+      "event_classes": ["arrest", "booking", "custody"],
+      "template": "(\"Christina Green\" OR \"Christy Green\") (Cook OR Illinois) (arrest OR booking OR inmate OR jail)"
+    },
+    {
+      "event_classes": ["court_filing", "hearing", "disposition"],
+      "template": "(\"Christina Green\" OR \"Christy Green\") Illinois (court OR docket OR hearing OR charged)"
+    },
+    {
+      "event_classes": ["homicide_victim", "homicide_suspect_mention", "news_crime_report"],
+      "template": "(\"Christina Green\" OR \"Christy Green\") Illinois (homicide OR murder OR \"person of interest\" OR arrested)"
+    },
+    {
+      "event_classes": ["obituary", "death_notice", "funeral_notice"],
+      "template": "(\"Christina Green\" OR \"Christy Green\") (obituary OR \"death notice\" OR funeral) (Illinois OR Chicago)"
+    },
+    {
+      "event_classes": ["unidentified_remains", "medical_examiner_case"],
+      "template": "(unidentified OR \"Jane Doe\") (Cook OR Illinois) (1994 OR \"30-35\" OR female)"
+    }
+  ],
+  "candidate_report_excerpt": {
+    "display_name": "Christina M. Green",
+    "rank_score": 72,
+    "calibration_status": "uncalibrated",
+    "verification": "unverified",
+    "event_class": "booking",
+    "subject_role_on_record": "unspecified",
+    "next_verification": "Confirm DOB on Cook County sheriff booking against subject partial DOB 1994; pull booking photo if lawfully available to case authority.",
+    "matching_signals": [
+      "Name exact + nickname variant",
+      "Age-on-booking compatible with 1994 DOB band",
+      "Jurisdiction matches historical US-IL-COOK"
+    ],
+    "contradictions": [],
+    "provenance": {
+      "independent_source_families": 1,
+      "authoritative_sources": ["county_sheriff_inmate_portal"],
+      "derivative_sources": ["public_inmate_aggregator"]
+    },
+    "warning": "DO NOT INTERPRET AS CONFIRMED IDENTITY UNTIL VERIFIED."
+  }
+}

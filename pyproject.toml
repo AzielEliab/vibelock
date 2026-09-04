@@ -44,6 +44,7 @@ tether = ["sounddevice>=0.4"]
 
 [project.scripts]
 vibelock = "vibelock.cli:main"
+mialock = "mialock.cli:main"
 
 [project.urls]
 Homepage = "https://github.com/AzielEliab/vibelock"
@@ -51,7 +52,10 @@ Download = "https://github.com/AzielEliab/vibelock/releases"
 Issues = "https://github.com/AzielEliab/vibelock/issues"
 
 [tool.setuptools.packages.find]
-include = ["vibelock*"]
+include = ["vibelock*", "mialock*"]
+
+[tool.setuptools.package-data]
+mialock = ["data/*.json", "static/*", "static/images/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

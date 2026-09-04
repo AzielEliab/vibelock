@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://azieleliab.example/mia-lock/event_pin.schema.json",
+  "title": "M.I.A.Lock Event Pin",
+  "description": "One documented historical location pin: date × time × event × duration.",
+  "type": "object",
+  "required": ["pin_id", "lat", "lon", "start_at", "event_class"],
+  "additionalProperties": false,
+  "properties": {
+    "pin_id": { "type": "string", "minLength": 1 },
+    "subject_id": { "type": "string" },
+    "lat": { "type": "number", "minimum": -90, "maximum": 90 },
+    "lon": { "type": "number", "minimum": -180, "maximum": 180 },
+    "start_at": { "type": "string", "format": "date-time" },
+    "end_at": { "type": ["string", "null"], "format": "date-time" },
+    "duration_seconds": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Optional explicit duration; otherwise end_at - start_at."
+    },
+    "event_class": { "type": "string" },
+    "label": { "type": "string" },
+    "place_name": { "type": "string" },
+    "jurisdiction": { "type": "string" },
+    "geo_confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "verification_state": {
+      "type": "string",
+      "enum": ["unverified", "probable", "verified", "rejected"]
+    },
+    "source_tier": { "type": "string" },
+    "notes": { "type": "string" }
+  }
+}
