@@ -31,7 +31,7 @@ def test_version(capsys):
     out = capsys.readouterr().out
     assert rc == 0
     assert "vibelock" in out.lower()
-    assert "0.2.0" in out
+    assert "0.3.0" in out
 
 
 def test_analyze_temp_wav_scipy_exit_zero_prints_score(tmp_path, authentic_pair, capsys):
@@ -85,6 +85,21 @@ def test_analyze_verify_and_export(tmp_path, authentic_pair, capsys):
     assert payload["plain"] in {"consistent", "inconsistent"}
     on_disk = json.loads(report.read_text(encoding="utf-8"))
     assert on_disk["hashes"]["sha256"] == payload["hashes"]["sha256"]
+
+
+def test_analyze_png_image(tmp_path, capsys):
+    from vibelock.media import encode_png
+    from vibelock.synth_media import deepfake_image
+
+    path = tmp_path / "face.png"
+    path.write_bytes(encode_png(deepfake_image(64, 64, seed=3)))
+    rc = main(["analyze", str(path), "--json"])
+    captured = capsys.readouterr()
+    assert rc == 0
+    payload = json.loads(captured.out)
+    assert payload["mode"] == "image"
+    assert payload["score"] < 0.5
+    assert payload["reason_codes"]
 
 
 def test_analyze_rejects_non_audio(tmp_path, capsys):

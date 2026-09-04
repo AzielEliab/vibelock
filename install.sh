@@ -4,7 +4,7 @@
 set -euo pipefail
 
 HOST="${VIBELOCK_HOME_HOST:-https://vibelock-download-tracker.vibelock.workers.dev}"
-ASSET="${VIBELOCK_HOME_ASSET:-vibelock-0.2.0.tar.gz}"
+ASSET="${VIBELOCK_HOME_ASSET:-vibelock-0.3.0.tar.gz}"
 WORKDIR="${VIBELOCK_HOME:-$HOME/vibelock}"
 
 mkdir -p "$WORKDIR"

@@ -75,23 +75,38 @@ function aiHowTo(base) {
 }
 
 const PRODUCT = "vibelock";
-const SKILL_MARKDOWN = "---\nname: VibeLock\ndescription: Use when calling VibeLock hosted /v1 or installing the local package. Author Aziel Eliab.\n---\n\n# VibeLock\n\nPhysical-consistency evaluation of speech audio. Risk assessment, not a liveness proof. Hosted is not a live mic. Not courtroom audio proof. Author: Aziel Eliab.\n\n**THIS IS:** physical-consistency evaluation of speech audio (local CLI + hosted advisory /v1/analyze).\n\n**THIS IS NOT:** courtroom audio proof, a liveness detector, a live microphone, or a claim that physics cannot be forged.\n\nAuthor: **Aziel Eliab**. Forks are welcome and always allowed. Apache-2.0.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\n## Call these URLs\n\n- Worker OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- Live skill (this markdown): `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/skill`\n\nOps (do **not** increment downloads or views):\n\n| Method | Path | What |\n|--------|------|------|\n| GET | `/v1/health` | Liveness. Does not increment downloads. |\n| GET | `/v1/skill` | This markdown. Does not increment downloads. |\n| POST | `/v1/analyze` | Advisory physical-consistency score of posted audio metadata/features. Not a live mic. |\n\nGrok: import OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.\n\n## Example\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/skill\ncurl -s -A 'Mozilla/5.0' -X POST https://vibelock-download-tracker.vibelock.workers.dev/v1/analyze \\\n  -H 'content-type: application/json' \\\n  -d '{\"note\":\"advisory features only; not a live mic\"}'\n```\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://vibelock-download-tracker.vibelock.workers.dev/install.sh | bash\nvibelock ui\n```\n\nThen open http://127.0.0.1:8760 (loopback only).\n\nDOI: https://doi.org/10.5281/zenodo.21431610  \nRecord: https://zenodo.org/records/21431610  \n\nCounted download (gzip HTTP 200, no 302): https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.2.0.tar.gz\nGitHub: https://github.com/AzielEliab/vibelock\n";
-
-const VERSION = "0.2.0";
+const SKILL_MARKDOWN = "---\nname: VibeLock\ndescription: Use when calling VibeLock hosted /v1 or installing the local package for physics + A/V deepfake detection. Author Aziel Eliab.\n---\n\n# VibeLock\n\nPhysics + A/V deepfake detection. Risk assessment, not courtroom proof. Author: **Aziel Eliab**.\n\n**THIS IS:** a multi-signal detector — vocal-tract / vibration physics, spatial image artifacts, temporal video flicker/flow, unnatural pitch/phase shifts, and talking-head A/V sync (local CLI + hosted advisory `/v1/analyze` and `/v1/detect`).\n\n**THIS IS NOT:** courtroom proof, a liveness detector, a live microphone, face recognition, or a claim that physics cannot be forged. Hosted `/v1` does not increment downloads or views.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\n## Call these URLs\n\n- Worker OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- Live skill (this markdown): `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/skill`\n\nOps (do **not** increment downloads or views):\n\n- `GET /v1/health` — liveness\n- `GET /v1/skill` — this file\n- `POST /v1/analyze` — advisory score from audio features/PCM and/or visual/pitch/A/V features\n- `POST /v1/detect` — same engine, deepfake-oriented request body\n\nGrok: import OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.\n\n## Example\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/skill\ncurl -s -A 'Mozilla/5.0' -X POST https://vibelock-download-tracker.vibelock.workers.dev/v1/detect \\\n  -H 'content-type: application/json' \\\n  -d '{\"features\":{\"rms\":0.08,\"zcr\":0.07},\"visual\":{\"blockiness\":1.8,\"noise_cv\":0.7},\"pitch\":{\"f0_jump\":8.5}}'\n```\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://vibelock-download-tracker.vibelock.workers.dev/install.sh | bash\nvibelock ui\nvibelock doctor\nvibelock detect path/to/media.png\n```\n\nThen open http://127.0.0.1:8760 (loopback only). WAV, PNG, PPM, `.vlvd` frame stacks.\n\nCounted download (gzip HTTP 200, no 302): https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.3.0.tar.gz\nGitHub: https://github.com/AzielEliab/vibelock\n\nPaper: DOI https://doi.org/10.5281/zenodo.21431610 · https://zenodo.org/records/21431610 · Apache-2.0. Forks welcome.\n";
+const VERSION = "0.3.0";
 const BASE = "https://vibelock-download-tracker.vibelock.workers.dev";
-const MOTTO = "Sound can be forged. Physics is harder to fake.";
-const LABEL = "Audio authenticity advisory, not courtroom proof.";
-const HOSTED_NOTE = "Hosted endpoint is not a live microphone. Desktop `listen` stays local.";
+const MOTTO = "Sound can be forged. Pixels can be forged. Physics is harder to fake.";
+const LABEL = "Media authenticity advisory (audio, image, and video), not courtroom proof.";
+const HOSTED_NOTE = "Hosted endpoint is not a live microphone. Desktop `listen` stays local. Hosted does not decode pixels; send visual/pitch/av features or limited PCM.";
 const MAX_PCM_BYTES = 65536;
 const MAX_SAMPLES = 32000;
 const AUDIO_WEIGHTS = {
-  spectral: 0.18,
-  phase_continuity: 0.22,
-  formant: 0.22,
-  decay: 0.16,
-  temporal: 0.14,
-  buzz: 0.08,
+  spectral: 0.16,
+  phase_continuity: 0.20,
+  formant: 0.20,
+  decay: 0.14,
+  temporal: 0.12,
+  buzz: 0.07,
+  pitch: 0.11,
 };
+const VISUAL_WEIGHTS = {
+  spatial_freq: 0.22,
+  noise: 0.18,
+  block: 0.12,
+  chroma: 0.16,
+  blend: 0.16,
+  lighting: 0.16,
+};
+const TEMPORAL_WEIGHTS = {
+  flicker: 0.28,
+  motion: 0.26,
+  identity: 0.24,
+  interp: 0.22,
+};
+const AV_WEIGHT = 0.15;
 
 function clip01(x) { return Math.min(1, Math.max(0, Number(x) || 0)); }
 function logisticScore(value, good, bad) {
@@ -196,7 +211,8 @@ function featuresFromPcm(x, sr) {
   const crest = peak / (rms + 1e-12);
   const env = envelopeStats(x, Math.max(1, Math.round(0.01 * sr)));
   const centroid = coarseCentroid(x, sr);
-  return { rms, zcr, peak, crest, rms_var: env.var, env_jump: env.maxJump, centroid, n_samples: x.length, sample_rate: sr };
+  const pitch = pitchFromPcm(x, sr);
+  return { rms, zcr, peak, crest, rms_var: env.var, env_jump: env.maxJump, centroid, n_samples: x.length, sample_rate: sr, ...pitch };
 }
 
 function checksFromFeatures(f) {
@@ -252,27 +268,157 @@ function checksFromFeatures(f) {
   if (buzzRatio > 12) { buzzCode = "VOCODER_BUZZ"; buzzScore = Math.min(buzzScore, 0.40); }
   checks.push({ name: "buzz", score: clip01(buzzScore), reason_code: buzzCode, metrics: { peak_to_med: buzzRatio }, note: "Modulation-spectrum peak ratio if provided." });
 
+  const f0Jump = num(f.f0_jump, num(f.max_semitone_jump, 1.2));
+  const f0Cv = num(f.f0_cv, 0.04);
+  let pitchScore = clip01(Math.min(logisticScore(f0Jump, 1.8, 9.0), logisticScore(f0Cv, 0.035, 0.004)));
+  let pitchCode = null;
+  if (f0Jump > 7) { pitchCode = "PITCH_JUMP"; pitchScore = Math.min(pitchScore, 0.22); }
+  else if (f0Cv < 0.008) { pitchCode = "PITCH_OVERFLAT"; pitchScore = Math.min(pitchScore, 0.28); }
+  checks.push({ name: "pitch", score: pitchScore, reason_code: pitchCode, metrics: { f0_jump: f0Jump, f0_cv: f0Cv }, note: "F0 contour jump / flatness if provided or estimated from PCM." });
+
   if (Number.isFinite(rms) && rms < 1e-6) {
     notes.push("Near-silent RMS; score is a risk assessment on a weak signal.");
   }
   return { checks, notes };
 }
 
+function visualChecks(v) {
+  v = v || {};
+  const checks = [];
+  const peak = num(v.spec_peak_ratio, num(v.freq_peak, 3.0));
+  const lattice = num(v.lattice_ratio, 1.1);
+  let freqScore = clip01(Math.min(logisticScore(peak, 3.2, 14.0), logisticScore(lattice, 1.15, 3.4)));
+  let freqCode = null;
+  if (peak > 8.5 || lattice > 2.2) { freqCode = "FREQ_FINGERPRINT"; freqScore = Math.min(freqScore, 0.28); }
+  checks.push({ name: "spatial_freq", score: freqScore, reason_code: freqCode, metrics: { spec_peak_ratio: peak, lattice_ratio: lattice }, note: "2-D FFT lattice / axial peaks." });
+
+  const cv = num(v.noise_cv, num(v.tile_std_cv, 0.2));
+  const cs = num(v.center_surround, 1.1);
+  let noiseScore = clip01(Math.min(logisticScore(cv, 0.22, 0.85), logisticScore(cs, 1.15, 3.2)));
+  let noiseCode = null;
+  if (cv > 0.62 || cs > 2.15) { noiseCode = "NOISE_INCONSISTENT"; noiseScore = Math.min(noiseScore, 0.28); }
+  checks.push({ name: "noise", score: noiseScore, reason_code: noiseCode, metrics: { noise_cv: cv, center_surround: cs }, note: "Tile residual-std mismatch." });
+
+  const block = num(v.blockiness, num(v.boundary_interior, 1.05));
+  let blockScore = logisticScore(block, 1.05, 1.85);
+  let blockCode = null;
+  if (block > 1.55) { blockCode = "BLOCK_ARTIFACT"; blockScore = Math.min(blockScore, 0.32); }
+  checks.push({ name: "block", score: clip01(blockScore), reason_code: blockCode, metrics: { blockiness: block }, note: "8x8 boundary vs interior." });
+
+  const chroma = num(v.chroma_spread, num(v.illuminant_var, 0.001));
+  let chromaScore = logisticScore(chroma, 0.0008, 0.012);
+  let chromaCode = null;
+  if (chroma > 0.0065) { chromaCode = "CHROMA_INCONSISTENT"; chromaScore = Math.min(chromaScore, 0.30); }
+  checks.push({ name: "chroma", score: clip01(chromaScore), reason_code: chromaCode, metrics: { chroma_spread: chroma }, note: "Local gray-world illuminant spread." });
+
+  const seam = num(v.seam_frac, 0.15);
+  const jump = num(v.color_jump, 0.04);
+  let blendScore = clip01(Math.min(logisticScore(seam, 0.18, 0.62), logisticScore(jump, 0.04, 0.28)));
+  let blendCode = null;
+  if ((seam > 0.42 && jump > 0.10) || seam > 0.72) { blendCode = "BLEND_BOUNDARY"; blendScore = Math.min(blendScore, 0.26); }
+  checks.push({ name: "blend", score: blendScore, reason_code: blendCode, metrics: { seam_frac: seam, color_jump: jump }, note: "Hard seam + color jump." });
+
+  const rough = num(v.shade_rough, 2e-6);
+  let lightScore = logisticScore(rough, 1.5e-6, 8e-5);
+  let lightCode = null;
+  if (rough > 4.5e-5) { lightCode = "LIGHTING_INCONSISTENT"; lightScore = Math.min(lightScore, 0.32); }
+  checks.push({ name: "lighting", score: clip01(lightScore), reason_code: lightCode, metrics: { shade_rough: rough }, note: "Low-frequency shading roughness." });
+  return checks;
+}
+
+function temporalChecks(t) {
+  t = t || {};
+  const checks = [];
+  const flick = num(t.flicker, num(t.max_dmean, 0.01));
+  let fScore = logisticScore(flick, 0.012, 0.09);
+  let fCode = null;
+  if (flick > 0.055) { fCode = "TEMPORAL_FLICKER"; fScore = Math.min(fScore, 0.24); }
+  checks.push({ name: "flicker", score: clip01(fScore), reason_code: fCode, metrics: { flicker: flick }, note: "Frame-to-frame mean jump." });
+
+  const flow = num(t.flow_rough, num(t.motion, 0.3));
+  let mScore = logisticScore(flow, 0.35, 2.2);
+  let mCode = null;
+  if (flow > 1.55) { mCode = "MOTION_INCONSISTENT"; mScore = Math.min(mScore, 0.28); }
+  checks.push({ name: "motion", score: clip01(mScore), reason_code: mCode, metrics: { flow_rough: flow }, note: "Block-flow roughness." });
+
+  const idj = num(t.identity_jump, num(t.still_hist_l1, 0.08));
+  let iScore = logisticScore(idj, 0.08, 0.55);
+  let iCode = null;
+  if (idj > 0.32) { iCode = "IDENTITY_FLICKER"; iScore = Math.min(iScore, 0.26); }
+  checks.push({ name: "identity", score: clip01(iScore), reason_code: iCode, metrics: { identity_jump: idj }, note: "Center histogram jump on still pairs." });
+
+  const interp = num(t.rel_residual, 0.5);
+  let pScore = logisticScore(interp, 0.55, 0.08);
+  let pCode = null;
+  if (interp < 0.16) { pCode = "INTERP_ARTIFACT"; pScore = Math.min(pScore, 0.30); }
+  checks.push({ name: "interp", score: clip01(pScore), reason_code: pCode, metrics: { rel_residual: interp }, note: "Odd-frame blend residual." });
+  return checks;
+}
+
+function avCheck(a) {
+  a = a || {};
+  const corr = num(a.av_corr, num(a.corr, 0.5));
+  const delay = Math.abs(num(a.delay_s, 0.02));
+  let score = clip01(0.65 * logisticScore(corr, 0.55, 0.05) + 0.35 * logisticScore(delay, 0.04, 0.22));
+  let code = null;
+  if (corr < 0.12 || delay > 0.16) { code = "AV_SYNC_FAIL"; score = Math.min(score, 0.22); }
+  return { name: "av_sync", score, reason_code: code, metrics: { av_corr: corr, delay_s: delay }, note: "Audio RMS vs mouth-proxy motion." };
+}
+
+function pitchFromPcm(x, sr) {
+  const hop = Math.max(64, Math.round(0.01 * sr));
+  const win = Math.max(128, Math.round(0.04 * sr));
+  const f0s = [];
+  for (let i = 0; i + win <= x.length; i += hop) {
+    let bestLag = 0, best = -1;
+    const lo = Math.max(1, Math.round(sr / 350));
+    const hi = Math.min(win - 2, Math.round(sr / 70));
+    for (let lag = lo; lag <= hi; lag++) {
+      let s = 0;
+      for (let k = 0; k < win - lag; k++) s += x[i + k] * x[i + k + lag];
+      if (s > best) { best = s; bestLag = lag; }
+    }
+    if (bestLag > 0) f0s.push(sr / bestLag);
+  }
+  if (f0s.length < 4) return { f0_jump: 1.2, f0_cv: 0.04 };
+  let maxSt = 0;
+  for (let i = 1; i < f0s.length; i++) {
+    const st = Math.abs(12 * Math.log2(f0s[i] / f0s[i - 1]));
+    if (st > maxSt) maxSt = st;
+  }
+  const mean = f0s.reduce((a, b) => a + b, 0) / f0s.length;
+  let v = 0;
+  for (let i = 0; i < f0s.length; i++) v += (f0s[i] - mean) * (f0s[i] - mean);
+  return { f0_jump: maxSt, f0_cv: Math.sqrt(v / f0s.length) / (mean + 1e-9) };
+}
+
 function combine(checks) {
+  const weights = { ...AUDIO_WEIGHTS, ...VISUAL_WEIGHTS, ...TEMPORAL_WEIGHTS, av_sync: AV_WEIGHT };
   let nume = 0, den = 0;
-  for (const [name, w] of Object.entries(AUDIO_WEIGHTS)) {
+  for (const [name, w] of Object.entries(weights)) {
     const vals = checks.filter((c) => c.name === name).map((c) => c.score);
     if (!vals.length) continue;
     const mean = vals.reduce((a, b) => a + b, 0) / vals.length;
     nume += w * mean;
     den += w;
   }
-  const score = clip01(den > 0 ? nume / den : 0);
+  let score = clip01(den > 0 ? nume / den : 0);
   const codes = [];
   for (const c of checks) {
     if (c.reason_code && !codes.includes(c.reason_code)) codes.push(c.reason_code);
   }
-  return { score, reason_codes: codes };
+  const smoking = new Set([
+    "FREQ_FINGERPRINT", "NOISE_INCONSISTENT", "BLEND_BOUNDARY", "CHROMA_INCONSISTENT",
+    "TEMPORAL_FLICKER", "IDENTITY_FLICKER", "INTERP_ARTIFACT", "PITCH_JUMP",
+    "PHASE_SHIFT_UNNATURAL", "AV_SYNC_FAIL",
+  ]);
+  const nSmoke = codes.filter((c) => smoking.has(c)).length;
+  if (nSmoke >= 2) score = Math.min(score, 0.26);
+  else if (nSmoke === 1) score = Math.min(score, 0.36);
+  let verdict = "inconclusive";
+  if (score < 0.42 && codes.length) verdict = "deepfake";
+  else if (score >= 0.55) verdict = "consistent";
+  return { score, reason_codes: codes, verdict };
 }
 
 function openapiDoc() {
@@ -290,7 +436,7 @@ function openapiDoc() {
       "/v1/analyze": {
         post: {
           operationId: "vibelockAnalyze",
-          summary: "Audio-only risk assessment from features or limited PCM",
+          summary: "Multi-signal deepfake risk assessment (audio features/PCM + visual + pitch + A/V)",
           requestBody: {
             required: true,
             content: {
@@ -298,7 +444,11 @@ function openapiDoc() {
                 schema: {
                   type: "object",
                   properties: {
-                    features: { type: "object", properties: { rms: { type: "number" }, zcr: { type: "number" } }, additionalProperties: true },
+                    features: { type: "object", properties: { rms: { type: "number" }, zcr: { type: "number" }, f0_jump: { type: "number" } }, additionalProperties: true },
+                    visual: { type: "object", additionalProperties: true, description: "Spatial metrics: spec_peak_ratio, noise_cv, blockiness, chroma_spread, seam_frac" },
+                    video: { type: "object", additionalProperties: true, description: "Temporal metrics: flicker, flow_rough, identity_jump, rel_residual" },
+                    pitch: { type: "object", additionalProperties: true },
+                    av: { type: "object", properties: { av_corr: { type: "number" }, delay_s: { type: "number" } } },
                     pcm_b64: { type: "string", description: "Limited int16 LE (default) or f32 PCM, not a live mic" },
                     rate: { type: "integer" },
                     sample_rate: { type: "integer" },
@@ -309,6 +459,14 @@ function openapiDoc() {
             },
           },
           responses: { "200": { description: "Risk assessment (not a liveness proof)" } },
+        },
+      },
+      "/v1/detect": {
+        post: {
+          operationId: "vibelockDetect",
+          summary: "Same engine as /v1/analyze; deepfake-oriented alias",
+          requestBody: { required: true, content: { "application/json": { schema: { type: "object", additionalProperties: true } } } },
+          responses: { "200": { description: "Deepfake risk assessment" } },
         },
       },
     },
@@ -337,11 +495,27 @@ async function handleAnalyze(body) {
     n_samples = x.length;
     mode = "pcm_limited";
   }
-  if (!features) {
-    return runtimeJson({ ok: false, error: "provide features:{rms,zcr,...} or pcm_b64+rate", label: LABEL, hosted_mic: false, listen: "local" }, 400);
+  const visual = (body.visual && typeof body.visual === "object") ? body.visual : (body.image && typeof body.image === "object" ? body.image : null);
+  const video = (body.video && typeof body.video === "object") ? body.video : (body.temporal && typeof body.temporal === "object" ? body.temporal : null);
+  const av = (body.av && typeof body.av === "object") ? body.av : null;
+  const pitchIn = (body.pitch && typeof body.pitch === "object") ? body.pitch : null;
+  if (pitchIn && features) Object.assign(features, pitchIn);
+  if (!features && !visual && !video && !av) {
+    return runtimeJson({ ok: false, error: "provide features:{rms,zcr,...} or pcm_b64+rate and/or visual/video/av", label: LABEL, hosted_mic: false, listen: "local" }, 400);
   }
-  const { checks, notes } = checksFromFeatures(features);
+  const { checks, notes } = features ? checksFromFeatures(features) : { checks: [], notes: [LABEL, HOSTED_NOTE] };
+  if (visual) checks.push(...visualChecks(visual));
+  if (video) checks.push(...temporalChecks(video));
+  if (av) checks.push(avCheck(av));
   const comb = combine(checks);
+  if (visual) mode = video || av ? "av" : (features ? "av" : "image");
+  else if (video) mode = features ? "av" : "video";
+  else if (av) mode = "av";
+  const signals = [];
+  if (features) signals.push("audio");
+  if (visual) signals.push("spatial");
+  if (video) signals.push("temporal");
+  if (av) signals.push("av_sync");
   return runtimeJson({
     ok: true,
     product: PRODUCT,
@@ -350,10 +524,13 @@ async function handleAnalyze(body) {
     hosted_mic: false,
     listen: "local",
     mode,
+    engine: "deepfake",
+    verdict: comb.verdict,
     score: comb.score,
     reason_codes: comb.reason_codes,
     checks,
-    features,
+    features: features || undefined,
+    signals,
     sample_rate: sr,
     n_samples,
     notes,
@@ -395,14 +572,14 @@ export async function handleRuntime(request, url, env) {
     });
   }
   if (path === "/v1" && request.method === "GET") {
-    return runtimeJson({ product: PRODUCT, label: LABEL, endpoints: ["GET /v1/health", "POST /v1/analyze", "GET /openapi.json", "GET /ai"] });
+    return runtimeJson({ product: PRODUCT, label: LABEL, endpoints: ["GET /v1/health", "POST /v1/analyze", "POST /v1/detect", "GET /openapi.json", "GET /ai"] });
   }
-  if (path === "/v1/analyze" && request.method === "POST") {
+  if ((path === "/v1/analyze" || path === "/v1/detect") && request.method === "POST") {
     let body = {};
     try { body = await readJsonBody(request); } catch (e) { return runtimeJson({ ok: false, error: e.message, label: LABEL }, e.status || 400); }
     return handleAnalyze(body);
   }
-  if (path === "/v1/analyze") return runtimeJson({ error: "method not allowed" }, 405);
+  if (path === "/v1/analyze" || path === "/v1/detect") return runtimeJson({ error: "method not allowed" }, 405);
   if (path.startsWith("/v1/")) return runtimeJson({ error: "not found", product: PRODUCT }, 404);
   return null;
 }

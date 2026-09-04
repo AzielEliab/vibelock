@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "vibelock"
-version = "0.2.0"
-description = "Physical-consistency evaluation of speech via vibration–audio coherence and forensic audio analysis (VibeLock, July 2026)."
+version = "0.3.0"
+description = "Physics + A/V deepfake detection: vocal-tract consistency, spatial/temporal image-video artifacts, and unnatural pitch/phase shifts (VibeLock, Aziel Eliab)."
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [{name = "Aziel Eliab"}]
@@ -18,6 +18,9 @@ keywords = [
     "liveness",
     "dsp",
     "biomechanics",
+    "deepfake",
+    "video",
+    "image",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",

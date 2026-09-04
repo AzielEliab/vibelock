@@ -26,7 +26,7 @@ python3 -m venv /workspace/vibelock/.venv
 - Python 3.13.5
 - numpy 2.5.2, scipy 1.18.1, pytest 9.1.1
 - `pytest -q` → **31 passed**, no warnings
-- `vibelock version` → `vibelock 0.2.0`
+- `vibelock version` → `vibelock 0.3.0`
 - `python examples/synthetic_pair.py` → dual-channel score on a synthetic
   pair, reason codes none
 

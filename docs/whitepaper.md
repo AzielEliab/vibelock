@@ -202,35 +202,91 @@ Reason codes include:
 | `SPECTRAL_UNNATURAL` | Fine structure too smooth or too noisy |
 | `VOCODER_BUZZ` | Envelope peak at a hop-like rate |
 | `VIBRATION_UNUSABLE` | Second channel present but empty / too short |
+| `FREQ_FINGERPRINT` | Axial / lattice peaks in the high-pass 2-D spectrum |
+| `NOISE_INCONSISTENT` | Tile residual-std mismatch (PRNU-like) |
+| `BLOCK_ARTIFACT` | 8×8 boundary energy vs interior |
+| `CHROMA_INCONSISTENT` | Local gray-world illuminant drift / R–B edge split |
+| `BLEND_BOUNDARY` | Hard seam plus cross-seam color jump |
+| `LIGHTING_INCONSISTENT` | Shading roughness or frame-to-frame shade jump |
+| `TEMPORAL_FLICKER` | Per-frame mean/std flicker |
+| `MOTION_INCONSISTENT` | Block-flow acceleration / roughness |
+| `IDENTITY_FLICKER` | Center histogram jump on a still pair |
+| `INTERP_ARTIFACT` | Odd frames are blends of neighbors |
+| `PITCH_JUMP` | Unnatural F0 octave / semitone hop |
+| `PITCH_OVERFLAT` | Robotic F0 (near-zero CV) |
+| `FORMANT_PITCH_DECOUPLE` | F1 residual after an F0 fit (optional) |
+| `PHASE_SHIFT_UNNATURAL` | Phase-vocoder / STFT IF over-flat |
+| `AV_SYNC_FAIL` | Audio envelope vs mouth-proxy motion |
 
 The composite score is a weighted mean of applicable checks, clipped to
-\([0, 1]\).
+\([0, 1]\). Visual / A/V modes also emit a `verdict` of `deepfake`,
+`consistent`, or `inconclusive`.
 
-## 6. Privacy
+## 6. Spatial image physics (September 2026)
+
+A camera integrates photons under one (or a few) illuminants through
+one lens. Generator stills and spliced portraits typically fail at
+least one of:
+
+- **Frequency lattice.** 2× nearest/bilinear upsampling parks energy on
+  the half-Nyquist axes. Measured on a high-pass residual FFT.
+- **Noise residual.** Tile coefficient of variation of a high-pass
+  residual, plus center-vs-surround std (face-swap denoise).
+- **Block energy.** 8×8 boundary vs interior gradients.
+- **Illuminant.** Local gray-world \((C_b, C_r)\) spread; R/B edge
+  alignment (CFA / registration physics).
+- **Seams.** Projected strong-edge columns/rows plus a color jump.
+- **Shading.** Low-frequency second differences of a Gaussian shade
+  field.
+
+These are DSP checks. They invent no published ROC numbers.
+
+## 7. Temporal video physics
+
+Per-frame generators do not share an exposure. VibeLock measures
+flicker of frame mean/std, integer block-matching flow acceleration,
+center-crop histogram jumps on low-motion pairs, odd-frame residual
+versus a linear blend (interpolation ghosts), and global shade drift.
+
+## 8. Unnatural pitch and phase shifts
+
+Autocorrelation F0 tracks flag octave hops and robotic flatness.
+An STFT instantaneous-frequency variance test flags phase-vocoder
+time-stretch (horizontally locked bins).
+
+## 9. Talking-head A/V coupling
+
+The air RMS envelope is resampled to the frame grid and compared to
+center-region motion energy. Pearson correlation plus a GCC-PHAT delay
+on those envelopes emit `AV_SYNC_FAIL` when the mouth-proxy does not
+produce the waveform.
+
+## 10. Privacy
 
 - No speech-to-text.
-- No identity, enrollment, or speaker embedding.
-- Raw audio is not retained by default. The library returns a score,
+- No identity, enrollment, speaker embedding, or face recognition.
+- Raw media is not retained by default. The library returns a score,
   reason codes, and numeric check metrics. The CLI does not write the
-  input waveform anywhere.
-- Processing is local.
+  input waveform or pixels anywhere.
+- Processing is local. Hosted `/v1` accepts features or limited PCM,
+  not a live microphone.
 
-## 7. What this release is
+## 11. What this release is
 
 A complete, inspectable implementation of the algorithms above, with
 synthetic tests that prove each check moves the score the right way, a
-CLI, and a Cloudflare Worker that counts downloads across branches and
-forks.
+CLI (`analyze` / `detect`), a localhost UI, and a Cloudflare Worker
+that counts downloads and ports the same heuristics in JavaScript.
 
 Forks are welcome and always allowed.
 
-Sound can be forged. Physics is harder to fake.
+Sound can be forged. Pixels can be forged. Physics is harder to fake.
 
 ---
 
-Sound can be forged. Physics is harder to fake.
+Sound can be forged. Pixels can be forged. Physics is harder to fake.
 
 Signed,
 
 Aziel
-July 2026
+September 2026

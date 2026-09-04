@@ -8,9 +8,9 @@ import 'dart:typed_data';
 /// a mono PCM clip with RMS energy and ZCR only, then emits placeholder
 /// reason codes in the same family as the desktop list.
 ///
-/// This is an audio authenticity advisory, not courtroom proof.
+/// This is a media authenticity advisory, not courtroom proof.
 const String kLimitation =
-    'This is an audio authenticity advisory, not courtroom proof.';
+    'This is a media authenticity advisory (audio, image, and video), not courtroom proof.';
 
 class HeuristicResult {
   HeuristicResult({
@@ -39,7 +39,7 @@ class HeuristicResult {
 
   Map<String, Object?> toReport() => {
         'product': 'vibelock',
-        'version': '0.2.0',
+        'version': '0.3.0',
         'limitation': kLimitation,
         'advisory': true,
         'courtroom_proof': false,
