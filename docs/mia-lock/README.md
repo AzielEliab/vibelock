@@ -7,7 +7,11 @@ and historical movement reconstruction.
 
 > Search broadly. Match probabilistically. Challenge every hit. Preserve provenance. Verify before action.
 
-This folder holds the concept and software design for M.I.A.Lock. It is **design documentation**, not a deployed search crawler. Restricted law-enforcement systems are never scraped or simulated.
+**Product home:** [AzielEliab/mialock](https://github.com/AzielEliab/mialock)
+(v0.1.0). Counted download:
+[mialock-download-tracker](https://mialock-download-tracker.vibelock.workers.dev/).
+This VibeLock folder is a pointer plus the original design notes — not the
+product repo. Restricted law-enforcement systems are never scraped or simulated.
 
 | Document | Purpose |
 | --- | --- |
@@ -19,7 +23,7 @@ This folder holds the concept and software design for M.I.A.Lock. It is **design
 | [examples/](examples/) | Worked candidate report and query families |
 
 **Author:** Aziel Eliab  
-**Status:** Design / specification  
+**Status:** Shipped as its own product — [AzielEliab/mialock](https://github.com/AzielEliab/mialock)  
 **Related engines:** DecisionGATE (escalation), TrajectoryLock (verified-event geometry), TemporalLock / ForgeReceipts (evidence integrity), GlossaFilter (export language)
 
 ## Hard boundaries
