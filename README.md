@@ -19,8 +19,8 @@ The script curls the **counted** tarball from this project's Worker
 (`/download`, User-Agent `Mozilla/5.0`), extracts, makes a venv, and
 `pip install -e .`. Then run `vibelock ui`.
 
-Or tap **Download** / **One-click install** on the Worker homepage
-(a 6th-grader can tap it):
+Or open the **Worker product UI** (analyze in the browser, then
+**Download** / **One-click install**):
 https://vibelock-download-tracker.vibelock.workers.dev/
 
 ## Counted download (Cloudflare Worker)
@@ -29,6 +29,11 @@ https://vibelock-download-tracker.vibelock.workers.dev/
 The Worker serves the gzip itself (HTTP 200, no 302 to GitHub).
 
 # → [https://vibelock-download-tracker.vibelock.workers.dev/](https://vibelock-download-tracker.vibelock.workers.dev/) ←
+
+That homepage is a **complete product UI** (title `VibeLock — Aziel Eliab`):
+in-browser risk analysis against `POST /v1/analyze`, score/verdict/metrics,
+counted Download, one-click install, GitHub, everblooming sigil, SEO/cite.
+Risk assessment, not a lie detector and not courtroom proof. Author Aziel Eliab.
 
 Direct tarball (also counted):
 [vibelock-0.3.0.tar.gz](https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.3.0.tar.gz)
@@ -84,14 +89,14 @@ In-tree [docs/mia-lock/](docs/mia-lock/README.md) is a pointer only.
 
 ## Download
 
-**Counted download page (this project only, ticks automatically):**
+**Worker product UI + counted download (this project only, ticks automatically):**
 
 # → [https://vibelock-download-tracker.vibelock.workers.dev/](https://vibelock-download-tracker.vibelock.workers.dev/) ←
 
-The big button on that page is the download. The number next to it is
-**vibelock only** — its own Worker and KV, not mixed with VibeLock or
-anything else. Clicking it increments the counter. Nobody reports
-anything. Forks that use the same link are counted too.
+The homepage is the VibeLock app plus download. Analyze runs in the
+browser (notes, feature fields, or a WAV/still). The Download button
+is still the counted gzip. The numbers are **vibelock only** — its own
+Worker and KV. Forks that use the same link are counted too.
 
 Direct tarball (also counted): [vibelock-0.3.0.tar.gz](https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.3.0.tar.gz)
 
@@ -256,7 +261,7 @@ vibelock/           library (dsp, forensic, vision, temporal, pitch, avsync, med
 tests/              pytest, synthetic audio + A/V attacks
 docs/whitepaper.md  July 2026 spec + September 2026 A/V engine
 examples/           generate a pair / deepfake cartoon and analyze it
-workers/download-tracker/   Cloudflare Worker + wrangler.toml
+workers/download-tracker/   Cloudflare Worker product UI + wrangler.toml
 mobile/             Flutter iPhone & Android client
 CONTRIBUTING.md     forks are first-class
 ```

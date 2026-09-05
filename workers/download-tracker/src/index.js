@@ -1,4 +1,5 @@
 import { handleRuntime } from "./runtime.js";
+import { citeDoc, indexHtml as renderHomepage, llmsTxt, robotsTxt } from "./homepage.js";
 
 /**
  * VibeLock download tracker (Cloudflare Worker).
@@ -19,12 +20,7 @@ const DEFAULT_OWNER = "AzielEliab";
 const DEFAULT_REPO = "vibelock";
 const DEFAULT_BRANCH = "main";
 const HOST = "https://vibelock-download-tracker.vibelock.workers.dev";
-const GITHUB_REPO = "https://github.com/AzielEliab/vibelock";
-
 const GITHUB_LATEST = "https://github.com/AzielEliab/vibelock/releases/latest";
-const INSTALL_LINE = "curl -fsSL https://vibelock-download-tracker.vibelock.workers.dev/install.sh | bash";
-const DOI = "https://doi.org/10.5281/zenodo.21431610";
-const ZENODO = "https://zenodo.org/records/21431610";
 
 function corsHeaders() {
   return {
@@ -142,7 +138,7 @@ async function collectStats(env) {
 
   for (const k of keys) {
     const name = k.name;
-    if (name === viewsKey() || name === totalKey() || name === githubCacheKey()) continue;
+    if (name === viewsKey() || name === totalKey() || name === githubCacheKey() || name === usesKey()) continue;
     const n = parseInt((await env.DOWNLOADS.get(name)) || "0", 10);
     if (!Number.isFinite(n) || n <= 0) continue;
     const parts = name.split("|");
@@ -158,17 +154,19 @@ async function collectStats(env) {
   }
 
   const views = parseInt((await env.DOWNLOADS.get(viewsKey())) || "0", 10) || 0;
+  const uses = parseInt((await env.DOWNLOADS.get(usesKey())) || "0", 10) || 0;
   return {
     project: PROJECT,
     total,
     views,
+    uses,
     downloads: total,
     by_repo,
     by_branch,
     by_fork,
     breakdown,
     github: (await githubStats(env)),
-    note: "Forks identified by GitHub owner/repo. Key layout: project|owner|repo|branch|fork. Views are separate from downloads. /v1 does not increment.",
+    note: "Forks identified by GitHub owner/repo. Key layout: project|owner|repo|branch|fork. Views and engine uses are separate from downloads. /v1 does not increment downloads.",
   };
 }
 
@@ -183,6 +181,10 @@ function viewsKey() {
   return PROJECT + "|__views__";
 }
 
+function usesKey() {
+  return PROJECT + "|__uses__";
+}
+
 function githubCacheKey() {
   return PROJECT + "|__github__";
 }
@@ -190,6 +192,13 @@ function githubCacheKey() {
 async function incrementViews(env) {
   const n = parseInt((await env.DOWNLOADS.get(viewsKey())) || "0", 10) + 1;
   await env.DOWNLOADS.put(viewsKey(), String(n));
+  return n;
+}
+
+export async function incrementUses(env) {
+  if (!env || !env.DOWNLOADS) return 0;
+  const n = parseInt((await env.DOWNLOADS.get(usesKey())) || "0", 10) + 1;
+  await env.DOWNLOADS.put(usesKey(), String(n));
   return n;
 }
 
@@ -262,100 +271,6 @@ async function serveAsset(request, env, asset, { head = false } = {}) {
   return new Response(assetRes.body, { status: 200, headers });
 }
 
-async function indexHtml(env) {
-  const stats = await collectStats(env);
-  const downloads = Number(stats.downloads != null ? stats.downloads : stats.total) || 0;
-  const views = parseInt((await env.DOWNLOADS.get(viewsKey())) || "0", 10) || 0;
-  const v = views.toLocaleString("en-US");
-  const n = downloads.toLocaleString("en-US");
-  const breakdown = (stats.breakdown || [])
-    .map(
-      (b) =>
-        `<li><code>${b.owner}/${b.repo}</code> branch <code>${b.branch}</code> fork=${b.fork} → ${b.count}</li>`,
-    )
-    .join("") || "<li>none yet</li>";
-  return `<!doctype html>
-<html lang="en">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>VibeLock downloads</title>
-<style>
-  :root { color-scheme: dark; }
-  body { font: 16px/1.45 system-ui, sans-serif; max-width: 42rem; margin: 3rem auto; padding: 0 1.25rem 4rem; background: #0e1014; color: #e8eaef; }
-  h1 { font-size: 1.75rem; margin: 0 0 .35rem; }
-  .motto { color: #9aa3b2; margin: 0 0 1.5rem; }
-  .card { border: 1px solid #2a3140; border-radius: 12px; padding: 1.25rem 1.35rem; background: #151922; }
-  .nums { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; margin: 0 0 1rem; }
-  .count { font-size: 2.2rem; font-variant-numeric: tabular-nums; font-weight: 700; margin: 0; }
-  .count span { display: block; font-size: .95rem; font-weight: 500; color: #9aa3b2; }
-  .kid { font-size: 1.05rem; margin: 0 0 1rem; }
-  .btns { display: grid; grid-template-columns: 1fr 1fr; gap: .75rem; margin: 0 0 .85rem; }
-  @media (max-width: 520px) { .btns { grid-template-columns: 1fr; } }
-  a.btn, button.btn { display: block; width: 100%; box-sizing: border-box; text-align: center; font: inherit; font-size: 1.2rem; font-weight: 750; padding: 1rem 1.1rem; border-radius: 10px; border: 0; cursor: pointer; text-decoration: none; }
-  a.btn.primary { background: #e8eaef; color: #0e1014; }
-  button.btn.install { background: #c9a227; color: #14110a; }
-  button.btn.install.copied { background: #7dcf9a; color: #0e1014; }
-  .meta { margin-top: 1.1rem; color: #9aa3b2; font-size: .92rem; }
-  .meta a { color: #c9d4ff; }
-  .iso { margin-top: .85rem; font-size: .85rem; color: #7d8696; }
-  .banner { border: 1px solid #5c4a1a; background: #241c0d; color: #f0d78c; padding: .85rem 1rem; border-radius: 8px; margin: 0 0 1.2rem; font-size: .92rem; }
-  pre { background: #0e1014; padding: .75rem .9rem; overflow: auto; border-radius: 8px; font-size: .82rem; }
-  code { font-size: .88rem; }
-</style>
-<body>
-  <h1>VibeLock</h1>
-  <p class="motto">Sound can be forged. Pixels can be forged. Physics is harder to fake. Author Aziel Eliab.</p>
-  <p class="banner">Physics + A/V deepfake detection (audio, image, video, talking-head sync). Risk assessment, not a liveness proof. Hosted is not a live mic. Not courtroom proof. Author: Aziel Eliab.</p>
-  <div class="card">
-    <div class="nums">
-      <p class="count">${v}<span>Views</span></p>
-      <p class="count">${n}<span>Downloads</span></p>
-    </div>
-    <p class="kid"><strong>Two big buttons.</strong> Download saves the gzip (the Downloads number goes up). One-click install copies a Terminal command. After it finishes, type <code>vibelock ui</code>.</p>
-    <div class="btns">
-      <a class="btn primary dl" href="/download?asset=${DEFAULT_ASSET}">Download</a>
-      <button type="button" class="btn install" id="install-btn">One-click install</button>
-    </div>
-    <pre id="install-cmd">curl -fsSL https://vibelock-download-tracker.vibelock.workers.dev/install.sh | bash</pre>
-    <p class="kid">Then run: <code>vibelock ui</code> and open http://127.0.0.1:8760 (this computer only).</p>
-    <p class="meta">The download count ticks on the Download click. The Worker serves the gzip (HTTP 200). No 302 to GitHub. Forks using this same link are counted automatically. ${DEFAULT_ASSET} — ${n} counted.</p>
-    <p class="iso">Isolated counter: Worker <code>vibelock-download-tracker</code>, project <code>vibelock</code>, KV <code>VIBELOCK_DOWNLOADS</code>. Not mixed with any other product. /v1 does not increment downloads.</p>
-    <p class="meta">Paper: <a href="https://doi.org/10.5281/zenodo.21431610">doi:10.5281/zenodo.21431610</a> · <a href="https://zenodo.org/records/21431610">Zenodo</a> · Apache-2.0 · Eliab, Aziel</p>
-    <p class="meta"><a href="/stats">JSON stats</a> · <a href="/openapi.json">OpenAPI</a> · <a href="/v1/skill">Skill</a> · <a href="/ai">AI runtime</a> · <a href="${GITHUB_REPO}">GitHub</a> · <a href="${GITHUB_LATEST}">releases</a></p>
-    <script>
-      (function () {
-        var cmd = "curl -fsSL https://vibelock-download-tracker.vibelock.workers.dev/install.sh | bash";
-        var btn = document.getElementById("install-btn");
-        var pre = document.getElementById("install-cmd");
-        if (!btn) return;
-        btn.addEventListener("click", function () {
-          function done(ok) {
-            btn.textContent = ok ? "Copied! Paste in Terminal, then run vibelock ui" : "Select the command, copy it, then run vibelock ui";
-            btn.classList.add("copied");
-          }
-          if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(cmd).then(function () { done(true); }).catch(function () { done(false); });
-          } else {
-            done(false);
-            if (pre && window.getSelection) {
-              var r = document.createRange();
-              r.selectNodeContents(pre);
-              var sel = window.getSelection();
-              sel.removeAllRanges();
-              sel.addRange(r);
-            }
-          }
-        });
-      })();
-    </script>
-    <h2>Per repo / branch / fork</h2>
-    <ul>${breakdown}</ul>
-  </div>
-</body>
-</html>`;
-}
-
-
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -365,7 +280,20 @@ export default {
     }
 
     const runtime = await handleRuntime(request, url, env);
-    if (runtime) return runtime;
+    if (runtime) {
+      if (
+        (url.pathname === "/v1/analyze" || url.pathname === "/v1/detect") &&
+        request.method === "POST" &&
+        runtime.status === 200
+      ) {
+        try {
+          await incrementUses(env);
+        } catch {
+          /* uses is best-effort */
+        }
+      }
+      return runtime;
+    }
 
     if ((url.pathname === "/install.sh" || url.pathname === "/install.sh/") && request.method === "GET") {
       return new Response(installScript(), {
@@ -379,10 +307,33 @@ export default {
     }
 
 
+    if ((url.pathname === "/cite.json" || url.pathname === "/cite.json/") && request.method === "GET") {
+      return json(citeDoc());
+    }
+
+    if ((url.pathname === "/llms.txt" || url.pathname === "/llms.txt/") && request.method === "GET") {
+      return new Response(llmsTxt(), {
+        status: 200,
+        headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=300", ...corsHeaders() },
+      });
+    }
+
+    if ((url.pathname === "/robots.txt" || url.pathname === "/robots.txt/") && request.method === "GET") {
+      return new Response(robotsTxt(), {
+        status: 200,
+        headers: { "Content-Type": "text/plain; charset=utf-8", "Cache-Control": "public, max-age=300", ...corsHeaders() },
+      });
+    }
+
     if (url.pathname === "/" && request.method === "GET") {
       await incrementViews(env);
-      return new Response(await indexHtml(env), {
-        headers: { "Content-Type": "text/html; charset=utf-8", ...corsHeaders() },
+      const stats = await collectStats(env);
+      return new Response(renderHomepage(stats), {
+        headers: {
+          "Content-Type": "text/html; charset=utf-8",
+          "Cache-Control": "private, no-store",
+          ...corsHeaders(),
+        },
       });
     }
 
