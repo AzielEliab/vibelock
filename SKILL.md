@@ -13,6 +13,10 @@ Physics + A/V deepfake detection. Risk assessment, not courtroom proof. Author: 
 
 Always send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.
 
+The Worker homepage is a full product UI (title `VibeLock — Aziel Eliab`):
+in-browser analyze against `/v1/analyze`, plus counted download and
+one-click install. https://vibelock-download-tracker.vibelock.workers.dev/
+
 ## Call these URLs
 
 - Worker OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json
