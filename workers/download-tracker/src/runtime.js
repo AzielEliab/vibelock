@@ -45,10 +45,31 @@ function utcNow() {
   return new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 }
 
+const AI_ASSISTANTS = [
+  "ChatGPT (GPT Actions / OpenAI)",
+  "Grok (xAI)",
+  "Venice",
+  "Claude (Anthropic)",
+  "Cursor (MCP)",
+  "Glama (MCP)",
+  "Perplexity",
+  "Microsoft Copilot / Bing",
+  "Google Gemini / Vertex",
+  "Mistral",
+  "Meta AI",
+  "Apple Intelligence surfaces",
+  "Amazon Q tooling",
+  "DuckAssist",
+  "You.com",
+  "Cohere",
+  "other MCP/OpenAPI-capable assistants",
+];
+
 function aiHowTo(base) {
   const openapi = base + "/openapi.json";
   const health = base + "/v1/health";
   return {
+    assistants: AI_ASSISTANTS,
     chatgpt_actions: [
       "Open GPT Editor → Actions → Import from URL",
       "Paste " + openapi,
@@ -66,16 +87,23 @@ function aiHowTo(base) {
       "Start with GET " + health,
       "Then call the product POST listed in the spec",
     ],
+    mcp: [
+      "POST https://aziel-runtime.vibelock.workers.dev/mcp",
+      "Cursor, Glama, and other MCP clients use the catalog — no per-crawler install packages",
+    ],
     mcp_catalog: "https://aziel-runtime.vibelock.workers.dev/mcp",
     notes: [
+      "Import OpenAPI from /openapi.json or connect the MCP catalog.",
+      "Do not invent per-crawler install steps.",
       "GET /download still serves the gzip tarball and increments the counter.",
       "/v1, /openapi.json, and /ai do not increment DOWNLOADS.",
+      "Author: Aziel Eliab only.",
     ],
   };
 }
 
 const PRODUCT = "vibelock";
-const SKILL_MARKDOWN = "---\nname: VibeLock\ndescription: Use when calling VibeLock hosted /v1 or installing the local package for physics + A/V deepfake detection. Author Aziel Eliab.\n---\n\n# VibeLock\n\nPhysics + A/V deepfake detection. Risk assessment, not courtroom proof. Author: **Aziel Eliab**.\n\n**THIS IS:** a multi-signal detector — vocal-tract / vibration physics, spatial image artifacts, temporal video flicker/flow, unnatural pitch/phase shifts, and talking-head A/V sync (local CLI + hosted advisory `/v1/analyze` and `/v1/detect`).\n\n**THIS IS NOT:** courtroom proof, a liveness detector, a live microphone, face recognition, or a claim that physics cannot be forged. Hosted `/v1` does not increment downloads or views.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\nThe Worker homepage is a full product UI (title `VibeLock — Aziel Eliab`): in-browser analyze against `/v1/analyze`, plus counted download and one-click install. https://vibelock-download-tracker.vibelock.workers.dev/\n\n## Call these URLs\n\n- Worker OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- Live skill (this markdown): `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/skill`\n\nOps (do **not** increment downloads or views):\n\n- `GET /v1/health` — liveness\n- `GET /v1/skill` — this file\n- `POST /v1/analyze` — advisory score from audio features/PCM and/or visual/pitch/A/V features\n- `POST /v1/detect` — same engine, deepfake-oriented request body\n\nGrok: import OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.\n\n## Example\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/skill\ncurl -s -A 'Mozilla/5.0' -X POST https://vibelock-download-tracker.vibelock.workers.dev/v1/detect \\\n  -H 'content-type: application/json' \\\n  -d '{\"features\":{\"rms\":0.08,\"zcr\":0.07},\"visual\":{\"blockiness\":1.8,\"noise_cv\":0.7},\"pitch\":{\"f0_jump\":8.5}}'\n```\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://vibelock-download-tracker.vibelock.workers.dev/install.sh | bash\nvibelock ui\nvibelock doctor\nvibelock detect path/to/media.png\n```\n\nThen open http://127.0.0.1:8760 (loopback only). WAV, PNG, PPM, `.vlvd` frame stacks.\n\nCounted download (gzip HTTP 200, no 302): https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.3.0.tar.gz\nGitHub: https://github.com/AzielEliab/vibelock\n\nPaper: DOI https://doi.org/10.5281/zenodo.21431610 · https://zenodo.org/records/21431610 · Apache-2.0. Forks welcome.\n";
+const SKILL_MARKDOWN = "---\nname: VibeLock\ndescription: Use when calling VibeLock hosted /v1 or installing the local package for physics + A/V deepfake detection. Author Aziel Eliab.\n---\n\n# VibeLock\n\nPhysics + A/V deepfake detection. Risk assessment, not courtroom proof. Author: **Aziel Eliab**.\n\n**THIS IS:** a multi-signal detector — vocal-tract / vibration physics, spatial image artifacts, temporal video flicker/flow, unnatural pitch/phase shifts, and talking-head A/V sync (local CLI + hosted advisory `/v1/analyze` and `/v1/detect`).\n\n**THIS IS NOT:** courtroom proof, a liveness detector, a live microphone, face recognition, or a claim that physics cannot be forged. Hosted `/v1` does not increment downloads or views.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\nThe Worker homepage is a full product UI (title `VibeLock — Aziel Eliab`): in-browser analyze against `/v1/analyze`, plus counted download and one-click install. https://vibelock-download-tracker.vibelock.workers.dev/\n\n## Call these URLs\n\n- Worker OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- Live skill (this markdown): `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/skill`\n\nOps (do **not** increment downloads or views):\n\n- `GET /v1/health` — liveness\n- `GET /v1/skill` — this file\n- `POST /v1/analyze` — advisory score from audio features/PCM and/or visual/pitch/A/V features\n- `POST /v1/detect` — same engine, deepfake-oriented request body\n\nWorks with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants.\n\nImport OpenAPI as a custom tool (ChatGPT: GPT Actions; Grok/xAI: HTTP/OpenAPI tool; Venice: HTTP tools). MCP clients (Cursor, Glama, and others): POST the catalog. No per-crawler install packages.\n\n## Example\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/skill\ncurl -s -A 'Mozilla/5.0' -X POST https://vibelock-download-tracker.vibelock.workers.dev/v1/detect \\\n  -H 'content-type: application/json' \\\n  -d '{\"features\":{\"rms\":0.08,\"zcr\":0.07},\"visual\":{\"blockiness\":1.8,\"noise_cv\":0.7},\"pitch\":{\"f0_jump\":8.5}}'\n```\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://vibelock-download-tracker.vibelock.workers.dev/install.sh | bash\nvibelock ui\nvibelock doctor\nvibelock detect path/to/media.png\n```\n\nThen open http://127.0.0.1:8760 (loopback only). WAV, PNG, PPM, `.vlvd` frame stacks.\n\nCounted download (gzip HTTP 200, no 302): https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.3.0.tar.gz\nGitHub: https://github.com/AzielEliab/vibelock\n\nPaper: DOI https://doi.org/10.5281/zenodo.21431610 · https://zenodo.org/records/21431610 · Apache-2.0. Forks welcome.\n";
 const VERSION = "0.3.0";
 const BASE = "https://vibelock-download-tracker.vibelock.workers.dev";
 const MOTTO = "Sound can be forged. Pixels can be forged. Physics is harder to fake.";
@@ -563,7 +591,7 @@ export async function handleRuntime(request, url, env) {
   if (path === "/ai" && request.method === "GET") {
     return runtimeJson({
       product: PRODUCT,
-      title: "Use with Grok, ChatGPT, Venice",
+      title: "Use with AI assistants",
       motto: MOTTO,
       label: LABEL,
       openapi: BASE + "/openapi.json",

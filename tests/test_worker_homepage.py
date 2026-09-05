@@ -79,3 +79,49 @@ def test_worker_serves_cite_and_homepage_module() -> None:
     assert "/llms.txt" in INDEX
     assert "/robots.txt" in INDEX
     assert "incrementUses" in INDEX
+
+
+def test_ai_assistants_full_list_not_exclusive_trio() -> None:
+    runtime = (WORKER / "src" / "runtime.js").read_text(encoding="utf-8")
+    skill = (ROOT / "SKILL.md").read_text(encoding="utf-8")
+    homepage = HOMEPAGE
+    exclusive = (
+        "Use with Grok, ChatGPT, Venice",
+        "Grok / ChatGPT / Venice",
+        "Grok: import OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.",
+    )
+    blobs = (ROOT_README, README, runtime, skill, homepage)
+    for phrase in exclusive:
+        for blob in blobs:
+            assert phrase not in blob
+    required = (
+        "ChatGPT (GPT Actions / OpenAI)",
+        "Grok (xAI)",
+        "Venice",
+        "Claude (Anthropic)",
+        "Cursor (MCP)",
+        "Glama (MCP)",
+        "Perplexity",
+        "Microsoft Copilot / Bing",
+        "Google Gemini / Vertex",
+        "Mistral",
+        "Meta AI",
+        "Apple Intelligence surfaces",
+        "Amazon Q tooling",
+        "DuckAssist",
+        "You.com",
+        "Cohere",
+        "other MCP/OpenAPI-capable assistants",
+    )
+    for name in required:
+        assert name in ROOT_README
+        assert name in README
+        assert name in runtime
+        assert name in skill
+        assert name in homepage
+    assert "## Use with AI assistants" in ROOT_README
+    assert "## Use with AI assistants" in README
+    assert 'title: "Use with AI assistants"' in runtime
+    assert "Aziel Eliab" in skill
+    assert "Jane Doe" not in skill
+    assert "John Doe" not in skill
