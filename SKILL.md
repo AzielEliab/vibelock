@@ -31,7 +31,9 @@ Ops (do **not** increment downloads or views):
 - `POST /v1/analyze` — advisory score from audio features/PCM and/or visual/pitch/A/V features
 - `POST /v1/detect` — same engine, deepfake-oriented request body
 
-Grok: import OpenAPI as a custom tool. ChatGPT: GPT Actions. Venice: HTTP tools.
+Works with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants.
+
+Import OpenAPI as a custom tool (ChatGPT: GPT Actions; Grok/xAI: HTTP/OpenAPI tool; Venice: HTTP tools). MCP clients (Cursor, Glama, and others): POST the catalog. No per-crawler install packages.
 
 ## Example
 

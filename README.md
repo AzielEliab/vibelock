@@ -266,7 +266,7 @@ mobile/             Flutter iPhone & Android client
 CONTRIBUTING.md     forks are first-class
 ```
 
-## Use with Grok, ChatGPT, Venice
+## Use with AI assistants
 
 Live HTTPS runtime on the download-tracker Worker (does **not** increment the download counter):
 
@@ -280,11 +280,37 @@ POST `/v1/analyze` or `/v1/detect` with `features:{rms,zcr,...}`, limited
 **Risk assessment, not a liveness proof.** Hosted is not a live mic;
 desktop `listen` stays local. The Worker ports the same heuristics in JS.
 
+The same OpenAPI spec and MCP catalog work with any MCP- or OpenAPI-capable
+assistant, including:
+
+- ChatGPT (GPT Actions / OpenAI)
+- Grok (xAI)
+- Venice
+- Claude (Anthropic)
+- Cursor (MCP)
+- Glama (MCP)
+- Perplexity
+- Microsoft Copilot / Bing
+- Google Gemini / Vertex
+- Mistral
+- Meta AI
+- Apple Intelligence surfaces
+- Amazon Q tooling
+- DuckAssist
+- You.com
+- Cohere
+- and other MCP/OpenAPI-capable assistants
+
+Import the OpenAPI spec or connect the MCP catalog. There are no
+per-crawler install packages.
+
 **ChatGPT Actions:** GPT Editor → Actions → Import from URL → `https://vibelock-download-tracker.vibelock.workers.dev/openapi.json` (no auth).
 
 **Grok / xAI tools:** add an HTTP/OpenAPI tool pointing at `https://vibelock-download-tracker.vibelock.workers.dev/openapi.json`.
 
 **Venice HTTP tools:** add an HTTP tool with method, URL, and JSON body from that spec. Start with GET `https://vibelock-download-tracker.vibelock.workers.dev/v1/health`.
+
+**MCP (Cursor, Glama, and other MCP clients):** `POST https://aziel-runtime.vibelock.workers.dev/mcp`.
 
 ```bash
 curl -sS -A 'Mozilla/5.0' -X POST https://vibelock-download-tracker.vibelock.workers.dev/v1/detect \
