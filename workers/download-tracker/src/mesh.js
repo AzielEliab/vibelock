@@ -123,23 +123,25 @@ export function emptyMesh(extra = {}) {
   const rollup = extra.rollup && typeof extra.rollup === "object"
     ? { ...emptyRollup(), ...extra.rollup }
     : emptyRollup();
+  const merged = extra && typeof extra === "object" ? { ...extra } : {};
+  delete merged.spec;
+  delete merged.rollup;
+  delete merged.node_gate;
+  delete merged.auto_heal;
+  delete merged.anonymity_network;
+  delete merged.author;
+  delete merged.identity;
   return {
     ok: true,
-    spec: QNM_SPEC,
     kernel: MESH_KERNEL,
     enabled: false,
     default_off: true,
     live_nodes: 0,
-    status: extra.status || "off",
-    source: extra.source || "fallback",
-    node_gate: false,
-    auto_heal: false,
-    anonymity_network: false,
-    author: MESH_IDENTITY,
-    identity: MESH_IDENTITY,
     note: MESH_NOTE,
     door: MESH_PATH,
-    ...extra,
+    ...merged,
+    status: extra.status || "off",
+    source: extra.source || "fallback",
     spec: QNM_SPEC,
     rollup,
     node_gate: false,

@@ -600,14 +600,30 @@ async function proxyDoor(request, url, env) {
     if (v) headers.set(name, v);
   }
   if (!headers.has("User-Agent")) headers.set("User-Agent", "Mozilla/5.0 VibeLock/0.3.0");
-  const init = { method: request.method, headers, redirect: "follow" };
+  let body = null;
   if (request.method !== "GET" && request.method !== "HEAD") {
-    init.body = request.body;
-    init.duplex = "half";
+    body = await request.arrayBuffer();
   }
+  const initFor = () => {
+    const init = { method: request.method, headers, redirect: "follow" };
+    if (body) init.body = body;
+    return init;
+  };
   try {
     const fetcher = runtimeFetcher(env);
-    const res = fetcher ? await fetcher.fetch(dest, init) : await fetch(dest, init);
+    let res = null;
+    if (fetcher) {
+      try {
+        res = await fetcher.fetch(dest, initFor());
+      } catch {
+        res = null;
+      }
+    }
+    // Local wrangler service binding 503s when aziel-runtime is not running here.
+    // Fall back to HTTPS origin (AZIEL_RUNTIME_ORIGIN / aziel-runtime.vibelock.workers.dev).
+    if (!res || res.status === 503) {
+      res = await fetch(dest, initFor());
+    }
     const outHeaders = new Headers(res.headers);
     for (const [k, v] of Object.entries(runtimeCors())) outHeaders.set(k, v);
     outHeaders.set("X-Aziel-Door", "proxy");

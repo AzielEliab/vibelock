@@ -66,6 +66,8 @@ def test_runtime_advertises_mesh_proxy_and_pointer() -> None:
     assert "handleRuntime(request, url, env)" in INDEX
     assert "proxyDoor" in RUNTIME
     assert "AZIEL_RUNTIME" in RUNTIME
+    assert "res.status === 503" in RUNTIME
+    assert "aziel-runtime.vibelock.workers.dev" in RUNTIME
 
 
 def test_mcp_points_at_suite_mesh() -> None:
