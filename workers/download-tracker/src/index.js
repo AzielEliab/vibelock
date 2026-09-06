@@ -12,6 +12,7 @@ import { citeDoc, indexHtml as renderHomepage, llmsTxt, robotsTxt } from "./home
  * POST /event   forks report a download {owner,repo,branch,fork,asset}
  *
  * KV binding DOWNLOADS. Keys: project|owner|repo|branch|fork
+ * /v1, /mcp, and /v1/mesh/* do not increment.
  * CORS *. No secrets in this tree.
  */
 
@@ -26,8 +27,8 @@ const GITHUB_LATEST = "https://github.com/AzielEliab/vibelock/releases/latest";
 function corsHeaders() {
   return {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET, POST, HEAD, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Accept, MCP-Protocol-Version, mcp-session-id, User-Agent, Authorization",
   };
 }
 

@@ -11,4 +11,13 @@ id = "21a88662123a4be2ad544a9e401de38e"
 [assets]
 directory = "./public"
 binding = "ASSETS"
+# /mcp and /mcp/ must hit the Worker (not ASSETS).
+# /v1/* covers /v1/mesh/* (AZIEL_RUNTIME proxy) and local /v1/{analyze,detect,health,skill}.
 run_worker_first = ["/", "/install.sh", "/install.sh/", "/download", "/download/*", "/stats", "/event", "/go", "/count", "/count/", "/v1", "/v1/*", "/openapi.json", "/ai", "/ai/*", "/mcp", "/mcp/", "/cite.json", "/cite.json/", "/llms.txt", "/llms.txt/", "/robots.txt", "/robots.txt/"]
+
+[vars]
+AZIEL_RUNTIME_ORIGIN = "https://aziel-runtime.vibelock.workers.dev"
+
+[[services]]
+binding = "AZIEL_RUNTIME"
+service = "aziel-runtime"

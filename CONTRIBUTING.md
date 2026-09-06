@@ -34,6 +34,9 @@ Python 3.10+, numpy, scipy, pytest. No hardware. Fixtures in
    say so, with the set’s name and license.
 6. **Do not gut the DSP to make a test pass.** If a threshold is too
    tight, loosen the test.
+7. **Suite mesh is a proxy, not a local op.** `/v1/mesh/*` PROXY to
+   aziel-runtime via `AZIEL_RUNTIME`. Default OFF. QNM rollup is
+   live|locked|isolated only. No Node Gate. No auto-heal. Not anonymity.
 
 ## Where to change things
 
@@ -48,6 +51,8 @@ Python 3.10+, numpy, scipy, pytest. No hardware. Fixtures in
 - Reason codes / scoring: `vibelock/scoring.py`
 - New checks need a synthetic fixture that moves the score in the
   documented direction (authentic higher, attacked lower).
+- Suite mesh / QNM Live Nodes: `workers/download-tracker/src/mesh.js`
+  (`/v1/mesh/*` PROXY to aziel-runtime).
 
 ## Reporting downloads from a fork
 

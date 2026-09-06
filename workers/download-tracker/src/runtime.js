@@ -2,12 +2,17 @@
  * VibeLock hosted runtime (Cloudflare Worker).
  * Ports scoring heuristics as far as JS allows.
  * Risk assessment, not a liveness proof. Hosted is not a live mic.
+ * /v1/mesh/* PROXY to aziel-runtime via AZIEL_RUNTIME (or HTTPS fallback).
+ * Author: Aziel Eliab only.
  */
+import { classifyV1Path, doorTargetUrl } from "./door.js";
+import { meshOpenApiPaths, meshPointer } from "./mesh.js";
+
 function runtimeCors() {
   return {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "GET, POST, HEAD, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type, Accept, MCP-Protocol-Version, mcp-session-id, User-Agent, Authorization",
   };
 }
 
@@ -90,20 +95,25 @@ function aiHowTo(base) {
     mcp: [
       "POST https://aziel-runtime.vibelock.workers.dev/mcp",
       "Cursor, Glama, and other MCP clients use the catalog — no per-crawler install packages",
+      "Catalog MCP mesh_* + FragGate slug=mesh. This Worker /mcp is a pointer, not a second MCP.",
     ],
     mcp_catalog: "https://aziel-runtime.vibelock.workers.dev/mcp",
+    this_worker_mcp: base + "/mcp",
+    mesh: meshPointer(),
+    mesh_body: { slug: "mesh", op: "status", payload: {} },
     notes: [
       "Import OpenAPI from /openapi.json or connect the MCP catalog.",
       "Do not invent per-crawler install steps.",
       "GET /download still serves the gzip tarball and increments the counter.",
-      "/v1, /openapi.json, and /ai do not increment DOWNLOADS.",
+      "/v1, /openapi.json, /ai, /mcp, and /v1/mesh/* do not increment DOWNLOADS.",
+      "Suite mesh /v1/mesh/* PROXY to aziel-runtime via AZIEL_RUNTIME. Default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity.",
       "Author: Aziel Eliab only.",
     ],
   };
 }
 
 const PRODUCT = "vibelock";
-const SKILL_MARKDOWN = "---\nname: VibeLock\ndescription: Use when calling VibeLock hosted /v1 or installing the local package for physics + A/V deepfake detection. Author Aziel Eliab.\n---\n\n# VibeLock\n\nPhysics + A/V deepfake detection. Risk assessment, not courtroom proof. Author: **Aziel Eliab**.\n\n**THIS IS:** a multi-signal detector — vocal-tract / vibration physics, spatial image artifacts, temporal video flicker/flow, unnatural pitch/phase shifts, and talking-head A/V sync (local CLI + hosted advisory `/v1/analyze` and `/v1/detect`).\n\n**THIS IS NOT:** courtroom proof, a liveness detector, a live microphone, face recognition, or a claim that physics cannot be forged. Hosted `/v1` does not increment downloads or views.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\nThe Worker homepage is a full product UI (title `VibeLock — Aziel Eliab`): in-browser analyze against `/v1/analyze`, plus counted download and one-click install. https://vibelock-download-tracker.vibelock.workers.dev/\n\n## Call these URLs\n\n- Worker OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- Live skill (this markdown): `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/skill`\n\nOps (do **not** increment downloads or views):\n\n- `GET /v1/health` — liveness\n- `GET /v1/skill` — this file\n- `POST /v1/analyze` — advisory score from audio features/PCM and/or visual/pitch/A/V features\n- `POST /v1/detect` — same engine, deepfake-oriented request body\n\nWorks with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants.\n\nImport OpenAPI as a custom tool (ChatGPT: GPT Actions; Grok/xAI: HTTP/OpenAPI tool; Venice: HTTP tools). MCP clients (Cursor, Glama, and others): POST the catalog. No per-crawler install packages.\n\n## Example\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/skill\ncurl -s -A 'Mozilla/5.0' -X POST https://vibelock-download-tracker.vibelock.workers.dev/v1/detect \\\n  -H 'content-type: application/json' \\\n  -d '{\"features\":{\"rms\":0.08,\"zcr\":0.07},\"visual\":{\"blockiness\":1.8,\"noise_cv\":0.7},\"pitch\":{\"f0_jump\":8.5}}'\n```\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://vibelock-download-tracker.vibelock.workers.dev/install.sh | bash\nvibelock ui\nvibelock doctor\nvibelock detect path/to/media.png\n```\n\nThen open http://127.0.0.1:8760 (loopback only). WAV, PNG, PPM, `.vlvd` frame stacks.\n\nCounted download (gzip HTTP 200, no 302): https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.3.0.tar.gz\nGitHub: https://github.com/AzielEliab/vibelock\n\nPaper: DOI https://doi.org/10.5281/zenodo.21431610 · https://zenodo.org/records/21431610 · Apache-2.0. Forks welcome.\n";
+const SKILL_MARKDOWN = "---\nname: VibeLock\ndescription: Use when calling VibeLock hosted /v1 or installing the local package for physics + A/V deepfake detection. This Worker /v1/mesh/* PROXY to aziel-runtime via AZIEL_RUNTIME. Suite mesh default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Author Aziel Eliab.\n---\n\n# VibeLock\n\nPhysics + A/V deepfake detection. Risk assessment, not courtroom proof. Author: **Aziel Eliab**.\n\n**THIS IS:** a multi-signal detector — vocal-tract / vibration physics, spatial image artifacts, temporal video flicker/flow, unnatural pitch/phase shifts, and talking-head A/V sync (local CLI + hosted advisory `/v1/analyze` and `/v1/detect`).\n\n**THIS IS NOT:** courtroom proof, a liveness detector, a live microphone, face recognition, or a claim that physics cannot be forged. Hosted `/v1` does not increment downloads or views.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\nThe Worker homepage is a full product UI (title `VibeLock — Aziel Eliab`): in-browser analyze against `/v1/analyze`, plus counted download, one-click install, and the suite Live Nodes strip (`GET /v1/mesh`). https://vibelock-download-tracker.vibelock.workers.dev/\n\n## Call these URLs\n\n- Worker OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- This Worker MCP pointer: `GET https://vibelock-download-tracker.vibelock.workers.dev/mcp`\n- Live skill (this markdown): `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/skill`\n- Suite mesh: `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/mesh` (PROXY; default OFF)\n\nOps (do **not** increment downloads or views):\n\n- `GET /v1/health` — liveness\n- `GET /v1/skill` — this file\n- `POST /v1/analyze` — advisory score from audio features/PCM and/or visual/pitch/A/V features\n- `POST /v1/detect` — same engine, deepfake-oriented request body\n- `GET /v1/mesh` — PROXY suite mesh status. Default OFF. QNM live|locked|isolated. Never enables. No Node Gate. No auto-heal.\n- `GET /v1/mesh/nodes` — PROXY Live Nodes roster (5-minute presence).\n- `POST /v1/mesh/{enable,disable,join,heartbeat,leave,broadcast}` — PROXY. Bearer required to enable. Not AnonBroadcast.\n- `GET /mcp` — OpenAPI/MCP pointer (catalog MCP + FragGate `slug=mesh`). Not a second MCP.\n\nWorks with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants.\n\nImport OpenAPI as a custom tool (ChatGPT: GPT Actions; Grok/xAI: HTTP/OpenAPI tool; Venice: HTTP tools). MCP clients (Cursor, Glama, and others): POST the catalog. Catalog MCP `mesh_*` + FragGate `slug=mesh`. No per-crawler install packages.\n\n## Example\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/skill\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/mesh\ncurl -s -A 'Mozilla/5.0' -X POST https://vibelock-download-tracker.vibelock.workers.dev/v1/detect \\\n  -H 'content-type: application/json' \\\n  -d '{\"features\":{\"rms\":0.08,\"zcr\":0.07},\"visual\":{\"blockiness\":1.8,\"noise_cv\":0.7},\"pitch\":{\"f0_jump\":8.5}}'\n```\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://vibelock-download-tracker.vibelock.workers.dev/install.sh | bash\nvibelock ui\nvibelock doctor\nvibelock detect path/to/media.png\n```\n\nThen open http://127.0.0.1:8760 (loopback only). WAV, PNG, PPM, `.vlvd` frame stacks.\n\nCounted download (gzip HTTP 200, no 302): https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.3.0.tar.gz\nGitHub: https://github.com/AzielEliab/vibelock\n\nPaper: DOI https://doi.org/10.5281/zenodo.21431610 · https://zenodo.org/records/21431610 · Apache-2.0. Forks welcome.\n";
 const VERSION = "0.3.0";
 const BASE = "https://vibelock-download-tracker.vibelock.workers.dev";
 const MOTTO = "Sound can be forged. Pixels can be forged. Physics is harder to fake.";
@@ -456,11 +466,15 @@ function openapiDoc() {
       title: "VibeLock Runtime API",
       version: VERSION,
       summary: MOTTO,
-      description: LABEL + " " + HOSTED_NOTE,
+      description: LABEL + " " + HOSTED_NOTE + " Suite mesh /v1/mesh/* PROXY to aziel-runtime (AZIEL_RUNTIME). Default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Aziel Eliab only.",
     },
     servers: [{ url: BASE }],
     paths: {
       "/v1/health": { get: { operationId: "vibelockHealth", summary: "Liveness", responses: { "200": { description: "OK" } } } },
+      ...meshOpenApiPaths(),
+      "/mcp": {
+        get: { operationId: "vibelockMcpPointer", summary: "OpenAPI/MCP pointer (catalog MCP + suite mesh). Not a second MCP.", responses: { "200": { description: "MCP pointer JSON" } } },
+      },
       "/v1/analyze": {
         post: {
           operationId: "vibelockAnalyze",
@@ -569,10 +583,81 @@ async function handleAnalyze(body) {
   });
 }
 
+function runtimeFetcher(env) {
+  if (env && env.AZIEL_RUNTIME && typeof env.AZIEL_RUNTIME.fetch === "function") return env.AZIEL_RUNTIME;
+  return null;
+}
+
+async function proxyDoor(request, url, env) {
+  const dest = doorTargetUrl(url.pathname, request.url, env);
+  if (!dest) {
+    return runtimeJson({ ok: false, error: "not a door path", path: url.pathname, door: "fraggate" }, 404);
+  }
+  const headers = new Headers();
+  const pass = ["content-type", "accept", "authorization", "user-agent", "mcp-protocol-version", "mcp-session-id", "x-aziel-runtime-token"];
+  for (const name of pass) {
+    const v = request.headers.get(name);
+    if (v) headers.set(name, v);
+  }
+  if (!headers.has("User-Agent")) headers.set("User-Agent", "Mozilla/5.0 VibeLock/0.3.0");
+  const init = { method: request.method, headers, redirect: "follow" };
+  if (request.method !== "GET" && request.method !== "HEAD") {
+    init.body = request.body;
+    init.duplex = "half";
+  }
+  try {
+    const fetcher = runtimeFetcher(env);
+    const res = fetcher ? await fetcher.fetch(dest, init) : await fetch(dest, init);
+    const outHeaders = new Headers(res.headers);
+    for (const [k, v] of Object.entries(runtimeCors())) outHeaders.set(k, v);
+    outHeaders.set("X-Aziel-Door", "proxy");
+    outHeaders.set("X-Aziel-Door-Origin", dest);
+    return new Response(res.body, { status: res.status, statusText: res.statusText, headers: outHeaders });
+  } catch (exc) {
+    return runtimeJson({
+      ok: false,
+      error: "fraggate_proxy_failed",
+      detail: String(exc).slice(0, 240),
+      origin: dest,
+      agent_path: "https://aziel-runtime.vibelock.workers.dev/v1/fraggate/call",
+      door: "fraggate",
+      slug: "vibelock",
+    }, 502);
+  }
+}
+
+function mcpPointer() {
+  return {
+    ok: true,
+    product: PRODUCT,
+    pointer: true,
+    identity: "Aziel Eliab only",
+    author: "Aziel Eliab",
+    catalog_mcp: "https://aziel-runtime.vibelock.workers.dev/mcp",
+    catalog_openapi: "https://aziel-runtime.vibelock.workers.dev/openapi.json",
+    worker_openapi: BASE + "/openapi.json",
+    this_worker_mcp: BASE + "/mcp",
+    agent_path: "https://aziel-runtime.vibelock.workers.dev/v1/fraggate/call",
+    body: { slug: "vibelock", op: "health", payload: {} },
+    mesh: meshPointer(),
+    mesh_body: { slug: "mesh", op: "status", payload: {} },
+    note: "This Worker /mcp is a pointer, not a second MCP. Canonical catalog MCP is POST https://aziel-runtime.vibelock.workers.dev/mcp (FragGate slug vibelock). Catalog MCP mesh_* + FragGate slug=mesh. This Worker /v1/mesh/* PROXY to aziel-runtime via AZIEL_RUNTIME. Suite mesh default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Author: Aziel Eliab only.",
+    kv_increment: false,
+  };
+}
+
 export async function handleRuntime(request, url, env) {
   const path = url.pathname;
+  const stripped = path.replace(/\/+$/, "") || "/";
+  if (stripped === "/mcp") {
+    return runtimeJson(mcpPointer());
+  }
+  const classified = classifyV1Path(path);
+  if (classified.kind === "door") {
+    return proxyDoor(request, url, env);
+  }
   if (path === "/v1/health" && request.method === "GET") {
-    return runtimeJson({ ok: true, product: PRODUCT, version: VERSION, label: LABEL, hosted_mic: false, liveness_proof: false, courtroom_proof: false, advisory: true });
+    return runtimeJson({ ok: true, product: PRODUCT, version: VERSION, label: LABEL, hosted_mic: false, liveness_proof: false, courtroom_proof: false, advisory: true, mesh: meshPointer(), note: "Suite mesh /v1/mesh/* PROXY to aziel-runtime. Default OFF. No Node Gate." });
   }
 
   if (path === "/v1/skill" && request.method === "GET") {
@@ -596,11 +681,13 @@ export async function handleRuntime(request, url, env) {
       label: LABEL,
       openapi: BASE + "/openapi.json",
       health: BASE + "/v1/health",
+      mesh: BASE + "/v1/mesh",
+      mcp: BASE + "/mcp",
       ...aiHowTo(BASE),
     });
   }
   if (path === "/v1" && request.method === "GET") {
-    return runtimeJson({ product: PRODUCT, label: LABEL, endpoints: ["GET /v1/health", "POST /v1/analyze", "POST /v1/detect", "GET /openapi.json", "GET /ai"] });
+    return runtimeJson({ product: PRODUCT, label: LABEL, endpoints: ["GET /v1/health", "POST /v1/analyze", "POST /v1/detect", "GET /v1/mesh", "GET /openapi.json", "GET /ai", "GET /mcp"], mesh: meshPointer() });
   }
   if ((path === "/v1/analyze" || path === "/v1/detect") && request.method === "POST") {
     let body = {};
@@ -608,6 +695,12 @@ export async function handleRuntime(request, url, env) {
     return handleAnalyze(body);
   }
   if (path === "/v1/analyze" || path === "/v1/detect") return runtimeJson({ error: "method not allowed" }, 405);
-  if (path.startsWith("/v1/")) return runtimeJson({ error: "not found", product: PRODUCT }, 404);
+  if (path.startsWith("/v1/")) {
+    return runtimeJson({
+      error: "not found",
+      product: PRODUCT,
+      hint: "GET /v1/health GET /v1/skill POST /v1/analyze POST /v1/detect GET /v1/mesh GET /openapi.json GET /mcp",
+    }, 404);
+  }
   return null;
 }

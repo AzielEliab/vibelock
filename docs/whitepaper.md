@@ -277,6 +277,10 @@ A complete, inspectable implementation of the algorithms above, with
 synthetic tests that prove each check moves the score the right way, a
 CLI (`analyze` / `detect`), a localhost UI, and a Cloudflare Worker
 that counts downloads and ports the same heuristics in JavaScript.
+The Worker homepage also shows the suite Live Nodes strip
+(`GET /v1/mesh` PROXY to aziel-runtime). Suite mesh default OFF.
+QNM-BUILD-1.0 public rollup is live|locked|isolated counts only.
+No Node Gate. Not a login mesh. Author: Aziel Eliab only.
 
 Forks are welcome and always allowed.
 
