@@ -7,6 +7,7 @@ import { citeDoc, indexHtml as renderHomepage, llmsTxt, robotsTxt } from "./home
  * GET  /download?repo=AzielEliab/vibelock&tag=latest&asset=...
  *      increments KV, 200 gzip from Worker ASSETS (not a 302 to GitHub)
  *      default asset vibelock-0.3.0.tar.gz
+ * GET  /count   compact JSON {project, views, downloads, total}
  * GET  /stats   JSON totals + per-repo + per-branch breakdown
  * POST /event   forks report a download {owner,repo,branch,fork,asset}
  *
@@ -189,6 +190,12 @@ function githubCacheKey() {
   return PROJECT + "|__github__";
 }
 
+function countPayload(stats) {
+  const views = Number(stats && stats.views) || 0;
+  const downloads = Number(stats && (stats.downloads != null ? stats.downloads : stats.total)) || 0;
+  return { project: PROJECT, views, downloads, total: downloads };
+}
+
 async function incrementViews(env) {
   const n = parseInt((await env.DOWNLOADS.get(viewsKey())) || "0", 10) + 1;
   await env.DOWNLOADS.put(viewsKey(), String(n));
@@ -337,9 +344,9 @@ export default {
       });
     }
 
-    if (url.pathname === "/count" && request.method === "GET") {
+    if ((url.pathname === "/count" || url.pathname === "/count/") && request.method === "GET") {
       const stats = await collectStats(env);
-      return json({ project: PROJECT, total: stats.total || 0 });
+      return json(countPayload(stats));
     }
 
     if (url.pathname === "/stats" && request.method === "GET") {
