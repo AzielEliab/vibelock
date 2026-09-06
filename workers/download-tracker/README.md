@@ -61,6 +61,7 @@ login` on a machine with a browser, then `npx wrangler deploy` from
 |--------|------|----------|
 | GET | `/` | Product UI: analyze workspace + views/downloads + Download + one-click install |
 | GET | `/download?repo=&tag=&asset=` | Increment KV, **200 gzip** from Worker ASSETS (`vibelock-0.3.0.tar.gz`). Not a 302 to GitHub. |
+| GET | `/count` | Compact JSON `{project, views, downloads, total}` (`total` is downloads; views stay separate) |
 | GET | `/stats` | JSON totals plus per-repo and per-branch breakdown |
 | POST | `/event` | A fork reports a download |
 | GET | `/cite.json` | Citation (author Aziel Eliab; no invented DOI) |
@@ -98,6 +99,9 @@ curl -X POST https://downloads.vibelock.dev/event   -H "content-type: applicatio
 `AzielEliab/vibelock`, the worker records `fork=1` automatically.
 
 ## Stats
+
+`GET /count` returns `{project, views, downloads, total}`. `total` equals
+`downloads`. Views are homepage hits and stay separate from downloads.
 
 `GET /stats` returns `total`, `views`, `uses`, `by_repo`, `by_branch`,
 `by_fork`, and a `breakdown` array so forks can read aggregates.

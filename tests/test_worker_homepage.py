@@ -73,6 +73,19 @@ def test_readme_names_full_worker_ui() -> None:
     assert "npx wrangler deploy" in README
 
 
+def test_count_returns_project_views_downloads_total() -> None:
+    assert 'url.pathname === "/count"' in INDEX
+    assert "function countPayload" in INDEX
+    start = INDEX.index("function countPayload")
+    chunk = INDEX[start : start + 400]
+    for key in ("project", "views", "downloads", "total"):
+        assert f"{key}:" in chunk or f"{key}," in chunk or f"{key} " in chunk
+    assert "return { project: PROJECT, views, downloads, total: downloads }" in INDEX
+    assert "GET /count" in README
+    assert "{project, views, downloads, total}" in README
+    assert "vibelock-download-tracker.vibelock.workers.dev/count" in ROOT_README
+
+
 def test_worker_serves_cite_and_homepage_module() -> None:
     assert "renderHomepage" in INDEX
     assert "/cite.json" in INDEX
