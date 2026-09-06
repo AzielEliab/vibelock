@@ -126,6 +126,10 @@ Import the OpenAPI spec or connect the MCP catalog. There are no per-crawler ins
 | POST | `/v1/detect` | Same engine; deepfake-oriented body |
 | GET | `/openapi.json` | OpenAPI 3.1 |
 | GET | `/ai` | How to import OpenAPI/MCP; full AI assistant list |
+| GET | `/mcp` | OpenAPI/MCP pointer (catalog MCP + suite mesh). Not a second MCP. |
+| GET | `/v1/mesh` | PROXY suite mesh status via AZIEL_RUNTIME. Default OFF. QNM-BUILD-1.0 live\|locked\|isolated. No Node Gate. |
 
 See the product README section **Use with AI assistants**.
 OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json
+
+`/v1/mesh/*` PROXY to aziel-runtime suite mesh (`AZIEL_RUNTIME` or HTTPS fallback). Default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Human UI Live Nodes strip polls `GET /v1/mesh`. Identity is Aziel Eliab only.

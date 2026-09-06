@@ -1,6 +1,6 @@
 ---
 name: VibeLock
-description: Use when calling VibeLock hosted /v1 or installing the local package for physics + A/V deepfake detection. Author Aziel Eliab.
+description: Use when calling VibeLock hosted /v1 or installing the local package for physics + A/V deepfake detection. This Worker /v1/mesh/* PROXY to aziel-runtime via AZIEL_RUNTIME. Suite mesh default OFF. QNM-BUILD-1.0 live|locked|isolated. No Node Gate. No auto-heal. Not anonymity. Author Aziel Eliab.
 ---
 
 # VibeLock
@@ -14,15 +14,18 @@ Physics + A/V deepfake detection. Risk assessment, not courtroom proof. Author: 
 Always send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.
 
 The Worker homepage is a full product UI (title `VibeLock — Aziel Eliab`):
-in-browser analyze against `/v1/analyze`, plus counted download and
-one-click install. https://vibelock-download-tracker.vibelock.workers.dev/
+in-browser analyze against `/v1/analyze`, plus counted download,
+one-click install, and the suite Live Nodes strip (`GET /v1/mesh`).
+https://vibelock-download-tracker.vibelock.workers.dev/
 
 ## Call these URLs
 
 - Worker OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json
 - Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json
 - MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`
+- This Worker MCP pointer: `GET https://vibelock-download-tracker.vibelock.workers.dev/mcp`
 - Live skill (this markdown): `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/skill`
+- Suite mesh: `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/mesh` (PROXY; default OFF)
 
 Ops (do **not** increment downloads or views):
 
@@ -30,16 +33,21 @@ Ops (do **not** increment downloads or views):
 - `GET /v1/skill` — this file
 - `POST /v1/analyze` — advisory score from audio features/PCM and/or visual/pitch/A/V features
 - `POST /v1/detect` — same engine, deepfake-oriented request body
+- `GET /v1/mesh` — PROXY suite mesh status. Default OFF. QNM live|locked|isolated. Never enables. No Node Gate. No auto-heal.
+- `GET /v1/mesh/nodes` — PROXY Live Nodes roster (5-minute presence).
+- `POST /v1/mesh/{enable,disable,join,heartbeat,leave,broadcast}` — PROXY. Bearer required to enable. Not AnonBroadcast.
+- `GET /mcp` — OpenAPI/MCP pointer (catalog MCP + FragGate `slug=mesh`). Not a second MCP.
 
 Works with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants.
 
-Import OpenAPI as a custom tool (ChatGPT: GPT Actions; Grok/xAI: HTTP/OpenAPI tool; Venice: HTTP tools). MCP clients (Cursor, Glama, and others): POST the catalog. No per-crawler install packages.
+Import OpenAPI as a custom tool (ChatGPT: GPT Actions; Grok/xAI: HTTP/OpenAPI tool; Venice: HTTP tools). MCP clients (Cursor, Glama, and others): POST the catalog. Catalog MCP `mesh_*` + FragGate `slug=mesh`. No per-crawler install packages.
 
 ## Example
 
 ```bash
 curl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/health
 curl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/skill
+curl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/mesh
 curl -s -A 'Mozilla/5.0' -X POST https://vibelock-download-tracker.vibelock.workers.dev/v1/detect \
   -H 'content-type: application/json' \
   -d '{"features":{"rms":0.08,"zcr":0.07},"visual":{"blockiness":1.8,"noise_cv":0.7},"pitch":{"f0_jump":8.5}}'
