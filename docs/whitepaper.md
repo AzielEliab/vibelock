@@ -280,6 +280,8 @@ that counts downloads and ports the same heuristics in JavaScript.
 The Worker homepage also shows the suite Live Nodes strip
 (`GET /v1/mesh` PROXY to aziel-runtime). Suite mesh default OFF.
 QNM-BUILD-1.0 public rollup is live|locked|isolated counts only.
+QNS-CD-1.0 (photon QNS1 packet transfer) is a hub cite / Worker mesh
+cross-map only — not a Softwares-tab product and not a public qnsd proxy.
 No Node Gate. Not a login mesh. Author: Aziel Eliab only.
 
 Forks are welcome and always allowed.
