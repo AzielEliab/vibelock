@@ -36,7 +36,10 @@ Python 3.10+, numpy, scipy, pytest. No hardware. Fixtures in
    tight, loosen the test.
 7. **Suite mesh is a proxy, not a local op.** `/v1/mesh/*` PROXY to
    aziel-runtime via `AZIEL_RUNTIME`. Default OFF. QNM rollup is
-   live|locked|isolated only. No Node Gate. No auto-heal. Not anonymity.
+   live|locked|isolated only. QNS-CD-1.0 is a hub cite / Worker mesh
+   cross-map only (`qns_cd` in `mesh.js`) — do not implement qnsd here
+   and do not add a public qnsd proxy. No Node Gate. No auto-heal.
+   Not anonymity.
 
 ## Where to change things
 
@@ -51,8 +54,9 @@ Python 3.10+, numpy, scipy, pytest. No hardware. Fixtures in
 - Reason codes / scoring: `vibelock/scoring.py`
 - New checks need a synthetic fixture that moves the score in the
   documented direction (authentic higher, attacked lower).
-- Suite mesh / QNM Live Nodes: `workers/download-tracker/src/mesh.js`
-  (`/v1/mesh/*` PROXY to aziel-runtime).
+- Suite mesh / QNM Live Nodes / QNS-CD-1.0 cross-map:
+  `workers/download-tracker/src/mesh.js`
+  (`/v1/mesh/*` PROXY to aziel-runtime; `QNS_CD` hub cite only).
 
 ## Reporting downloads from a fork
 

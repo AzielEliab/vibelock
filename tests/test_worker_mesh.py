@@ -1,6 +1,7 @@
-"""Suite mesh Live Nodes + QNM-BUILD-1.0 contract.
+"""Suite mesh Live Nodes + QNM-BUILD-1.0 / QNS-CD-1.0 contract.
 
-Default OFF. live|locked|isolated. No Node Gate. No auto-heal. Not anonymity.
+Default OFF. live|locked|isolated. QNS-CD-1.0 hub cite only.
+No Node Gate. No auto-heal. No public qnsd proxy. Not anonymity.
 """
 
 from __future__ import annotations
@@ -21,10 +22,23 @@ WORKER_README = (ROOT / "workers/download-tracker/README.md").read_text(encoding
 
 def test_mesh_contract_default_off_qnm_law() -> None:
     assert 'QNM_SPEC = "QNM-BUILD-1.0"' in MESH
+    assert 'QNS_CD_SPEC = "QNS-CD-1.0"' in MESH
+    assert "export const QNS_CD" in MESH
+    assert "photon QNS1 packet transfer" in MESH
+    assert "https://github.com/AzielEliab/qnm-node" in MESH
+    assert "https://github.com/AzielEliab/aziel-runtime" in MESH
+    assert "https://github.com/AzielEliab/azinterface" in MESH
+    assert "QNS-CD-1.0" in MESH
+    assert "MESH_NOTE" in MESH and "QNS-CD-1.0" in MESH.split("export const MESH_NOTE", 1)[1][:500]
     assert "MESH_DEFAULT_OFF = true" in MESH
+    assert "/v1/qnsd" not in MESH
+    assert "qnsd proxy" in MESH.lower() or "public_qnsd_proxy: false" in MESH
     assert "MESH_ANONYMITY_NETWORK = false" in MESH
     assert "MESH_NODE_GATE = false" in MESH
     assert "MESH_AUTO_HEAL = false" in MESH
+    assert "QNSD_PUBLIC_PROXY = false" in MESH
+    assert "softwares_tab: false" in MESH
+    assert "public_qnsd_proxy: false" in MESH
     assert 'MESH_IDENTITY = IDENTITY' in MESH or '"Aziel Eliab"' in MESH
     assert 'MESH_PRODUCT = "vibelock"' in MESH
     assert 'MESH_PATH = "/v1/mesh"' in MESH
@@ -32,6 +46,9 @@ def test_mesh_contract_default_off_qnm_law() -> None:
     assert "enabled_default: false" in MESH
     assert "anon_broadcast_publish_path: false" in MESH
     assert "Aziel Eliab" in MESH
+    assert "Jane Doe" not in MESH
+    assert "export function stampQnsCd" in MESH
+    assert "qns_cd: QNS_CD" in MESH
 
 
 def test_mesh_pointer_and_openapi_helpers() -> None:
@@ -84,7 +101,9 @@ def test_home_live_nodes_strip_no_node_gate() -> None:
     assert 'id="meshLine"' in HOME
     assert "Live Nodes" in HOME
     assert "QNM-BUILD-1.0" in HOME
+    assert "QNS-CD-1.0" in HOME
     assert "No Node Gate" in HOME
+    assert "no public qnsd proxy" in HOME
     assert "No auto-heal" in HOME
     assert "Not an anonymity network" in HOME
     assert "/v1/mesh" in HOME
@@ -97,9 +116,18 @@ def test_home_live_nodes_strip_no_node_gate() -> None:
 def test_docs_advertise_mesh_proxy() -> None:
     assert "/v1/mesh" in README
     assert "/v1/mesh" in SKILL
+    assert "QNS-CD-1.0" in README
+    assert "QNS-CD-1.0" in SKILL
+    assert "photon QNS1" in SKILL
+    assert "qnm-node" in SKILL
+    assert "aziel-runtime" in SKILL
     assert "QNM-BUILD-1.0" in WORKER_README
+    assert "QNS-CD-1.0" in WORKER_README
     assert "AZIEL_RUNTIME" in WORKER_README
     assert "Live Nodes" in WORKER_README
     assert "Aziel Eliab" in MESH
     assert "Jane Doe" not in MESH
     assert "John Doe" not in MESH
+    assert "stampQnsCd" in RUNTIME
+    assert "isMeshLiveNodesPath" in RUNTIME
+    assert "QNS-CD-1.0" in RUNTIME

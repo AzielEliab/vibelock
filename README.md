@@ -41,7 +41,7 @@ Direct tarball (also counted):
 - Live count JSON: [https://vibelock-download-tracker.vibelock.workers.dev/stats](https://vibelock-download-tracker.vibelock.workers.dev/stats)
 - OpenAPI: [https://vibelock-download-tracker.vibelock.workers.dev/openapi.json](https://vibelock-download-tracker.vibelock.workers.dev/openapi.json)
 - Skill: [https://vibelock-download-tracker.vibelock.workers.dev/v1/skill](https://vibelock-download-tracker.vibelock.workers.dev/v1/skill)
-- Suite mesh proxy: [https://vibelock-download-tracker.vibelock.workers.dev/v1/mesh](https://vibelock-download-tracker.vibelock.workers.dev/v1/mesh) — default OFF; QNM live / locked / isolated
+- Suite mesh proxy: [https://vibelock-download-tracker.vibelock.workers.dev/v1/mesh](https://vibelock-download-tracker.vibelock.workers.dev/v1/mesh) — default OFF; QNM live / locked / isolated; QNS-CD-1.0 photon QNS1 packet transfer is a hub cite / Worker mesh cross-map only (not Softwares-tab; no public qnsd proxy)
 - MCP pointer: [https://vibelock-download-tracker.vibelock.workers.dev/mcp](https://vibelock-download-tracker.vibelock.workers.dev/mcp)
 - One-click install: [https://vibelock-download-tracker.vibelock.workers.dev/install.sh](https://vibelock-download-tracker.vibelock.workers.dev/install.sh)
 - GitHub: [https://github.com/AzielEliab/vibelock](https://github.com/AzielEliab/vibelock)
@@ -277,7 +277,7 @@ Live HTTPS runtime on the download-tracker Worker (does **not** increment the do
 - How to wire tools: https://vibelock-download-tracker.vibelock.workers.dev/ai
 - MCP catalog: https://aziel-runtime.vibelock.workers.dev/mcp
 - This Worker MCP pointer: https://vibelock-download-tracker.vibelock.workers.dev/mcp
-- Suite mesh: https://vibelock-download-tracker.vibelock.workers.dev/v1/mesh (PROXY via AZIEL_RUNTIME; default OFF; QNM-BUILD-1.0 live|locked|isolated; no Node Gate)
+- Suite mesh: https://vibelock-download-tracker.vibelock.workers.dev/v1/mesh (PROXY via AZIEL_RUNTIME; default OFF; QNM-BUILD-1.0 live|locked|isolated; QNS-CD-1.0 hub cite / Worker mesh cross-map; no Node Gate; no public qnsd proxy)
 
 POST `/v1/analyze` or `/v1/detect` with `features:{rms,zcr,...}`, limited
 `pcm_b64`+rate, and/or `visual` / `pitch` / `av` feature objects.
@@ -314,7 +314,7 @@ per-crawler install packages.
 
 **Venice HTTP tools:** add an HTTP tool with method, URL, and JSON body from that spec. Start with GET `https://vibelock-download-tracker.vibelock.workers.dev/v1/health`.
 
-**MCP (Cursor, Glama, and other MCP clients):** `POST https://aziel-runtime.vibelock.workers.dev/mcp`. Catalog MCP `mesh_*` + FragGate `slug=mesh`. This Worker `GET /mcp` is a pointer, not a second MCP. Suite mesh `GET /v1/mesh` PROXY (default OFF).
+**MCP (Cursor, Glama, and other MCP clients):** `POST https://aziel-runtime.vibelock.workers.dev/mcp`. Catalog MCP `mesh_*` + FragGate `slug=mesh`. This Worker `GET /mcp` is a pointer, not a second MCP. Suite mesh `GET /v1/mesh` PROXY (default OFF). QNS-CD-1.0 (photon QNS1 packet transfer) is a hub cite / Worker mesh cross-map on that payload — local qnsd stays in [qnm-node](https://github.com/AzielEliab/qnm-node); runtime cites live in [aziel-runtime](https://github.com/AzielEliab/aziel-runtime). Not a Softwares-tab product. No public qnsd proxy.
 
 ```bash
 curl -sS -A 'Mozilla/5.0' -X POST https://vibelock-download-tracker.vibelock.workers.dev/v1/detect \
