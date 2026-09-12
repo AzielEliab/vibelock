@@ -6,8 +6,8 @@ thin downloads landing page.
 
 Live: https://vibelock-download-tracker.vibelock.workers.dev/
 
-Title: **VibeLock — Aziel Eliab**. Black/gold styling, everblooming
-sigil, SEO (description, canonical, Open Graph, JSON-LD
+Title: **VibeLock — Aziel Eliab**. Black/gold styling, rose-star
+brand mark, SEO (description, canonical, Open Graph, JSON-LD
 `SoftwareApplication`, robots-friendly meta), cite block, `cite.json`,
 `llms.txt`. Identity is **Aziel Eliab only**. Apache-2.0. Forks welcome.
 

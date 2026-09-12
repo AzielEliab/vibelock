@@ -32,7 +32,7 @@ The Worker serves the gzip itself (HTTP 200, no 302 to GitHub).
 
 That homepage is a **complete product UI** (title `VibeLock — Aziel Eliab`):
 in-browser risk analysis against `POST /v1/analyze`, score/verdict/metrics,
-counted Download, one-click install, GitHub, everblooming sigil, SEO/cite.
+counted Download, one-click install, GitHub, rose-star brand mark, SEO/cite.
 Risk assessment, not a lie detector and not courtroom proof. Author Aziel Eliab.
 
 Direct tarball (also counted):

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -10,6 +11,7 @@ HOMEPAGE = (WORKER / "src" / "homepage.js").read_text(encoding="utf-8")
 INDEX = (WORKER / "src" / "index.js").read_text(encoding="utf-8")
 README = (WORKER / "README.md").read_text(encoding="utf-8")
 ROOT_README = (ROOT / "README.md").read_text(encoding="utf-8")
+OFFICIAL_SIGIL_SHA256 = "af095e8b0916a7262860a53619c7110f25539988806775b1c7bff8df7b0ee848"
 
 
 def test_title_is_product_not_downloads_shell() -> None:
@@ -65,6 +67,24 @@ def test_download_install_sigil_kept() -> None:
     assert 'src="/sigil.png"' in HOMEPAGE
     assert (WORKER / "public" / "sigil.png").is_file()
     assert "github.com/AzielEliab/vibelock" in HOMEPAGE
+
+
+def test_rose_star_brandmark_not_everblooming() -> None:
+    assert 'class="brandrow"' in HOMEPAGE
+    assert 'class="brandmark"' in HOMEPAGE
+    assert 'src="/sigil.png"' in HOMEPAGE
+    assert 'alt=""' in HOMEPAGE
+    assert 'alt="VibeLock everblooming sigil"' not in HOMEPAGE
+    assert "everblooming" not in HOMEPAGE.lower()
+    assert "everbloom" not in HOMEPAGE.lower()
+    assert "everblooming" not in README.lower()
+    assert "everblooming" not in ROOT_README.lower()
+    sigil = WORKER / "public" / "sigil.png"
+    data = sigil.read_bytes()
+    assert data[:8] == b"\x89PNG\r\n\x1a\n"
+    assert len(data) == 75035
+    assert hashlib.sha256(data).hexdigest() == OFFICIAL_SIGIL_SHA256
+    assert "Aziel Eliab" in HOMEPAGE
 
 
 def test_readme_names_full_worker_ui() -> None:

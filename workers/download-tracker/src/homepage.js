@@ -740,7 +740,7 @@ footer{margin-top:36px;color:var(--muted);font-size:14px}
 <body>
 <div class="wrap">
   <div class="brandrow">
-    <img class="brandmark" src="/sigil.png" width="40" height="40" alt="VibeLock everblooming sigil" decoding="async">
+    <img class="brandmark" src="/sigil.png" width="40" height="40" alt="" decoding="async">
     <div class="brand">VibeLock</div>
     <span class="pill interesting">Risk engine</span>
   </div>
