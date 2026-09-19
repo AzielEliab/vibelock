@@ -133,3 +133,15 @@ See the product README section **Use with AI assistants**.
 OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json
 
 `/v1/mesh/*` PROXY to aziel-runtime suite mesh (`AZIEL_RUNTIME` or HTTPS fallback). Default OFF. QNM-BUILD-1.0 live|locked|isolated. QNS-CD-1.0 photon QNS1 packet transfer is a hub cite / Worker mesh cross-map on status and Live Nodes (`qns_cd` → [qnm-node](https://github.com/AzielEliab/qnm-node) + [aziel-runtime](https://github.com/AzielEliab/aziel-runtime); pair custody [AZInterface](https://github.com/AzielEliab/azinterface)). Not a Softwares-tab product. No Node Gate. No auto-heal. No public qnsd proxy. Not anonymity. Human UI Live Nodes strip polls `GET /v1/mesh`. Identity is Aziel Eliab only.
+
+## Human / bot schema (`/stats` and `/count`)
+
+Additive dual-count (Whitestone canary). Classification lives in `src/classify.js`
+and response shaping in `src/stats-shape.js`.
+
+Invariant: `views === views_human + views_bot` and
+`downloads === downloads_human + downloads_bot`.
+
+Legacy strategy (b): existing KV totals are never reset. Pre-split remainder
+is shown as bot on read (`views_bot = views - views_human`). Author: Aziel Eliab only.
+
