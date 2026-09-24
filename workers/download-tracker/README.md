@@ -6,10 +6,12 @@ thin downloads landing page.
 
 Live: https://vibelock-download-tracker.vibelock.workers.dev/
 
-Title: **VibeLock — Aziel Eliab**. Black/gold styling, rose-star
-brand mark, SEO (description, canonical, Open Graph, JSON-LD
-`SoftwareApplication`, robots-friendly meta), cite block, `cite.json`,
-`llms.txt`. Identity is **Aziel Eliab only**. Apache-2.0. Forks welcome.
+Title: **VibeLock — Aziel Eliab**. The page opens with the name, a one-line
+description, and a primary Download button. Dark and light follow
+`prefers-color-scheme`. Rose-star brand mark, SEO (description, canonical,
+Open Graph, JSON-LD `SoftwareApplication`, robots-friendly meta), cite
+block, `cite.json`, `llms.txt`. Identity is **Aziel Eliab only**. Apache-2.0.
+Forks welcome.
 
 The Analyze workspace posts to `/v1/analyze` (same keys as the package
 UI / `vibelock/ui.py`). Paste notes, fill feature fields, or upload a

@@ -602,6 +602,32 @@ const CLIENT_JS = [
   "      refreshMesh();",
   "    };",
   "  }",
+  "  function paintOs() {",
+  "    var el = $('os-line');",
+  "    if (!el) return;",
+  "    var ua = navigator.userAgent || '';",
+  "    var plat = navigator.platform || '';",
+  "    try {",
+  "      if (navigator.userAgentData && navigator.userAgentData.platform) plat = navigator.userAgentData.platform;",
+  "    } catch (e) {}",
+  "    var phone = '';",
+  "    var name = '';",
+  "    if (/android/i.test(ua)) phone = 'Android';",
+  "    else if (/iPhone|iPad|iPod/i.test(ua)) phone = 'iPhone or iPad';",
+  "    else if (/Win/i.test(plat) || /Windows/i.test(ua)) name = 'Windows';",
+  "    else if (/Mac/i.test(plat) || /Macintosh|Mac OS/i.test(ua)) name = 'macOS';",
+  "    else if (/Linux|X11|CrOS/i.test(plat) || /Linux/i.test(ua)) name = 'Linux';",
+  "    if (phone) {",
+  "      el.textContent = 'Detected ' + phone + '. The download is a Python package for a computer, not a phone install.';",
+  "      return;",
+  "    }",
+  "    if (name === 'Windows') {",
+  "      el.textContent = 'Detected Windows. The download is the Python package. The Terminal command is for macOS and Linux.';",
+  "      return;",
+  "    }",
+  "    if (name) el.textContent = 'Detected ' + name + '. One Python package. One-click install runs the Terminal command.';",
+  "  }",
+  "  paintOs();",
   "  window.addEventListener('pagehide', function () {",
   "    var id = sessionStorage.getItem('vibelock_mesh_node');",
   "    if (!id || typeof navigator.sendBeacon !== 'function') return;",
@@ -656,129 +682,282 @@ export function indexHtml(stats) {
 <meta name="twitter:title" content="${TITLE}">
 <meta name="twitter:description" content="${escapeHtml(DESCRIPTION)}">
 <meta name="twitter:image" content="${HOST}/sigil.png">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#14110d" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#fbf7f1" media="(prefers-color-scheme: light)">
 <script type="application/ld+json">${ld}</script>
 <style>
-:root{--bg:#12100c;--paper:#1b1712;--ink:#efe6d6;--muted:#a89880;--line:#3a3228;--gold:#c9a227;--yes:#7dcea0;--no:#e07a7a;--rev:#e0b15a;--card:#19150f}
-*{box-sizing:border-box}
-html,body{background:var(--bg);color:var(--ink);margin:0}
-body{font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5}
-.wrap{max-width:720px;margin:auto;padding:24px 18px 80px}
-.brandrow{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin:0 0 10px}
-.brandmark{width:40px;height:40px;border-radius:10px;object-fit:cover;flex:0 0 auto;box-shadow:0 0 0 1px #d4af3733}
-.brand{font-size:26px;font-weight:800;letter-spacing:-.02em}
-.pill{border-radius:999px;padding:6px 12px;font-size:12px;font-weight:700;background:#2a241c;color:var(--ink);border:1px solid var(--line)}
-.pill.yes{background:#14261c;color:var(--yes);border-color:#2e6b45}
-.pill.no{background:#2a1414;color:var(--no);border-color:#8a2b2b}
-.pill.review{background:#2a2210;color:var(--rev);border-color:#8a5a2b}
-.pill.interesting{background:#2a2410;color:var(--gold);border-color:var(--gold)}
-.author{color:var(--muted);margin:0 0 8px;font-size:14px}
-.motto{color:var(--muted);font-style:italic;margin:0 0 14px}
-.banner{background:#1a140c;border:1px solid #8a5a2b;border-radius:12px;padding:12px 14px;margin:0 0 16px;color:#f0d0a8;font-size:15px}
-.nav2{margin:0 0 14px;font-size:14px}
-.nav2 .sep{color:var(--muted);margin:0 8px}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 16px}
-.stat{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px}
-.stat b{display:block;font-size:22px;font-weight:800;font-variant-numeric:tabular-nums}
-.stat span{color:var(--muted);font-size:12px}
-.card,.answer{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin:14px 0}
-h1{font-size:1.75rem;margin:0}
-h2{font-size:1.15rem;margin:0 0 .7rem}
-p.help{color:var(--muted);font-size:.92rem;margin:0 0 .9rem}
-label{display:block;font-size:.78rem;color:var(--muted);margin:.45rem 0 .22rem}
-textarea,input[type=number],input[type=file],input[type=text]{width:100%;background:#16130f;color:var(--ink);border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:inherit}
-textarea{min-height:110px;resize:vertical}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
-details{margin:10px 0}
-details summary{cursor:pointer;color:var(--gold);font-weight:650}
-button,.button{background:var(--gold);color:#14110a;border:0;padding:12px 18px;border-radius:12px;font:inherit;font-size:16px;font-weight:750;cursor:pointer;min-height:44px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none}
-button.ghost,.button.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
-button.copied{background:#7dcf9a;color:#0e1014}
-button:disabled{opacity:.55;cursor:wait}
-.actions{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0 0}
-.score-wrap{display:flex;flex-wrap:wrap;align-items:baseline;gap:14px;margin:.3rem 0 .6rem}
-.score{font-size:2.6rem;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums}
-.score-pct{font-size:1.4rem;color:var(--gold);font-weight:750}
-.mode,.signals{color:var(--muted);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.85rem}
-.plain{font-size:1.2rem;margin:.35rem 0 .7rem}
-.plain.ok{color:var(--yes)}
-.plain.bad{color:var(--rev)}
-.bar{height:8px;background:#16130f;border-radius:99px;overflow:hidden;border:1px solid var(--line)}
-.bar>span{display:block;height:100%;background:var(--gold)}
-.codes{display:flex;flex-wrap:wrap;gap:.35rem;margin:.85rem 0}
-.code{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.75rem;padding:.2rem .45rem;border-radius:4px;border:1px solid var(--line);color:var(--rev)}
-.code.ok{color:var(--yes)}
-.checks{list-style:none;padding:0;margin:.6rem 0 0}
-.checks li{display:flex;justify-content:space-between;gap:1rem;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.8rem;padding:.28rem 0;border-bottom:1px solid var(--line)}
-.err{color:var(--no);margin:.6rem 0 0}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin:.4rem 0 .85rem}
-a.btn,button.btn{display:block;width:100%;box-sizing:border-box;text-align:center;font:inherit;font-size:1.15rem;font-weight:750;padding:1rem 1.1rem;border-radius:10px;border:0;cursor:pointer;text-decoration:none}
-a.btn.primary{background:#efe6d6;color:#12100c}
-button.btn.install{background:var(--gold);color:#14110a}
-.meta{margin-top:1.1rem;color:var(--muted);font-size:.92rem}
-.meta a,a{color:var(--gold)}
-.iso{margin-top:.85rem;font-size:.85rem;color:#8a7a62}
-pre{background:#16130f;padding:.75rem .9rem;overflow:auto;border-radius:8px;font-size:.82rem;border:1px solid var(--line)}
-.cite{margin-top:1.4rem;padding-top:1rem;border-top:1px solid var(--line)}
-footer{margin-top:36px;color:var(--muted);font-size:14px}
-#meshStrip{border:1px solid var(--gold);border-radius:14px;padding:.85rem 1rem;background:var(--paper);margin:0 0 16px;display:flex;flex-wrap:wrap;align-items:center;gap:.7rem 1rem;font-size:.88rem;color:var(--muted)}
-#meshStrip .live{color:var(--ink)}
-#meshStrip .live b{color:var(--gold);font-size:1.35rem;margin-right:.35rem}
-#meshStrip .rollup b{color:var(--gold)}
-#meshStrip button{font:700 .78rem/1 ui-monospace,Menlo,Consolas,monospace;height:2rem;padding:0 .75rem;border-radius:8px;background:#16130f;color:var(--ink);border:1px solid var(--gold);cursor:pointer;min-height:32px;width:auto}
-#meshStrip button:hover{background:#241c0d;color:var(--gold)}
-#meshStrip input{width:10rem;padding:.4rem .55rem;border:1px solid var(--gold);border-radius:8px;background:#16130f;color:var(--ink);font:inherit}
-#meshProducts{flex-basis:100%;margin:0}
-@media (max-width:720px){
-  .wrap{padding:16px 14px 72px}
-  .stats,.grid,.btns{grid-template-columns:1fr}
-  .brand{width:100%}
-  button,.button{width:100%}
-  .actions{flex-direction:column}
+:root {
+  color-scheme: dark;
+  --bg: #14110d;
+  --ink: #f6efe4;
+  --muted: #c4b49a;
+  --gold: #e7c56a;
+  --panel: #1e1a15;
+  --line: #8a7860;
+  --focus: #f2d48a;
+  --yes: #9ee0b8;
+  --on-yes: #102117;
+  --no: #ffb4b0;
+  --rev: #f0d08a;
+  --btn: #f4ecdf;
+  --btn-ink: #1a1408;
+  --field: #120f0c;
+  --note-bg: #2a2218;
+  --note-ink: #f6e7c8;
+  --shadow: 0 18px 48px #00000088;
+}
+@media (prefers-color-scheme: dark) {
+  :root { color-scheme: dark; }
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    color-scheme: light;
+    --bg: #fbf7f1;
+    --ink: #1c1610;
+    --muted: #5c5146;
+    --gold: #7a5a10;
+    --panel: #ffffff;
+    --line: #7d7268;
+    --focus: #6b4e08;
+    --yes: #0f6b3c;
+    --on-yes: #fbf7f1;
+    --no: #9d1c1c;
+    --rev: #7a4e00;
+    --btn: #1c1610;
+    --btn-ink: #fbf7f1;
+    --field: #ffffff;
+    --note-bg: #f3ead6;
+    --note-ink: #3d3118;
+    --shadow: 0 16px 40px #1c161014;
+  }
+}
+* { box-sizing: border-box; }
+html, body { background: var(--bg); color: var(--ink); margin: 0; }
+body { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+img { max-width: 100%; }
+a { color: var(--gold); }
+a:hover { text-decoration-thickness: 2px; }
+:focus { outline: none; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.skip {
+  position: absolute; left: 0.75rem; top: 0.75rem; transform: translateY(-160%);
+  background: var(--btn); color: var(--btn-ink); padding: 0.65rem 0.9rem;
+  border-radius: 10px; z-index: 5; text-decoration: none; font-weight: 750;
+}
+.skip:focus, .skip:focus-visible { transform: none; }
+.wrap { max-width: 64rem; margin: 0 auto; padding: 1.15rem 1rem 3rem; }
+.hero-grid { display: grid; gap: 1.35rem; align-items: center; }
+.brandrow { display: flex; align-items: center; gap: 0.75rem; margin: 0 0 1rem; }
+.brandmark { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex: 0 0 auto; box-shadow: 0 0 0 1px #d4af3755; }
+.stamp { margin: 0; color: var(--muted); font-size: 0.95rem; }
+h1 { font-size: clamp(2.7rem, 10vw, 4.5rem); line-height: 0.95; letter-spacing: -0.04em; font-weight: 760; margin: 0 0 0.75rem; }
+.motto { font-size: clamp(1.12rem, 2.6vw, 1.4rem); line-height: 1.35; margin: 0 0 0.55rem; max-width: 20em; font-weight: 560; }
+.lede { color: var(--muted); margin: 0 0 1.15rem; max-width: 36rem; }
+.hero-actions { display: flex; flex-direction: column; gap: 0.65rem; margin: 0 0 0.7rem; }
+a.btn, button.btn, button {
+  font: inherit; cursor: pointer; border-radius: 14px; min-height: 44px;
+}
+a.btn.primary {
+  background: var(--btn); color: var(--btn-ink); font-size: 1.15rem; font-weight: 760;
+  padding: 0.95rem 1.45rem; min-height: 3.45rem; text-decoration: none;
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow); border: 0; width: 100%;
+}
+button.btn.ghost, button.ghost {
+  background: transparent; color: var(--ink); border: 1px solid var(--line);
+  padding: 0.8rem 1.05rem; font-weight: 650; min-height: 3.15rem; width: 100%;
+}
+button.copied { background: var(--yes); color: var(--on-yes); border-color: transparent; }
+button:disabled { opacity: 0.55; cursor: wait; }
+.os { color: var(--muted); margin: 0 0 0.55rem; font-size: 0.95rem; }
+.limit {
+  color: var(--note-ink); background: var(--note-bg); border: 1px solid var(--line);
+  border-radius: 12px; padding: 0.75rem 0.9rem; margin: 0.85rem 0 0; font-size: 0.95rem;
+}
+pre, code { font-family: ui-monospace, Menlo, Consolas, monospace; }
+pre {
+  background: var(--field); color: var(--ink); border: 1px solid var(--line);
+  border-radius: 12px; padding: 0.75rem 0.85rem; overflow: auto; font-size: 0.8rem;
+  margin: 0.15rem 0 0; max-width: 100%;
+}
+nav.toc { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 1.15rem 0 0; }
+nav.toc a {
+  text-decoration: none; color: var(--ink); border: 1px solid var(--line);
+  background: var(--panel); border-radius: 999px; padding: 0.45rem 0.8rem;
+  min-height: 44px; display: inline-flex; align-items: center; font-size: 0.92rem;
+}
+.markplate {
+  margin: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 22px;
+  padding: 1.15rem 1.15rem 1.05rem; box-shadow: var(--shadow);
+}
+.stage-top { display: flex; align-items: center; gap: 0.6rem; font-weight: 700; margin-bottom: 0.35rem; }
+.stage-top img { width: 28px; height: 28px; border-radius: 8px; box-shadow: 0 0 0 1px #d4af3755; }
+.markplate ol { list-style: none; padding: 0; margin: 0.35rem 0 0.7rem; }
+.markplate li { display: flex; gap: 0.7rem; align-items: flex-start; margin: 0.55rem 0; }
+.markplate li b {
+  flex: 0 0 auto; width: 1.7rem; height: 1.7rem; border-radius: 999px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--btn); color: var(--btn-ink); font-size: 0.78rem;
+}
+.markplate figcaption { color: var(--muted); font-size: 0.9rem; margin: 0; }
+.block { margin: 1.75rem 0 0; }
+h2 { font-size: 1.28rem; letter-spacing: -0.02em; margin: 0 0 0.75rem; }
+h3 { font-size: 1.02rem; margin: 0 0 0.28rem; }
+.features { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.75rem; }
+.features li { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 0.95rem 1rem 1rem; }
+.features p, p.help, .meta { color: var(--muted); }
+.features p { margin: 0; font-size: 0.95rem; }
+.card, .answer, .cite {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 1.05rem 1rem 1.15rem;
+}
+p.help { margin: 0 0 0.9rem; font-size: 0.95rem; }
+label { display: block; font-size: 0.82rem; color: var(--muted); margin: 0.55rem 0 0.25rem; }
+textarea, input[type=number], input[type=file], input[type=text] {
+  width: 100%; background: var(--field); color: var(--ink); border: 1px solid var(--line);
+  border-radius: 10px; padding: 0.65rem 0.75rem; font: inherit;
+}
+textarea { min-height: 7rem; resize: vertical; }
+::placeholder { color: var(--muted); opacity: 1; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 0.35rem 0.8rem; }
+details { margin: 0.8rem 0; }
+details summary { cursor: pointer; color: var(--gold); font-weight: 650; min-height: 44px; display: flex; align-items: center; }
+.actions { display: flex; flex-direction: column; gap: 0.55rem; margin: 0.9rem 0 0; }
+#analyze-btn {
+  background: var(--btn); color: var(--btn-ink); border: 0; font-weight: 750;
+  padding: 0.75rem 1.1rem; min-height: 48px;
+}
+.score-wrap { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.8rem; margin: 0.2rem 0 0.5rem; }
+.score { font-size: 2.4rem; font-weight: 780; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.score-pct { font-size: 1.25rem; color: var(--gold); font-weight: 750; }
+.mode, .signals { color: var(--muted); font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.85rem; }
+.plain { font-size: 1.15rem; margin: 0.35rem 0 0.7rem; }
+.plain.ok { color: var(--yes); }
+.plain.bad { color: var(--rev); }
+.bar { height: 8px; background: var(--field); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
+.bar > span { display: block; height: 100%; background: var(--gold); }
+.pill { border-radius: 999px; padding: 0.35rem 0.7rem; font-size: 0.82rem; font-weight: 700; border: 1px solid var(--line); color: var(--ink); }
+.pill.yes { color: var(--yes); border-color: var(--yes); }
+.pill.no { color: var(--no); border-color: var(--no); }
+.pill.review { color: var(--rev); border-color: var(--rev); }
+.codes { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.8rem 0; }
+.code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.75rem; padding: 0.2rem 0.45rem; border-radius: 4px; border: 1px solid var(--line); color: var(--rev); }
+.code.ok { color: var(--yes); }
+.checks { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+.checks li { display: flex; justify-content: space-between; gap: 1rem; font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.8rem; padding: 0.28rem 0; border-bottom: 1px solid var(--line); }
+.err { color: var(--no); margin: 0.6rem 0 0; }
+.quiet-counts { display: flex; flex-wrap: wrap; gap: 0.35rem 1rem; margin: 0 0 0.7rem; font-variant-numeric: tabular-nums; }
+.quiet-counts b { font-size: 1.25rem; }
+.meta { font-size: 0.92rem; }
+.counts ul { padding-left: 1.1rem; color: var(--muted); }
+.counts li { margin: 0.25rem 0; }
+#meshStrip {
+  border: 1px solid var(--line); border-radius: 16px; padding: 0.9rem 1rem;
+  background: var(--panel); margin: 1.75rem 0 0; display: flex; flex-wrap: wrap;
+  align-items: center; gap: 0.65rem 0.9rem; font-size: 0.9rem; color: var(--muted);
+}
+#meshStrip .live { color: var(--ink); }
+#meshStrip .live b { color: var(--gold); font-size: 1.35rem; margin-right: 0.3rem; }
+#meshStrip .rollup b { color: var(--gold); }
+#meshStrip button {
+  font: 650 0.82rem/1 system-ui, sans-serif; min-height: 44px; padding: 0.4rem 0.75rem;
+  width: auto; background: transparent; color: var(--ink); border: 1px solid var(--line);
+  border-radius: 10px; cursor: pointer;
+}
+#meshStrip input {
+  width: min(100%, 16rem); padding: 0.5rem 0.6rem; border: 1px solid var(--line);
+  border-radius: 10px; background: var(--field); color: var(--ink); font: inherit; min-height: 44px;
+}
+.mesh-actions { display: flex; flex-wrap: wrap; gap: 0.45rem; align-items: center; }
+#meshProducts { flex-basis: 100%; margin: 0; overflow-wrap: anywhere; }
+.cite { margin-top: 1.5rem; }
+footer { margin-top: 1.75rem; color: var(--muted); font-size: 0.9rem; }
+footer p { margin: 0.3rem 0; }
+@media (min-width: 560px) {
+  .hero-actions { flex-direction: row; align-items: center; }
+  a.btn.primary, button.btn.ghost { width: auto; }
+  .actions { flex-direction: row; flex-wrap: wrap; }
+  button.ghost { width: auto; }
+}
+@media (min-width: 720px) {
+  .features, .grid { grid-template-columns: 1fr 1fr; }
+  .wrap { padding: 2rem 1.5rem 4rem; }
+}
+@media (min-width: 900px) {
+  .hero-grid { grid-template-columns: minmax(0, 1.15fr) minmax(16rem, 0.85fr); gap: 2.4rem; }
 }
 </style>
 </head>
 <body>
+<a class="skip" href="#main">Skip to content</a>
 <div class="wrap">
-  <div class="brandrow">
-    <img class="brandmark" src="/sigil.png" width="40" height="40" alt="" decoding="async">
-    <div class="brand">VibeLock</div>
-    <span class="pill interesting">Risk engine</span>
-  </div>
-  <p class="author">Author Aziel Eliab</p>
-  <nav class="nav2" aria-label="Product">
-    <a href="#workspace">Analyze</a><span class="sep">|</span>
-    <a href="#meshStrip">Live Nodes</a><span class="sep">|</span>
-    <a href="#download">Download</a><span class="sep">|</span>
-    <a href="#cite">Cite</a><span class="sep">|</span>
-    <a href="${GITHUB_REPO}">GitHub</a>
-  </nav>
-  <p class="motto">${escapeHtml(MOTTO)}</p>
-  <p class="banner">${escapeHtml(BANNER)}</p>
-
-  <div id="meshStrip" aria-label="Suite Live Nodes">
-    <div class="live"><b id="meshLiveCount">0</b> Live Nodes</div>
-    <div id="meshLine">Suite mesh: off (default). QNM-BUILD-1.0. QNS-CD-1.0 hub cite. Not an anonymity network.</div>
-    <div class="rollup">live <b id="qnmLive">0</b> · locked <b id="qnmLocked">0</b> · isolated <b id="qnmIsolated">0</b></div>
-    <div>No Node Gate · No auto-heal · Aziel Eliab only</div>
-    <div>
-      <input id="meshBearer" type="text" maxlength="80" placeholder="bearer (required to enable)" aria-label="mesh bearer">
-      <button id="meshEnable" type="button" title="Enable suite mesh. Declared bearer required. Default off.">Enable</button>
-      <button id="meshDisable" type="button" title="Disable suite mesh (always allowed)">Disable</button>
-      <button id="meshJoin" type="button" title="Join as vibelock. Refused while mesh is OFF. No auto-join.">Join</button>
-      <button id="meshLeave" type="button" title="Leave this node. No auto-heal.">Leave</button>
+<main id="main">
+  <header class="hero">
+    <div class="hero-grid">
+      <div>
+        <div class="brandrow">
+          <img class="brandmark" src="/sigil.png" width="40" height="40" alt="" decoding="async">
+          <p class="stamp">Aziel Eliab</p>
+        </div>
+        <h1>VibeLock</h1>
+        <p class="motto">${escapeHtml(MOTTO)}</p>
+        <p class="lede">Physics and audio-visual deepfake risk assessment for a voice, a still, or a talking head.</p>
+        <div class="hero-actions">
+          <a id="download" class="btn primary dl" href="/download?asset=${DEFAULT_ASSET}" aria-describedby="os-line">Download</a>
+          <button type="button" class="btn ghost" id="install-btn">One-click install</button>
+        </div>
+        <p class="os" id="os-line">One Python package for macOS, Linux, and Windows.</p>
+        <pre id="install-cmd">${escapeHtml(INSTALL_LINE)}</pre>
+        <p class="limit">Risk assessment, not a lie detector and not courtroom proof. The hosted page is not a live microphone.</p>
+      </div>
+      <figure class="markplate">
+        <div class="stage-top">
+          <img src="/sigil.png" width="28" height="28" alt="" decoding="async">
+          <span>On this page</span>
+        </div>
+        <ol>
+          <li><b>1</b><span>Paste notes, or choose a WAV or a still.</span></li>
+          <li><b>2</b><span>This browser reads limited audio or image metrics.</span></li>
+          <li><b>3</b><span>POST /v1/analyze returns a verdict and the checks.</span></li>
+        </ol>
+        <figcaption>Hosted preview. After Download, <code>vibelock ui</code> decodes on 127.0.0.1:8760.</figcaption>
+      </figure>
     </div>
-    <div id="meshProducts">Catalog MCP mesh_* · FragGate slug=mesh · /v1/mesh/* PROXY · QNS-CD-1.0 hub cite · not AnonBroadcast · not AZMail ring · not a Node Gate · no public qnsd proxy</div>
-  </div>
+    <nav class="toc" aria-label="Product">
+      <a href="#workspace">Preview</a>
+      <a href="#features">Features</a>
+      <a href="#meshStrip">Live Nodes</a>
+      <a href="#counts">Downloads</a>
+      <a href="#cite">Cite</a>
+      <a href="${GITHUB_REPO}">GitHub</a>
+    </nav>
+  </header>
 
-  <div class="stats">
-    <div class="stat"><b>${v}</b><span>Views</span></div>
-    <div class="stat"><b>${n}</b><span>Downloads</span></div>
-    <div class="stat"><b>${u}</b><span>Engine uses</span></div>
-  </div>
+  <section class="block" id="features">
+    <h2>What it checks</h2>
+    <ul class="features">
+      <li>
+        <h3>Voice</h3>
+        <p>Pitch, formants, phase, and decay from a WAV or from numbers you paste.</p>
+      </li>
+      <li>
+        <h3>Still</h3>
+        <p>Block edges, noise, seams, and color drift. This browser measures the image, then sends those numbers.</p>
+      </li>
+      <li>
+        <h3>Talking head</h3>
+        <p>Paste sync numbers here, or use the local app to compare the waveform with mouth motion.</p>
+      </li>
+      <li>
+        <h3>This computer</h3>
+        <p>Download, then run <code>vibelock ui</code>. Full decode stays on 127.0.0.1:8760.</p>
+      </li>
+    </ul>
+  </section>
 
-  <section class="card" id="workspace">
-    <h2>Analyze</h2>
-    <p class="help">Run VibeLock in this browser. Paste feature notes, fill the same fields as <code>POST /v1/analyze</code>, or upload a WAV / still. Results are a score, verdict, and per-check metrics — software output, not a raw dump. Hosted is not a live mic.</p>
+  <section class="block card" id="workspace">
+    <h2>Preview</h2>
+    <p class="help">Run VibeLock in this browser. Paste feature notes, fill the same fields as <code>POST /v1/analyze</code>, or upload a WAV or still. This browser extracts limited PCM or visual metrics. The Worker does not decode pixels on the server.</p>
     <form id="analyze-form">
       <label for="notes">Notes or JSON (features / visual / video / pitch / av)</label>
       <textarea id="notes" maxlength="8000" placeholder="rms: 0.08&#10;zcr: 0.07&#10;visual.blockiness: 1.8&#10;pitch.f0_jump: 8.5&#10;or paste a /v1/analyze JSON body"></textarea>
@@ -818,8 +997,8 @@ footer{margin-top:36px;color:var(--muted);font-size:14px}
         <button type="button" class="ghost" id="sample-fake">Sample deepfake</button>
       </div>
     </form>
-    <p class="err" id="err" hidden></p>
-    <div class="answer" id="result" hidden>
+    <p class="err" id="err" hidden role="alert"></p>
+    <div class="answer" id="result" hidden aria-live="polite">
       <h2>Result</h2>
       <div class="score-wrap">
         <div class="score" id="score">—</div>
@@ -829,7 +1008,7 @@ footer{margin-top:36px;color:var(--muted);font-size:14px}
       <div class="mode" id="mode"></div>
       <div class="signals" id="signals"></div>
       <p class="plain" id="plain"></p>
-      <div class="bar"><span id="bar" style="width:0%"></span></div>
+      <div class="bar" aria-hidden="true"><span id="bar" style="width:0%"></span></div>
       <div class="codes" id="codes"></div>
       <ul class="checks" id="checks"></ul>
       <p class="help" id="notes-out"></p>
@@ -840,21 +1019,27 @@ footer{margin-top:36px;color:var(--muted);font-size:14px}
     </div>
   </section>
 
-  <section class="card" id="download">
-    <h2>Download</h2>
-    <p class="help"><strong>Two big buttons.</strong> Download saves the gzip (the Downloads number goes up). One-click install copies a Terminal command. After it finishes, type <code>vibelock ui</code>.</p>
-    <div class="btns">
-      <a class="btn primary dl" href="/download?asset=${DEFAULT_ASSET}">Download</a>
-      <button type="button" class="btn install" id="install-btn">One-click install</button>
+  <div id="meshStrip" aria-label="Suite Live Nodes">
+    <div class="live"><b id="meshLiveCount">0</b> Live Nodes</div>
+    <div id="meshLine">Suite mesh: off (default). QNM-BUILD-1.0. QNS-CD-1.0 hub cite. Not an anonymity network.</div>
+    <div class="rollup">live <b id="qnmLive">0</b> · locked <b id="qnmLocked">0</b> · isolated <b id="qnmIsolated">0</b></div>
+    <div>No Node Gate · No auto-heal · Aziel Eliab only</div>
+    <div class="mesh-actions">
+      <input id="meshBearer" type="text" maxlength="80" placeholder="bearer (required to enable)" aria-label="mesh bearer">
+      <button id="meshEnable" type="button" title="Enable suite mesh. Declared bearer required. Default off.">Enable</button>
+      <button id="meshDisable" type="button" title="Disable suite mesh (always allowed)">Disable</button>
+      <button id="meshJoin" type="button" title="Join as vibelock. Refused while mesh is OFF. No auto-join.">Join</button>
+      <button id="meshLeave" type="button" title="Leave this node. No auto-heal.">Leave</button>
     </div>
-    <pre id="install-cmd">${escapeHtml(INSTALL_LINE)}</pre>
-    <p class="help">Then run: <code>vibelock ui</code> and open http://127.0.0.1:8760 (this computer only).</p>
-    <p class="meta">The download count ticks on the Download click. The Worker serves the gzip (HTTP 200). No 302 to GitHub. Forks using this same link are counted automatically. ${escapeHtml(DEFAULT_ASSET)} — ${n} counted.</p>
-    <p class="iso">Isolated counter: Worker <code>vibelock-download-tracker</code>, project <code>vibelock</code>, KV <code>VIBELOCK_DOWNLOADS</code>. Not mixed with any other product. /v1 does not increment downloads.</p>
+    <div id="meshProducts">Catalog MCP mesh_* · FragGate slug=mesh · /v1/mesh/* PROXY · QNS-CD-1.0 hub cite · not AnonBroadcast · not AZMail ring · not a Node Gate · no public qnsd proxy</div>
+  </div>
+
+  <section class="block counts" id="counts">
+    <h2>Counted downloads</h2>
+    <p class="quiet-counts"><span><b>${v}</b> views</span><span><b>${n}</b> downloads</span><span><b>${u}</b> engine uses</span></p>
+    <p class="meta">Download serves <code>${escapeHtml(DEFAULT_ASSET)}</code> from this Worker. Forks and branches that use the same link are counted. /v1 does not increment downloads. ${n} counted.</p>
     <p class="meta">GitHub: stars ${stars} · forks ${forks} · watchers ${watchers} · release assets ${rel}</p>
-    <p class="meta">Apache-2.0 · Eliab, Aziel · forks welcome</p>
-    <p class="meta"><a href="/stats">JSON stats</a> · <a href="/openapi.json">OpenAPI</a> · <a href="/mcp">MCP pointer</a> · <a href="/v1/mesh">/v1/mesh</a> · <a href="/v1/skill">Skill</a> · <a href="/ai">AI runtime</a> · <a href="${GITHUB_REPO}">GitHub</a> · <a href="${GITHUB_LATEST}">releases</a></p>
-    <h2>Per repo / branch / fork</h2>
+    <h3>Per repo / branch / fork</h3>
     <ul>${breakdown}</ul>
   </section>
 
@@ -863,9 +1048,14 @@ footer{margin-top:36px;color:var(--muted);font-size:14px}
     <p>Aziel Eliab. VibeLock. ${GITHUB_REPO}. ${HOST}.</p>
     <p><a href="${CATALOG}">Catalog</a> · <a href="${GITHUB_REPO}">GitHub</a> · <a href="${HOST}/download">Download</a> · <a href="/cite.json">cite.json</a> · <a href="/llms.txt">llms.txt</a></p>
   </section>
-  <footer>Aziel Eliab · VibeLock is a product name · Apache-2.0 · forks welcome · not a lie detector · not courtroom proof</footer>
+</main>
+<footer>
+  <p>Aziel Eliab · VibeLock · Apache-2.0 · forks welcome</p>
+  <p><a href="/openapi.json">OpenAPI</a> · <a href="/mcp">MCP pointer</a> · <a href="/v1/mesh">/v1/mesh</a> · <a href="/v1/skill">Skill</a> · <a href="/ai">AI runtime</a> · <a href="${GITHUB_LATEST}">Releases</a> · <a href="/stats">JSON stats</a></p>
+</footer>
 </div>
 <script>${CLIENT_JS}</script>
 </body>
+
 </html>`;
 }
