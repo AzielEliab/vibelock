@@ -747,6 +747,7 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .skip:focus, .skip:focus-visible { transform: none; }
 .wrap { max-width: 64rem; margin: 0 auto; padding: 1.15rem 1rem 3rem; }
+.wrap, main, .hero, .hero-grid, .hero-grid > * { min-width: 0; }
 .hero-grid { display: grid; gap: 1.35rem; align-items: center; }
 .brandrow { display: flex; align-items: center; gap: 0.75rem; margin: 0 0 1rem; }
 .brandmark { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; flex: 0 0 auto; box-shadow: 0 0 0 1px #d4af3755; }
@@ -779,7 +780,7 @@ pre, code { font-family: ui-monospace, Menlo, Consolas, monospace; }
 pre {
   background: var(--field); color: var(--ink); border: 1px solid var(--line);
   border-radius: 12px; padding: 0.75rem 0.85rem; overflow: auto; font-size: 0.8rem;
-  margin: 0.15rem 0 0; max-width: 100%;
+  margin: 0.15rem 0 0; max-width: 100%; white-space: pre-wrap; overflow-wrap: anywhere;
 }
 nav.toc { display: flex; flex-wrap: wrap; gap: 0.45rem; margin: 1.15rem 0 0; }
 nav.toc a {
@@ -875,7 +876,8 @@ footer { margin-top: 1.75rem; color: var(--muted); font-size: 0.9rem; }
 footer p { margin: 0.3rem 0; }
 @media (min-width: 560px) {
   .hero-actions { flex-direction: row; align-items: center; }
-  a.btn.primary, button.btn.ghost { width: auto; }
+  a.btn.primary { width: auto; min-width: 15.5rem; }
+  button.btn.ghost { width: auto; }
   .actions { flex-direction: row; flex-wrap: wrap; }
   button.ghost { width: auto; }
 }
