@@ -26,6 +26,33 @@ def _write_wav_wave(path, audio, sr: int) -> None:
         wf.writeframes(samples.tobytes())
 
 
+def test_bare_command_is_welcome(capsys):
+    rc = main([])
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "vibelock ui" in out
+    assert "vibelock analyze" in out
+    assert "Aziel Eliab" in out
+    assert "not courtroom" not in out.lower()
+
+
+def test_unknown_command_has_next_step(capsys):
+    rc = main(["bogus"])
+    err = capsys.readouterr().err
+    assert rc == 2
+    assert 'Unknown command "bogus"' in err
+    assert "vibelock --help" in err
+    assert "usage:" not in err.lower()
+
+
+def test_analyze_missing_path_has_next_step(capsys):
+    rc = main(["analyze"])
+    err = capsys.readouterr().err
+    assert rc == 2
+    assert "Add a media file" in err
+    assert "vibelock ui" in err
+
+
 def test_version(capsys):
     rc = main(["version"])
     out = capsys.readouterr().out

@@ -82,6 +82,32 @@ def test_ui_root_has_add_file_and_views() -> None:
             assert b"Sample deepfake" in body
             assert b"courtroom" in body
             assert b"consistent" in body
+            assert b"prefers-color-scheme" in body
+            assert b":focus-visible" in body
+            assert b"#c9a227" in body
+            assert b"<details" in body
+            assert b"Aziel Eliab" in body
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+        thread.join(timeout=2)
+
+
+def test_ui_json_accept_keeps_capabilities() -> None:
+    httpd, thread = _start()
+    try:
+        port = httpd.server_address[1]
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/",
+            headers={"Accept": "application/json"},
+        )
+        with urllib.request.urlopen(req, timeout=5) as res:
+            payload = json.loads(res.read().decode("utf-8"))
+            assert res.status == 200
+            assert payload["ok"] is True
+            assert payload["product"] == "vibelock"
+            assert payload["telemetry"] is False
+            assert "wav" in payload["formats"]
     finally:
         httpd.shutdown()
         httpd.server_close()
