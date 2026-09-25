@@ -46,6 +46,10 @@ PITCH_OVERFLAT = "PITCH_OVERFLAT"
 FORMANT_PITCH_DECOUPLE = "FORMANT_PITCH_DECOUPLE"
 PHASE_SHIFT_UNNATURAL = "PHASE_SHIFT_UNNATURAL"
 AV_SYNC_FAIL = "AV_SYNC_FAIL"
+# Experimental linguistic proxies (not speech-to-text).
+LINGUISTIC_RHYTHM_METRONOME = "LINGUISTIC_RHYTHM_METRONOME"
+LINGUISTIC_PAUSE_FLAT = "LINGUISTIC_PAUSE_FLAT"
+LINGUISTIC_TRANSITION_FROZEN = "LINGUISTIC_TRANSITION_FROZEN"
 
 DUAL_WEIGHTS: dict[str, float] = {
     "coherence": 0.30,
@@ -63,6 +67,11 @@ AUDIO_WEIGHTS: dict[str, float] = {
     "temporal": 0.12,
     "buzz": 0.07,
     "pitch": 0.11,
+    # Experimental. Omitted when the subcheck has no evidence, so the
+    # remaining weights are renormalized.
+    "syllable_rhythm": 0.05,
+    "pause_structure": 0.04,
+    "linguistic_transition": 0.04,
 }
 
 IMAGE_WEIGHTS: dict[str, float] = {
@@ -106,6 +115,9 @@ AV_WEIGHTS: dict[str, float] = {
     "identity": 0.07,
     "interp": 0.04,
     "av_sync": 0.15,
+    "syllable_rhythm": 0.03,
+    "pause_structure": 0.02,
+    "linguistic_transition": 0.02,
 }
 
 MODE_WEIGHTS: dict[str, dict[str, float]] = {
@@ -156,6 +168,221 @@ def verdict_of(score: float, reason_codes: Iterable[str], mode: str) -> str:
     return "inconclusive"
 
 
+PHYSICS_CHECK_NAMES = frozenset(
+    {"spectral", "phase_continuity", "formant", "decay", "temporal", "buzz", "pitch"}
+)
+LINGUISTIC_CHECK_NAMES = frozenset(
+    {"syllable_rhythm", "pause_structure", "linguistic_transition"}
+)
+VIBRATION_CHECK_NAMES = frozenset({"coherence", "transfer", "phase_latency"})
+RELATED_CHECK_NAMES = frozenset(
+    {
+        "spatial_freq",
+        "noise",
+        "block",
+        "chroma",
+        "blend",
+        "lighting",
+        "flicker",
+        "motion",
+        "identity",
+        "interp",
+        "av_sync",
+    }
+)
+
+CHANNEL_ORDER = ("physics", "linguistics", "vibration", "related")
+
+CHANNEL_EVIDENCE = {
+    "physics": "heuristic",
+    "linguistics": "experimental",
+    "vibration": "measurement",
+    "related": "heuristic",
+}
+
+CHANNEL_GROUPS = {
+    "physics": PHYSICS_CHECK_NAMES,
+    "linguistics": LINGUISTIC_CHECK_NAMES,
+    "vibration": VIBRATION_CHECK_NAMES,
+    "related": RELATED_CHECK_NAMES,
+}
+
+
+@dataclass
+class ChannelReport:
+    """One named signal channel. ``insufficient`` means it did not score."""
+
+    name: str
+    status: str
+    evidence: str
+    reason_codes: list[str] = field(default_factory=list)
+    checks: list[str] = field(default_factory=list)
+    note: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "name": self.name,
+            "status": self.status,
+            "evidence": self.evidence,
+            "reason_codes": list(self.reason_codes),
+            "checks": list(self.checks),
+            "note": self.note,
+        }
+
+
+def build_channels(
+    checks: Iterable[CheckResult],
+    *,
+    has_audio: bool,
+    has_vibration: bool,
+    vibration_note: str,
+    linguistics_status: str,
+    linguistics_note: str,
+    has_related_media: bool,
+) -> list[ChannelReport]:
+    """Cite physics / linguistics / vibration / related. Never invent a fired channel."""
+    checks = list(checks)
+    by_name: dict[str, list[CheckResult]] = {name: [] for name in CHANNEL_ORDER}
+    for check in checks:
+        for channel, names in CHANNEL_GROUPS.items():
+            if check.name in names:
+                by_name[channel].append(check)
+                break
+
+    reports: list[ChannelReport] = []
+
+    physics_checks = by_name["physics"]
+    if physics_checks:
+        reports.append(
+            _fired_channel(
+                "physics",
+                physics_checks,
+                "Heuristic DSP on the waveform (spectrum, phase, formants, decay, buzz, pitch). "
+                "Thresholds are engineering defaults on synthetic fixtures, not a measured accuracy rate.",
+            )
+        )
+    elif has_audio:
+        reports.append(
+            _quiet_channel(
+                "physics",
+                "insufficient",
+                "Audio was present but no physics check produced a measurement.",
+            )
+        )
+    else:
+        reports.append(
+            _quiet_channel(
+                "physics",
+                "not_applicable",
+                "No audio, so vocal-tract physics checks did not run.",
+            )
+        )
+
+    ling_checks = by_name["linguistics"]
+    if ling_checks and linguistics_status == "fired":
+        reports.append(
+            _fired_channel(
+                "linguistics",
+                ling_checks,
+                linguistics_note
+                or "Experimental rhythm, pause, and spectral-transition proxies. Not speech-to-text.",
+            )
+        )
+    elif has_audio:
+        reports.append(
+            _quiet_channel(
+                "linguistics",
+                "insufficient",
+                linguistics_note or "Linguistics evidence was insufficient. Not scored.",
+            )
+        )
+    else:
+        reports.append(
+            _quiet_channel(
+                "linguistics",
+                "not_applicable",
+                "No audio, so linguistic proxies did not run.",
+            )
+        )
+
+    vib_checks = by_name["vibration"]
+    if has_vibration and vib_checks:
+        reports.append(
+            _fired_channel(
+                "vibration",
+                vib_checks,
+                "Body-coupled coherence, transfer residual, and latency. "
+                "The transfer prior is synthetic, not a published human dataset.",
+            )
+        )
+    else:
+        reports.append(
+            _quiet_channel(
+                "vibration",
+                "insufficient",
+                vibration_note,
+            )
+        )
+
+    related = by_name["related"]
+    if related:
+        reports.append(
+            _fired_channel(
+                "related",
+                related,
+                "Spatial image, temporal video, and talking-head sync checks that had pixels to measure. Heuristic.",
+            )
+        )
+    elif has_related_media:
+        reports.append(
+            _quiet_channel(
+                "related",
+                "insufficient",
+                "Visual media was submitted but no spatial, temporal, or sync check ran.",
+            )
+        )
+    else:
+        reports.append(
+            _quiet_channel(
+                "related",
+                "not_applicable",
+                "No image or frame stack, so spatial, temporal, and A/V sync checks did not run.",
+            )
+        )
+    return reports
+
+
+def _fired_channel(name: str, checks: list[CheckResult], note: str) -> ChannelReport:
+    codes: list[str] = []
+    seen: set[str] = set()
+    names: list[str] = []
+    for check in checks:
+        if check.name not in names:
+            names.append(check.name)
+        if check.reason_code and check.reason_code not in seen:
+            seen.add(check.reason_code)
+            codes.append(check.reason_code)
+    return ChannelReport(
+        name=name,
+        status="fired",
+        evidence=CHANNEL_EVIDENCE[name],
+        reason_codes=codes,
+        checks=names,
+        note=note,
+    )
+
+
+def _quiet_channel(name: str, status: str, note: str) -> ChannelReport:
+    return ChannelReport(
+        name=name,
+        status=status,
+        evidence="none",
+        reason_codes=[],
+        checks=[],
+        note=note,
+    )
+
+
 @dataclass
 class AnalysisResult:
     """Top-level VibeLock output (no raw media is retained)."""
@@ -171,6 +398,7 @@ class AnalysisResult:
     n_frames: int = 0
     fps: float = 0.0
     verdict: str = ""
+    channels: list[ChannelReport] = field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         verdict = self.verdict or verdict_of(self.score, self.reason_codes, self.mode)
@@ -185,6 +413,7 @@ class AnalysisResult:
             "n_frames": int(self.n_frames),
             "fps": float(self.fps),
             "signals": list(self.signals),
+            "channels": [c.to_dict() for c in self.channels],
             "notes": list(self.notes),
         }
 
@@ -351,16 +580,45 @@ def analyze(
         signals.append("audio")
 
     has_vib = False
+    vibration_note = (
+        "No body-coupled vibration track was submitted. "
+        "A stereo file is not treated as jaw or contact-mic vibration."
+    )
     if vibration is not None and audio_v is not None:
         vib = as_mono_float(vibration)
         if vib.size < int(0.08 * sample_rate) or rms(vib) < 1e-6:
             notes.append("Vibration missing or unusable; falling back to audio-only.")
             extra.append(VIBRATION_UNUSABLE)
+            vibration_note = (
+                "A vibration track was submitted but it was empty or too short. "
+                "The vibration channel is insufficient; audio-only checks still ran."
+            )
         else:
             n = min(audio_v.size, vib.size)
             checks.extend(analyze_dual(audio_v[:n], vib[:n], sample_rate))
             signals.append("physics")
             has_vib = True
+            vibration_note = ""
+    elif vibration is not None and audio_v is None:
+        vibration_note = (
+            "Vibration was submitted without air audio, so coherence could not be measured."
+        )
+        extra.append(VIBRATION_UNUSABLE)
+        notes.append(vibration_note)
+
+    linguistics_status = "not_applicable"
+    linguistics_note = "No audio, so linguistic proxies did not run."
+    if audio_v is not None:
+        from vibelock.linguistics import analyze_linguistics
+
+        ling_checks, ling_meta = analyze_linguistics(audio_v, sample_rate)
+        checks.extend(ling_checks)
+        linguistics_status = str(ling_meta.get("status") or "insufficient")
+        linguistics_note = str(ling_meta.get("note") or "")
+        if linguistics_status == "fired":
+            signals.append("linguistics")
+        elif linguistics_note:
+            notes.append(linguistics_note)
 
     if image is not None:
         from vibelock.vision import analyze_image
@@ -405,7 +663,7 @@ def analyze(
     # Image + audio without frames: still use AV weights so both families count.
     if mode == "av" and frames is None and image is not None:
         notes.append("Still image plus audio: spatial + forensic, no temporal sync.")
-    return combine(
+    result = combine(
         checks,
         mode,
         sample_rate or 0,
@@ -416,6 +674,16 @@ def analyze(
         n_frames=n_frames,
         fps=rate,
     )
+    result.channels = build_channels(
+        result.checks,
+        has_audio=audio_v is not None,
+        has_vibration=has_vib,
+        vibration_note=vibration_note,
+        linguistics_status=linguistics_status,
+        linguistics_note=linguistics_note,
+        has_related_media=image is not None or frames is not None,
+    )
+    return result
 
 
 def format_human(result: AnalysisResult) -> str:
@@ -430,6 +698,11 @@ def format_human(result: AnalysisResult) -> str:
     if result.notes:
         for n in result.notes:
             lines.append(f"Note: {n}")
+    if result.channels:
+        lines.append("Channels:")
+        for channel in result.channels:
+            evidence = f", {channel.evidence}" if channel.evidence and channel.evidence != "none" else ""
+            lines.append(f"  - {channel.name}: {channel.status}{evidence}")
     lines.append("Checks:")
     for c in result.checks:
         flag = f" [{c.reason_code}]" if c.reason_code else ""

@@ -60,7 +60,7 @@ Isolated counter: Worker `vibelock-download-tracker`, KV `VIBELOCK_DOWNLOADS`. N
 
 ## Quick start
 
-Follow **Start** at the top of this file. After `vibelock ui`, choose **Add file**. WAV, PNG, PPM, and `.vlvd` work (FLAC/MP3 when this build can read them). Hashes and **Export JSON report** are under **Advanced**.
+Follow **Start** at the top of this file. After `vibelock ui`, choose **Add file**. WAV, PNG, PPM, and `.vlvd` always work. MP3, MP4, M4A, MOV, WebM, MKV, OGG, and AVI work when `ffmpeg` is on PATH. Uncompressed PCM inside MP4 (`sowt` / `twos`) works without ffmpeg. FLAC also decodes when this build can read it. The result cites physics, linguistics, vibration, and related. A channel without evidence stays insufficient. The score is a risk index, not an accuracy rate and not courtroom proof. Hashes and **Export JSON report** are under **Advanced**.
 
 Optional check: `vibelock doctor --verify`.
 
@@ -146,6 +146,16 @@ Forks are welcome and always allowed.
    drift.
 5. **Talking-head A/V sync** — audio RMS envelope vs center-crop motion
    energy and envelope GCC-PHAT delay.
+6. **Linguistic proxies (experimental)** — syllable-rate regularity,
+   pause-spacing variation, and frame-to-frame spectral motion. Not
+   speech-to-text and not a language ID. A clip that is too short, or
+   that has no syllable pulses, does not get a linguistics score.
+
+Every result cites four channels: `physics` (heuristic), `linguistics`
+(experimental), `vibration` (measurement, or `insufficient` when no
+body-coupled track was submitted), and `related` (spatial / temporal /
+A/V, heuristic). The 0–1 score is a risk index. It is not an accuracy
+percentage.
 
 Output: a score in `[0, 1]`, a verdict (`consistent` / `deepfake` /
 `inconclusive` / `inconsistent`), and machine-readable reason codes
@@ -179,6 +189,8 @@ python -m pip install vibelock-0.3.0.tar.gz
 ```bash
 # Audio-only forensic (risk assessment)
 vibelock analyze path/to/air.wav
+vibelock detect path/to/clip.mp4
+vibelock detect path/to/voice.mp3
 
 # Dual-channel: air + body-coupled vibration
 vibelock analyze path/to/air.wav --vibration path/to/jaw.wav
@@ -206,7 +218,7 @@ vibelock ui                # localhost UI on 127.0.0.1:8760
 
 `vibelock ui` prints `Open http://127.0.0.1:8760/`.
 
-Binds to `127.0.0.1` only. Self-contained HTML (no CDN, no telemetry). The page follows the system light or dark setting. One primary action: **Add file** (WAV / PNG / PPM / `.vlvd`, plus FLAC/MP3 when a decoder is present). **Advanced** (collapsed) holds the vibration file, **Sample tone**, **Sample photo**, **Sample deepfake**, hashes, checks, and **Export JSON report**. The simple result is one sentence and a score (*consistent* / *inconsistent*). Hard max size; truncated or foreign files are rejected in plain language, with a next step, and the process keeps running.
+Binds to `127.0.0.1` only. Self-contained HTML (no CDN, no telemetry). The page follows the system light or dark setting. One primary action: **Add file** (WAV / PNG / PPM / `.vlvd`; MP3/MP4/WebM/MOV and other containers this build can decode; FLAC when a decoder is present; uncompressed PCM MP4 without ffmpeg). **Advanced** (collapsed) holds the vibration file, **Sample tone**, **Sample photo**, **Sample deepfake**, hashes, checks, and **Export JSON report**. The simple result is one sentence, a score, and which signal channels had evidence (*consistent* / *inconsistent*). A channel without evidence stays insufficient. The score is a risk index, not an accuracy rate. Hard max size; truncated or foreign files are rejected in plain language, with a next step, and the process keeps running. Compressed containers without ffmpeg fail closed.
 
 The About panel states the courtroom limitation.
 
@@ -288,9 +300,12 @@ Live HTTPS runtime on the download-tracker Worker (does **not** increment the do
 - Suite mesh: https://vibelock-download-tracker.vibelock.workers.dev/v1/mesh (PROXY via AZIEL_RUNTIME; default OFF; QNM-BUILD-1.0 live|locked|isolated; QNS-CD-1.0 hub cite / Worker mesh cross-map; no Node Gate; no public qnsd proxy)
 
 POST `/v1/analyze` or `/v1/detect` with `features:{rms,zcr,...}`, limited
-`pcm_b64`+rate, and/or `visual` / `pitch` / `av` feature objects.
-**Risk assessment, not a liveness proof.** Hosted is not a live mic;
-desktop `listen` stays local. The Worker ports the same heuristics in JS.
+`pcm_b64`+rate, and/or `visual` / `pitch` / `av` / `linguistics` /
+`vibration` feature objects. The response `channels` array cites
+physics, linguistics, vibration, and related. **Risk assessment, not a
+liveness proof, and not an accuracy rate.** Hosted is not a live mic
+and does not decode MP4/MP3 bytes; desktop `vibelock detect file.mp4`
+stays local. The Worker ports the same heuristics in JS.
 
 The same OpenAPI spec and MCP catalog work with any MCP- or OpenAPI-capable
 assistant, including:

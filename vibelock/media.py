@@ -4,8 +4,10 @@ PNG and PPM always (stdlib zlib + numpy). JPEG only when Pillow is
 present. Video is a frame stack: a directory of stills, a ``.vlvd``
 container, or a ``.npy`` array. No cloud, no identity, no telemetry.
 
-This module never decodes MP4/H.264 — that would pull a codec stack
-the core package refuses. A talking-head clip is frames + optional WAV.
+MP4, MP3, and other compressed A/V containers are not decoded in this
+module. ``vibelock.containers`` demuxes uncompressed PCM in MP4 and,
+when ffmpeg is on PATH, decodes the common compressed containers.
+Without that decoder the call fails closed.
 """
 
 from __future__ import annotations
@@ -19,8 +21,7 @@ from typing import Any
 import numpy as np
 from numpy.typing import NDArray
 
-from vibelock.debug import log as dlog
-from vibelock.io import AudioError, MAX_AUDIO_BYTES, decode_audio_bytes, sniff_audio
+from vibelock.io import AudioError, sniff_audio
 
 Array = NDArray[np.float64]
 
@@ -127,6 +128,14 @@ def sniff_media(raw: bytes, name: str = "") -> str:
         return "video"
     if suffix in {".wav", ".flac", ".mp3"}:
         return "audio"
+    if suffix in {".mp4", ".m4a", ".m4v", ".mov", ".webm", ".mkv", ".ogg", ".oga", ".avi", ".aac"}:
+        return "container"
+    if len(raw) >= 12 and raw[4:8] == b"ftyp":
+        return "container"
+    if len(raw) >= 12 and raw[:4] == b"RIFF" and raw[8:12] == b"AVI ":
+        return "container"
+    if raw.startswith(b"OggS") or raw.startswith(b"\x1aE\xdf\xa3"):
+        return "container"
     return ""
 
 
@@ -463,19 +472,22 @@ def decode_any_bytes(
     raw: bytes,
     name: str = "",
 ) -> dict[str, Any]:
-    """Dispatch bytes to audio / image / video. Raises MediaError."""
-    if not raw:
-        raise MediaError(PPM_PLAIN_EMPTY)
-    if len(raw) > max(MAX_MEDIA_BYTES, MAX_AUDIO_BYTES):
-        raise MediaError(PPM_PLAIN_TOO_BIG)
-    kind = sniff_media(raw, name)
-    dlog(f"sniff name={name!r} kind={kind} n={len(raw)}")
-    if kind == "audio":
-        audio, sr = decode_audio_bytes(raw, name=name)
-        return {"kind": "audio", "audio": audio, "sr": sr}
-    if kind == "image":
-        return {"kind": "image", "image": decode_image_bytes(raw, name=name)}
-    if kind in {"video", "ndarray"}:
-        frames, fps = decode_video_bytes(raw, name=name)
-        return {"kind": "video", "frames": frames, "fps": fps}
-    raise MediaError(PPM_PLAIN_NOT_MEDIA)
+    """Dispatch bytes to audio / image / video / containers. Raises MediaError."""
+    from vibelock.containers import open_media_bytes
+
+    opened = open_media_bytes(raw, name=name)
+    out: dict[str, Any] = {
+        "kind": opened["kind"],
+        "format": opened.get("format"),
+        "decoder": opened.get("decoder"),
+        "notes": list(opened.get("notes") or []),
+    }
+    if opened.get("audio") is not None:
+        out["audio"] = opened["audio"]
+        out["sr"] = opened["sr"]
+    if opened.get("image") is not None:
+        out["image"] = opened["image"]
+    if opened.get("frames") is not None:
+        out["frames"] = opened["frames"]
+        out["fps"] = opened["fps"]
+    return out

@@ -185,6 +185,7 @@ PAGE = r"""<!DOCTYPE html>
     <h2>Result</h2>
     <p class="plain" id="plain"></p>
     <p class="scoreline">Score <span class="score" id="score">—</span></p>
+    <p class="help" id="channels"></p>
     <div class="bar" aria-hidden="true"><span id="bar"></span></div>
     <p class="help" id="limit-again"></p>
   </section>
@@ -192,7 +193,7 @@ PAGE = r"""<!DOCTYPE html>
 
   <details class="card" id="advanced">
     <summary>Advanced</summary>
-    <p class="help">Simple shows one sentence and a score (consistent or inconsistent). Advanced adds hashes, checks, sample files, and export.</p>
+    <p class="help">Simple shows one sentence, a score, and which signal channels had evidence (consistent or inconsistent). A channel without evidence stays insufficient. Advanced adds hashes, checks, sample files, and export. The score is a risk index, not an accuracy rate.</p>
     <label for="vib">Vibration WAV (optional)</label>
     <input id="vib" type="file" accept=".wav,audio/wav">
     <div class="row">
@@ -214,7 +215,7 @@ PAGE = r"""<!DOCTYPE html>
   <details class="card">
     <summary>About</summary>
     <p>Author Aziel Eliab. VibeLock __VERSION__.</p>
-    <p>This is a media authenticity advisory (audio, image, and video), not courtroom proof.</p>
+    <p>This is a media authenticity advisory (audio, image, and video), not courtroom proof. The score is a risk index, not an accuracy rate.</p>
     <p>Reading happens on this computer. The page does not send the file anywhere, and it does not record telemetry.</p>
   </details>
 
@@ -253,6 +254,10 @@ PAGE = r"""<!DOCTYPE html>
       : "This recording looks inconsistent — it might not match a real voice.");
     $("plain").textContent = plain;
     $("plain").className = "plain " + ((data.plain === "consistent") ? "ok" : "bad");
+    const channels = data.channels || [];
+    $("channels").textContent = channels.length
+      ? channels.map((c) => c.name + " " + c.status + (c.evidence && c.evidence !== "none" ? " (" + c.evidence + ")" : "")).join(" · ")
+      : "";
     $("limit-again").textContent = data.limitation || "This is a media authenticity advisory (audio, image, and video), not courtroom proof.";
     const codes = data.reason_codes || [];
     const box = $("codes");
@@ -316,10 +321,8 @@ PAGE = r"""<!DOCTYPE html>
     try {
       const name = String(file.name || "").toLowerCase();
       const blob = await b64(file);
-      const payload = { filename: file.name };
+      const payload = { filename: file.name, media_b64: blob };
       if (name.endsWith(".vlvd") || name.endsWith(".npy")) payload.frames_b64 = blob;
-      else if (name.endsWith(".png") || name.endsWith(".ppm") || name.endsWith(".pgm") || name.endsWith(".jpg") || name.endsWith(".jpeg")) payload.image_b64 = blob;
-      else payload.audio_b64 = blob;
       const vib = $("vib").files[0];
       if (vib) payload.vibration_b64 = await b64(vib);
       show(await post("/api/analyze", payload));
@@ -398,20 +401,36 @@ PAGE = r"""<!DOCTYPE html>
 
 
 def capabilities() -> dict[str, Any]:
+    from vibelock.containers import CONTAINER_SUFFIXES, ffmpeg_available
+    from vibelock.scoring import CHANNEL_EVIDENCE, CHANNEL_ORDER
+
     suffixes = list(supported_suffixes())
+    formats = [s.lstrip(".") for s in suffixes] + ["png", "ppm", "vlvd"]
+    for suffix in CONTAINER_SUFFIXES:
+        name = suffix.lstrip(".")
+        if name not in formats:
+            formats.append(name)
+    accept = accept_attr() + ",.png,image/png,.ppm,.vlvd,.npy,video/mp4,video/webm,audio/mpeg," + ",".join(
+        CONTAINER_SUFFIXES
+    )
     return {
         "ok": True,
         "product": "vibelock",
         "version": __version__,
-        "formats": [s.lstrip(".") for s in suffixes] + ["png", "ppm", "vlvd"],
-        "accept": accept_attr() + ",.png,image/png,.ppm,.vlvd",
+        "formats": formats,
+        "accept": accept,
         "engine": "deepfake",
-        "signals": ["audio", "spatial", "temporal", "av_sync", "physics"],
+        "signals": ["audio", "spatial", "temporal", "av_sync", "physics", "linguistics"],
+        "channels": list(CHANNEL_ORDER),
+        "channel_evidence": dict(CHANNEL_EVIDENCE),
+        "ffmpeg": ffmpeg_available(),
+        "container_decoder": "ffmpeg" if ffmpeg_available() else "pcm_mp4",
         "max_bytes": MAX_BODY,
         "limitation": LIMITATION,
         "loopback": True,
         "telemetry": TELEMETRY,
         "courtroom_proof": False,
+        "accuracy_claim": False,
         "views": ["simple", "advanced"],
     }
 
@@ -518,6 +537,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._json(200, payload)
                 return
             if path == "/api/analyze":
+                from vibelock.containers import open_media_bytes
+
                 body = self._read_json()
                 filename = str(body.get("filename") or "media")
                 audio = None
@@ -528,19 +549,35 @@ class Handler(BaseHTTPRequestHandler):
                 image = None
                 frames = None
                 fps = float(body.get("fps") or 0.0)
-                if body.get("audio_b64"):
-                    audio, sr, digest = _decode_field(str(body["audio_b64"]), filename)
-                    if body.get("vibration_b64"):
-                        vib, vsr, vib_hash = _decode_field(str(body["vibration_b64"]), str(body.get("vibration_name") or "vib.wav"))
-                        if vsr != sr:
-                            vib = resample(vib, vsr, sr)
-                        n = min(audio.size, vib.size)
-                        audio, vibration = audio[:n], vib[:n]
-                if body.get("image_b64"):
+                container_notes: list[str] = []
+                media_fmt = None
+                media_decoder = None
+                if body.get("media_b64") or body.get("audio_b64"):
+                    raw = _b64_to_bytes(str(body.get("media_b64") or body.get("audio_b64")))
+                    opened = open_media_bytes(raw, name=filename)
+                    audio = opened.get("audio")
+                    sr = int(opened.get("sr") or 0)
+                    image = opened.get("image")
+                    frames = opened.get("frames")
+                    fps = fps or float(opened.get("fps") or 0.0)
+                    digest = opened.get("sha256")
+                    container_notes = list(opened.get("notes") or [])
+                    media_fmt = opened.get("format")
+                    media_decoder = opened.get("decoder")
+                if body.get("vibration_b64") and audio is not None:
+                    vib, vsr, vib_hash = _decode_field(
+                        str(body["vibration_b64"]),
+                        str(body.get("vibration_name") or "vib.wav"),
+                    )
+                    if sr and vsr != sr:
+                        vib = resample(vib, vsr, sr)
+                    n = min(audio.size, vib.size)
+                    audio, vibration = audio[:n], vib[:n]
+                if body.get("image_b64") and image is None:
                     raw = _b64_to_bytes(str(body["image_b64"]))
                     image = decode_image_bytes(raw, name=filename)
                     digest = digest or sha256_bytes(raw)
-                if body.get("frames_b64"):
+                if body.get("frames_b64") and frames is None:
                     raw = _b64_to_bytes(str(body["frames_b64"]))
                     frames, file_fps = decode_video_bytes(raw, name=filename)
                     fps = fps or file_fps
@@ -549,11 +586,20 @@ class Handler(BaseHTTPRequestHandler):
                     self._json(400, {"error": "Add a file first. Choose Add file, or open Advanced for a sample."})
                     return
                 result = analyze(audio, sr or None, vibration=vibration, image=image, frames=frames, fps=fps or None)
+                for note in container_notes:
+                    if note not in result.notes:
+                        result.notes.append(note)
+                extra: dict[str, Any] = {}
+                if media_fmt:
+                    extra["format"] = media_fmt
+                if media_decoder:
+                    extra["decoder"] = media_decoder
                 payload = build_report(
                     result,
                     sha256=digest,
                     sha256_vibration=vib_hash,
                     filename=filename,
+                    extra=extra or None,
                 )
                 dlog(f"analyze {filename} score={result.score:.3f}")
                 self._json(200, payload)

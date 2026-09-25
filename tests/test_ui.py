@@ -208,6 +208,39 @@ def test_ui_analyze_wav_and_hashes(tmp_path, authentic_pair) -> None:
         thread.join(timeout=2)
 
 
+def test_ui_pcm_mp4_cites_channels(tmp_path, authentic_pair) -> None:
+    import base64
+
+    from vibelock.containers import encode_pcm_mp4
+
+    raw = encode_pcm_mp4(authentic_pair.audio, authentic_pair.sr)
+    blob = base64.b64encode(raw).decode("ascii")
+    httpd, thread = _start()
+    try:
+        port = httpd.server_address[1]
+        body = json.dumps({"media_b64": blob, "filename": "voice.mp4"}).encode("utf-8")
+        req = urllib.request.Request(
+            f"http://127.0.0.1:{port}/api/analyze",
+            data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req, timeout=30) as res:
+            payload = json.loads(res.read().decode("utf-8"))
+            assert res.status == 200
+            assert payload["decoder"] == "pcm_mp4"
+            names = [c["name"] for c in payload["channels"]]
+            assert names == ["physics", "linguistics", "vibration", "related"]
+            vib = next(c for c in payload["channels"] if c["name"] == "vibration")
+            assert vib["status"] == "insufficient"
+            assert payload["courtroom_proof"] is False
+            assert "accuracy" not in payload
+    finally:
+        httpd.shutdown()
+        httpd.server_close()
+        thread.join(timeout=2)
+
+
 def test_ui_rejects_non_audio() -> None:
     import base64
 

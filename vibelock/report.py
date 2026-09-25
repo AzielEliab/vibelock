@@ -90,6 +90,16 @@ def format_report(report: Mapping[str, Any]) -> str:
     lines.append(f"Mode: {report.get('mode')}")
     if report.get("signals"):
         lines.append("Signals: " + ", ".join(report.get("signals") or []))
+    channels = report.get("channels") or []
+    if channels:
+        lines.append("Channels:")
+        for channel in channels:
+            if not isinstance(channel, dict):
+                continue
+            evidence = channel.get("evidence") or "none"
+            lines.append(
+                f"  - {channel.get('name')}: {channel.get('status')} ({evidence})"
+            )
     codes = report.get("reason_codes") or []
     lines.append("Reason codes: " + (", ".join(codes) if codes else "(none)"))
     hashes = report.get("hashes") or {}

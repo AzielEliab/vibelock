@@ -113,12 +113,13 @@ function aiHowTo(base) {
 }
 
 const PRODUCT = "vibelock";
-const SKILL_MARKDOWN = "---\nname: VibeLock\ndescription: Use when calling VibeLock hosted /v1 or installing the local package for physics + A/V deepfake detection. This Worker /v1/mesh/* PROXY to aziel-runtime via AZIEL_RUNTIME. Suite mesh default OFF. QNM-BUILD-1.0 live|locked|isolated. QNS-CD-1.0 photon QNS1 packet transfer is a hub cite / Worker mesh cross-map only (not Softwares-tab; no public qnsd proxy). No Node Gate. No auto-heal. Not anonymity. Author Aziel Eliab.\n---\n\n# VibeLock\n\nPhysics + A/V deepfake detection. Risk assessment, not courtroom proof. Author: **Aziel Eliab**.\n\n**THIS IS:** a multi-signal detector — vocal-tract / vibration physics, spatial image artifacts, temporal video flicker/flow, unnatural pitch/phase shifts, and talking-head A/V sync (local CLI + hosted advisory `/v1/analyze` and `/v1/detect`).\n\n**THIS IS NOT:** courtroom proof, a liveness detector, a live microphone, face recognition, or a claim that physics cannot be forged. Hosted `/v1` does not increment downloads or views.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\nThe Worker homepage is a full product UI (title `VibeLock — Aziel Eliab`):\nin-browser analyze against `/v1/analyze`, plus counted download,\none-click install, and the suite Live Nodes strip (`GET /v1/mesh`).\nhttps://vibelock-download-tracker.vibelock.workers.dev/\n\n## Call these URLs\n\n- Worker OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- This Worker MCP pointer: `GET https://vibelock-download-tracker.vibelock.workers.dev/mcp`\n- Live skill (this markdown): `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/skill`\n- Suite mesh: `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/mesh` (PROXY; default OFF; QNS-CD-1.0 cross-map on the Live Nodes payload)\n\nOps (do **not** increment downloads or views):\n\n- `GET /v1/health` — liveness\n- `GET /v1/skill` — this file\n- `POST /v1/analyze` — advisory score from audio features/PCM and/or visual/pitch/A/V features\n- `POST /v1/detect` — same engine, deepfake-oriented request body\n- `GET /v1/mesh` — PROXY suite mesh status. Default OFF. QNM live|locked|isolated. QNS-CD-1.0 photon QNS1 packet transfer is stamped as a hub cite / Worker mesh cross-map (`qns_cd`). Never enables. No Node Gate. No auto-heal. No public qnsd proxy.\n- `GET /v1/mesh/nodes` — PROXY Live Nodes roster (5-minute presence). Same QNS-CD-1.0 cross-map.\n- `POST /v1/mesh/{enable,disable,join,heartbeat,leave,broadcast}` — PROXY. Bearer required to enable. Not AnonBroadcast. Not qnsd.\n- `GET /mcp` — OpenAPI/MCP pointer (catalog MCP + FragGate `slug=mesh`). Not a second MCP.\n\nQNS-CD-1.0 is **not** a Softwares-tab product. Local qnsd is coded in [qnm-node](https://github.com/AzielEliab/qnm-node). Runtime cites + catalog field live in [aziel-runtime](https://github.com/AzielEliab/aziel-runtime). Pair custody is [AZInterface](https://github.com/AzielEliab/azinterface). This Worker only cites the cross-map on mesh status / Live Nodes.\n\nWorks with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants.\n\nImport OpenAPI as a custom tool (ChatGPT: GPT Actions; Grok/xAI: HTTP/OpenAPI tool; Venice: HTTP tools). MCP clients (Cursor, Glama, and others): POST the catalog. Catalog MCP `mesh_*` + FragGate `slug=mesh`. No per-crawler install packages.\n\n## Example\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/skill\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/mesh\ncurl -s -A 'Mozilla/5.0' -X POST https://vibelock-download-tracker.vibelock.workers.dev/v1/detect \\\n  -H 'content-type: application/json' \\\n  -d '{\"features\":{\"rms\":0.08,\"zcr\":0.07},\"visual\":{\"blockiness\":1.8,\"noise_cv\":0.7},\"pitch\":{\"f0_jump\":8.5}}'\n```\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://vibelock-download-tracker.vibelock.workers.dev/install.sh | bash\nvibelock ui\nvibelock doctor\nvibelock detect path/to/media.png\n```\n\nThen open http://127.0.0.1:8760 (loopback only). WAV, PNG, PPM, `.vlvd` frame stacks.\n\nCounted download (gzip HTTP 200, no 302): https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.3.0.tar.gz\nGitHub: https://github.com/AzielEliab/vibelock\n\nPaper: DOI https://doi.org/10.5281/zenodo.21431610 · https://zenodo.org/records/21431610 · Apache-2.0. Forks welcome.\n";
+const SKILL_MARKDOWN = "---\nname: VibeLock\ndescription: Use when calling VibeLock hosted /v1 or installing the local package for physics + A/V deepfake detection. This Worker /v1/mesh/* PROXY to aziel-runtime via AZIEL_RUNTIME. Suite mesh default OFF. QNM-BUILD-1.0 live|locked|isolated. QNS-CD-1.0 photon QNS1 packet transfer is a hub cite / Worker mesh cross-map only (not Softwares-tab; no public qnsd proxy). No Node Gate. No auto-heal. Not anonymity. Author Aziel Eliab.\n---\n\n# VibeLock\n\nPhysics + A/V deepfake detection. Risk assessment, not courtroom proof. Author: **Aziel Eliab**.\n\n**THIS IS:** a multi-signal detector \u2014 vocal-tract / vibration physics, experimental linguistic proxies (not speech-to-text), spatial image artifacts, temporal video flicker/flow, unnatural pitch/phase shifts, and talking-head A/V sync (local CLI + hosted advisory `/v1/analyze` and `/v1/detect`).\n\nFile deepfake path: local `vibelock detect file.mp4` / `file.mp3` (also WAV, M4A, MOV, WebM, MKV, OGG, AVI when `ffmpeg` is on PATH; uncompressed PCM inside MP4 without ffmpeg). Hosted `/v1` does **not** decode container bytes and does **not** increment downloads. The product UI decodes common audio/video in the browser, then posts measurements.\n\nChannels in every report: `physics` (heuristic), `linguistics` (experimental), `vibration` (measurement only when a body-coupled track or caller-supplied metrics exist; otherwise `insufficient`), `related` (spatial / temporal / A/V, heuristic). No accuracy percentage. Missing evidence is insufficient, not a pass.\n\n**THIS IS NOT:** courtroom proof, a liveness detector, a live microphone, face recognition, or a claim that physics cannot be forged. Hosted `/v1` does not increment downloads or views.\n\nAlways send `User-Agent: Mozilla/5.0`. Cloudflare Workers may 403 an empty agent.\n\nThe Worker homepage is a full product UI (title `VibeLock \u2014 Aziel Eliab`):\nin-browser analyze against `/v1/analyze`, plus counted download,\none-click install, and the suite Live Nodes strip (`GET /v1/mesh`).\nhttps://vibelock-download-tracker.vibelock.workers.dev/\n\n## Call these URLs\n\n- Worker OpenAPI: https://vibelock-download-tracker.vibelock.workers.dev/openapi.json\n- Catalog OpenAPI: https://aziel-runtime.vibelock.workers.dev/openapi.json\n- MCP: `POST https://aziel-runtime.vibelock.workers.dev/mcp`\n- This Worker MCP pointer: `GET https://vibelock-download-tracker.vibelock.workers.dev/mcp`\n- Live skill (this markdown): `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/skill`\n- Suite mesh: `GET https://vibelock-download-tracker.vibelock.workers.dev/v1/mesh` (PROXY; default OFF; QNS-CD-1.0 cross-map on the Live Nodes payload)\n\nOps (do **not** increment downloads or views):\n\n- `GET /v1/health` \u2014 liveness\n- `GET /v1/skill` \u2014 this file\n- `POST /v1/analyze` \u2014 advisory score from audio features/PCM and/or visual/pitch/A/V/linguistics features. Does not decode MP4/MP3 bytes.\n- `POST /v1/detect` \u2014 same engine, deepfake-oriented request body. Same channel report.\n- `GET /v1/mesh` \u2014 PROXY suite mesh status. Default OFF. QNM live|locked|isolated. QNS-CD-1.0 photon QNS1 packet transfer is stamped as a hub cite / Worker mesh cross-map (`qns_cd`). Never enables. No Node Gate. No auto-heal. No public qnsd proxy.\n- `GET /v1/mesh/nodes` \u2014 PROXY Live Nodes roster (5-minute presence). Same QNS-CD-1.0 cross-map.\n- `POST /v1/mesh/{enable,disable,join,heartbeat,leave,broadcast}` \u2014 PROXY. Bearer required to enable. Not AnonBroadcast. Not qnsd.\n- `GET /mcp` \u2014 OpenAPI/MCP pointer (catalog MCP + FragGate `slug=mesh`). Not a second MCP.\n\nQNS-CD-1.0 is **not** a Softwares-tab product. Local qnsd is coded in [qnm-node](https://github.com/AzielEliab/qnm-node). Runtime cites + catalog field live in [aziel-runtime](https://github.com/AzielEliab/aziel-runtime). Pair custody is [AZInterface](https://github.com/AzielEliab/azinterface). This Worker only cites the cross-map on mesh status / Live Nodes.\n\nWorks with ChatGPT (GPT Actions / OpenAI), Grok (xAI), Venice, Claude (Anthropic), Cursor (MCP), Glama (MCP), Perplexity, Microsoft Copilot / Bing, Google Gemini / Vertex, Mistral, Meta AI, Apple Intelligence surfaces, Amazon Q tooling, DuckAssist, You.com, Cohere, and other MCP/OpenAPI-capable assistants.\n\nImport OpenAPI as a custom tool (ChatGPT: GPT Actions; Grok/xAI: HTTP/OpenAPI tool; Venice: HTTP tools). MCP clients (Cursor, Glama, and others): POST the catalog. Catalog MCP `mesh_*` + FragGate `slug=mesh`. No per-crawler install packages.\n\n## Example\n\n```bash\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/health\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/skill\ncurl -s -A 'Mozilla/5.0' https://vibelock-download-tracker.vibelock.workers.dev/v1/mesh\ncurl -s -A 'Mozilla/5.0' -X POST https://vibelock-download-tracker.vibelock.workers.dev/v1/detect \\\n  -H 'content-type: application/json' \\\n  -d '{\"features\":{\"rms\":0.08,\"zcr\":0.07},\"visual\":{\"blockiness\":1.8,\"noise_cv\":0.7},\"pitch\":{\"f0_jump\":8.5}}'\n```\n\n## Local (after one-click install)\n\n```bash\ncurl -fsSL https://vibelock-download-tracker.vibelock.workers.dev/install.sh | bash\nvibelock ui\nvibelock doctor\nvibelock detect path/to/media.png\n```\n\nThen open http://127.0.0.1:8760 (loopback only). WAV, PNG, PPM, `.vlvd`, and \u2014 with ffmpeg \u2014 MP3/MP4 and other common A/V containers. Uncompressed PCM MP4 works without ffmpeg.\n\nCounted download (gzip HTTP 200, no 302): https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.3.0.tar.gz\nGitHub: https://github.com/AzielEliab/vibelock\n\nPaper: DOI https://doi.org/10.5281/zenodo.21431610 \u00b7 https://zenodo.org/records/21431610 \u00b7 Apache-2.0. Forks welcome.\n";
 const VERSION = "0.3.0";
 const BASE = "https://vibelock-download-tracker.vibelock.workers.dev";
 const MOTTO = "Sound can be forged. Pixels can be forged. Physics is harder to fake.";
 const LABEL = "Media authenticity advisory (audio, image, and video), not courtroom proof.";
-const HOSTED_NOTE = "Hosted endpoint is not a live microphone. Desktop `listen` stays local. Hosted does not decode pixels; send visual/pitch/av features or limited PCM.";
+const HOSTED_NOTE = "Hosted endpoint is not a live microphone and does not decode MP4/MP3 container bytes. Desktop `vibelock detect file` stays local. Send features, limited PCM, or browser-extracted visual/linguistics metrics.";
+const LINGUISTIC_NOTE = "Experimental heuristic (not speech-to-text, not a language ID, not an accuracy rate).";
 const MAX_PCM_BYTES = 65536;
 const MAX_SAMPLES = 32000;
 const AUDIO_WEIGHTS = {
@@ -129,6 +130,9 @@ const AUDIO_WEIGHTS = {
   temporal: 0.12,
   buzz: 0.07,
   pitch: 0.11,
+  syllable_rhythm: 0.05,
+  pause_structure: 0.04,
+  linguistic_transition: 0.04,
 };
 const VISUAL_WEIGHTS = {
   spatial_freq: 0.22,
@@ -396,11 +400,249 @@ function temporalChecks(t) {
 function avCheck(a) {
   a = a || {};
   const corr = num(a.av_corr, num(a.corr, 0.5));
-  const delay = Math.abs(num(a.delay_s, 0.02));
-  let score = clip01(0.65 * logisticScore(corr, 0.55, 0.05) + 0.35 * logisticScore(delay, 0.04, 0.22));
+  const hasDelay = a.delay_s != null && a.delay_s !== "" && Number.isFinite(Number(a.delay_s));
+  const delay = hasDelay ? Math.abs(Number(a.delay_s)) : null;
+  let score = logisticScore(corr, 0.55, 0.05);
+  if (delay != null) score = clip01(0.65 * score + 0.35 * logisticScore(delay, 0.04, 0.22));
+  else score = clip01(score);
   let code = null;
-  if (corr < 0.12 || delay > 0.16) { code = "AV_SYNC_FAIL"; score = Math.min(score, 0.22); }
-  return { name: "av_sync", score, reason_code: code, metrics: { av_corr: corr, delay_s: delay }, note: "Audio RMS vs mouth-proxy motion." };
+  if (corr < 0.12 || (delay != null && delay > 0.16)) { code = "AV_SYNC_FAIL"; score = Math.min(score, 0.22); }
+  const metrics = { av_corr: corr };
+  if (delay != null) metrics.delay_s = delay;
+  const note = hasDelay
+    ? "Audio RMS vs mouth-proxy motion, including the provided delay."
+    : "Audio RMS vs mouth-proxy motion. delay_s was omitted, so latency was not scored.";
+  return { name: "av_sync", score, reason_code: code, metrics, note };
+}
+
+function linguisticsChecks(L) {
+  const checks = [];
+  if (!L || typeof L !== "object") {
+    return { checks, status: "insufficient", note: LINGUISTIC_NOTE + " No linguistics measurements were provided." };
+  }
+  if (L.speech_like === false) {
+    return { checks, status: "insufficient", note: LINGUISTIC_NOTE + " Signal was not speech-like enough for these proxies." };
+  }
+  const dur = num(L.duration_s, 0);
+  if (dur > 0 && dur < 0.45) {
+    return { checks, status: "insufficient", note: LINGUISTIC_NOTE + " Clip shorter than 0.45s." };
+  }
+  const ratio = num(L.syllable_peak_ratio, NaN);
+  const cv = num(L.interval_cv, NaN);
+  const nInt = num(L.n_intervals, 0);
+  if (Number.isFinite(ratio) && Number.isFinite(cv) && nInt >= 4 && ratio >= 4) {
+    let score = Math.min(0.75, logisticScore(cv, 0.18, 0.02));
+    let code = null;
+    if (ratio >= 5 && cv < 0.07) { code = "LINGUISTIC_RHYTHM_METRONOME"; score = Math.min(score, 0.32); }
+    checks.push({
+      name: "syllable_rhythm",
+      score: clip01(score),
+      reason_code: code,
+      metrics: { syllable_peak_ratio: ratio, interval_cv: cv, n_intervals: nInt },
+      note: LINGUISTIC_NOTE + " 2–8 Hz envelope peak and pulse spacing.",
+    });
+  }
+  const nPauses = num(L.n_pauses, 0);
+  const pauseCv = num(L.pause_cv, NaN);
+  if (nPauses >= 3 && Number.isFinite(pauseCv)) {
+    let score = logisticScore(pauseCv, 0.35, 0.04);
+    let code = null;
+    if (pauseCv < 0.06) { code = "LINGUISTIC_PAUSE_FLAT"; score = Math.min(score, 0.34); }
+    checks.push({
+      name: "pause_structure",
+      score: clip01(score),
+      reason_code: code,
+      metrics: { n_pauses: nPauses, pause_cv: pauseCv },
+      note: LINGUISTIC_NOTE + " Coefficient of variation of silence runs.",
+    });
+  }
+  const med = num(L.transition_median, NaN);
+  if (Number.isFinite(med)) {
+    let score = Math.min(0.75, logisticScore(med, 0.07, 0.012));
+    let code = null;
+    if (med < 0.02) { code = "LINGUISTIC_TRANSITION_FROZEN"; score = Math.min(score, 0.30); }
+    checks.push({
+      name: "linguistic_transition",
+      score: clip01(score),
+      reason_code: code,
+      metrics: { transition_median: med, frozen_frac: num(L.frozen_frac, 0) },
+      note: LINGUISTIC_NOTE + " Median normalized spectral flux.",
+    });
+  }
+  if (!checks.length) {
+    return { checks, status: "insufficient", note: LINGUISTIC_NOTE + " No syllable pulses, pause runs, or transition measurement to score." };
+  }
+  return { checks, status: "fired", note: LINGUISTIC_NOTE + " Fired from supplied measurements." };
+}
+
+function pcmLinguistics(x, sr) {
+  const duration_s = x.length / Math.max(1, sr);
+  if (duration_s < 0.45) return { speech_like: false, duration_s };
+  let zc = 0;
+  for (let i = 1; i < x.length; i++) {
+    if ((x[i] >= 0 && x[i - 1] < 0) || (x[i] < 0 && x[i - 1] >= 0)) zc++;
+  }
+  const zcr = zc / Math.max(1, x.length - 1);
+  if (zcr < 0.008 || zcr > 0.35) return { speech_like: false, duration_s, zcr };
+  const hop = Math.max(1, Math.round(0.01 * sr));
+  const win = Math.max(hop, Math.round(0.025 * sr));
+  const env = [];
+  for (let i = 0; i + win <= x.length; i += hop) {
+    let s = 0;
+    for (let j = 0; j < win; j++) s += x[i + j] * x[i + j];
+    env.push(Math.sqrt(s / win));
+  }
+  let peakHz = 0;
+  let peakRatio = 0;
+  if (env.length >= 16) {
+    const mean = env.reduce((a, b) => a + b, 0) / env.length;
+    const band = [];
+    const freqs = [];
+    for (let k = 0; k < env.length; k++) {
+      const f = k / (env.length * 0.01);
+      if (f < 2 || f > 8) continue;
+      let re = 0, im = 0;
+      for (let n = 0; n < env.length; n++) {
+        const w = 0.5 * (1 - Math.cos((2 * Math.PI * n) / Math.max(1, env.length - 1)));
+        const ang = (2 * Math.PI * k * n) / env.length;
+        re += (env[n] - mean) * w * Math.cos(ang);
+        im -= (env[n] - mean) * w * Math.sin(ang);
+      }
+      band.push(Math.hypot(re, im));
+      freqs.push(f);
+    }
+    if (band.length) {
+      let bi = 0;
+      for (let i = 1; i < band.length; i++) if (band[i] > band[bi]) bi = i;
+      const sorted = band.slice().sort((a, b) => a - b);
+      const med = sorted[Math.floor(sorted.length / 2)] + 1e-12;
+      peakHz = freqs[bi];
+      peakRatio = band[bi] / med;
+    }
+  }
+  const peaks = [];
+  const maxE = env.reduce((m, v) => Math.max(m, v), 0);
+  const thr = 0.45 * maxE;
+  for (let i = 1; i + 1 < env.length; i++) {
+    if (env[i] >= env[i - 1] && env[i] > env[i + 1] && env[i] >= thr) {
+      if (peaks.length && (i - peaks[peaks.length - 1]) * 0.01 < 0.08) {
+        if (env[i] > env[peaks[peaks.length - 1]]) peaks[peaks.length - 1] = i;
+        continue;
+      }
+      peaks.push(i);
+    }
+  }
+  const intervals = [];
+  for (let i = 1; i < peaks.length; i++) intervals.push((peaks[i] - peaks[i - 1]) * 0.01);
+  let intervalCv = 0;
+  if (intervals.length) {
+    const mean = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+    let v = 0;
+    for (const d of intervals) v += (d - mean) * (d - mean);
+    intervalCv = Math.sqrt(v / intervals.length) / (mean + 1e-9);
+  }
+  // Normalized spectral flux on a short frame grid. Same idea as the Python check.
+  const nWin = Math.max(64, Math.round(0.025 * sr));
+  const hopA = Math.max(1, Math.round(0.01 * sr));
+  const deltas = [];
+  let prev = null;
+  const nfft = 64;
+  for (let i = 0; i + nWin <= x.length && deltas.length < 80; i += hopA) {
+    const mag = new Float64Array(nfft / 2 + 1);
+    for (let k = 0; k <= nfft / 2; k++) {
+      let re = 0, im = 0;
+      for (let n = 0; n < nWin; n += Math.max(1, Math.floor(nWin / nfft))) {
+        const ang = (2 * Math.PI * k * n) / nfft;
+        re += x[i + n] * Math.cos(ang);
+        im -= x[i + n] * Math.sin(ang);
+      }
+      mag[k] = Math.hypot(re, im);
+    }
+    let norm = 0;
+    for (let k = 0; k < mag.length; k++) norm += mag[k] * mag[k];
+    norm = Math.sqrt(norm) + 1e-12;
+    for (let k = 0; k < mag.length; k++) mag[k] /= norm;
+    if (prev) {
+      let d = 0;
+      for (let k = 0; k < mag.length; k++) {
+        const diff = mag[k] - prev[k];
+        d += diff * diff;
+      }
+      deltas.push(Math.sqrt(d));
+    }
+    prev = mag;
+  }
+  let transition = NaN;
+  if (deltas.length >= 8) {
+    const sorted = deltas.slice().sort((a, b) => a - b);
+    transition = sorted[Math.floor(sorted.length / 2)];
+  }
+  const out = {
+    speech_like: true,
+    duration_s,
+    syllable_hz: peakHz,
+    syllable_peak_ratio: peakRatio,
+    interval_cv: intervalCv,
+    n_intervals: Math.max(0, intervals.length),
+  };
+  if (Number.isFinite(transition)) out.transition_median = transition;
+  return out;
+}
+
+function channelReport(checks, flags) {
+  const groups = {
+    physics: ["spectral", "phase_continuity", "formant", "decay", "temporal", "buzz", "pitch"],
+    linguistics: ["syllable_rhythm", "pause_structure", "linguistic_transition"],
+    vibration: ["coherence", "transfer", "phase_latency"],
+    related: ["spatial_freq", "noise", "block", "chroma", "blend", "lighting", "flicker", "motion", "identity", "interp", "av_sync"],
+  };
+  const evidence = { physics: "heuristic", linguistics: "experimental", vibration: "measurement", related: "heuristic" };
+  const picked = { physics: [], linguistics: [], vibration: [], related: [] };
+  for (const c of checks) {
+    for (const name of Object.keys(groups)) {
+      if (groups[name].includes(c.name)) picked[name].push(c);
+    }
+  }
+  function fired(name, list, note) {
+    const codes = [];
+    const names = [];
+    for (const c of list) {
+      if (!names.includes(c.name)) names.push(c.name);
+      if (c.reason_code && !codes.includes(c.reason_code)) codes.push(c.reason_code);
+    }
+    return { name, status: "fired", evidence: evidence[name], reason_codes: codes, checks: names, note };
+  }
+  function quiet(name, status, note) {
+    return { name, status, evidence: "none", reason_codes: [], checks: [], note };
+  }
+  const out = [];
+  if (picked.physics.length) {
+    out.push(fired("physics", picked.physics, "Heuristic DSP on supplied audio features or limited PCM. Not a measured accuracy rate."));
+  } else if (flags.audio) {
+    out.push(quiet("physics", "insufficient", "Audio features were present but no physics check ran."));
+  } else {
+    out.push(quiet("physics", "not_applicable", "No audio features, so vocal-tract physics checks did not run."));
+  }
+  if (picked.linguistics.length && flags.linguistics === "fired") {
+    out.push(fired("linguistics", picked.linguistics, flags.linguisticsNote));
+  } else if (flags.audio) {
+    out.push(quiet("linguistics", "insufficient", flags.linguisticsNote || "Linguistics evidence was insufficient."));
+  } else {
+    out.push(quiet("linguistics", "not_applicable", "No audio features, so linguistic proxies did not run."));
+  }
+  if (flags.vibration && picked.vibration.length) {
+    out.push(fired("vibration", picked.vibration, "Body-coupled metrics were supplied. The local transfer prior is synthetic, not a human dataset."));
+  } else {
+    out.push(quiet("vibration", "insufficient", flags.vibrationNote || "No body-coupled vibration metrics were submitted. Stereo is not treated as vibration."));
+  }
+  if (picked.related.length) {
+    out.push(fired("related", picked.related, "Spatial, temporal, or A/V metrics that were actually supplied. Heuristic."));
+  } else if (flags.related) {
+    out.push(quiet("related", "insufficient", "Visual fields were present but no related check ran."));
+  } else {
+    out.push(quiet("related", "not_applicable", "No image or frame metrics, so spatial, temporal, and A/V sync checks did not run."));
+  }
+  return out;
 }
 
 function pitchFromPcm(x, sr) {
@@ -478,7 +720,7 @@ function openapiDoc() {
       "/v1/analyze": {
         post: {
           operationId: "vibelockAnalyze",
-          summary: "Multi-signal deepfake risk assessment (audio features/PCM + visual + pitch + A/V)",
+          summary: "Deepfake risk assessment. Channels: physics (heuristic), linguistics (experimental, not STT), vibration (only if body-coupled metrics are sent), related (spatial/temporal/A/V). Does not decode MP4/MP3 bytes and does not claim an accuracy rate.",
           requestBody: {
             required: true,
             content: {
@@ -491,10 +733,22 @@ function openapiDoc() {
                     video: { type: "object", additionalProperties: true, description: "Temporal metrics: flicker, flow_rough, identity_jump, rel_residual" },
                     pitch: { type: "object", additionalProperties: true },
                     av: { type: "object", properties: { av_corr: { type: "number" }, delay_s: { type: "number" } } },
-                    pcm_b64: { type: "string", description: "Limited int16 LE (default) or f32 PCM, not a live mic" },
+                    pcm_b64: { type: "string", description: "Limited int16 LE (default) or f32 PCM, not a container and not a live mic" },
                     rate: { type: "integer" },
                     sample_rate: { type: "integer" },
                     pcm_dtype: { type: "string", enum: ["int16", "f32"] },
+                    linguistics: {
+                      type: "object",
+                      additionalProperties: true,
+                      description: "Experimental proxies: syllable_peak_ratio, interval_cv, n_intervals, n_pauses, pause_cv, transition_median, speech_like, duration_s. Not speech-to-text. Omit or set speech_like false to leave the channel insufficient.",
+                    },
+                    vibration: {
+                      type: "object",
+                      additionalProperties: true,
+                      description: "Caller-supplied body-coupled metrics (coherence, transfer_residual, delay_s). If omitted, the vibration channel is insufficient. Stereo is not vibration.",
+                    },
+                    filename: { type: "string" },
+                    format: { type: "string", description: "Client-reported container name (mp3, mp4, wav, ...). Ignored as bytes; the Worker does not decode containers." },
                   },
                 },
               },
@@ -506,7 +760,7 @@ function openapiDoc() {
       "/v1/detect": {
         post: {
           operationId: "vibelockDetect",
-          summary: "Same engine as /v1/analyze; deepfake-oriented alias",
+          summary: "Same engine as /v1/analyze. File deepfakes: local vibelock detect on mp4/mp3; hosted accepts decoded features/PCM only.",
           requestBody: { required: true, content: { "application/json": { schema: { type: "object", additionalProperties: true } } } },
           responses: { "200": { description: "Deepfake risk assessment" } },
         },
@@ -515,13 +769,68 @@ function openapiDoc() {
   };
 }
 
+function vibrationChecks(v) {
+  if (!v || typeof v !== "object") return [];
+  const checks = [];
+  if (v.coherence != null && Number.isFinite(Number(v.coherence))) {
+    const c = Number(v.coherence);
+    let score = logisticScore(c, 0.6, 0.15);
+    let code = null;
+    if (c < 0.25) { code = "COHERENCE_LOW"; score = Math.min(score, 0.3); }
+    checks.push({
+      name: "coherence",
+      score: clip01(score),
+      reason_code: code,
+      metrics: { coherence: c },
+      note: "Caller-supplied coherence. This Worker did not recompute it.",
+    });
+  }
+  if (v.transfer_residual != null && Number.isFinite(Number(v.transfer_residual))) {
+    const r = Number(v.transfer_residual);
+    let score = logisticScore(r, 0.2, 1.4);
+    let code = null;
+    if (r > 1.0) { code = "TRANSFER_RESIDUAL_HIGH"; score = Math.min(score, 0.3); }
+    checks.push({
+      name: "transfer",
+      score: clip01(score),
+      reason_code: code,
+      metrics: { transfer_residual: r },
+      note: "Caller-supplied transfer residual against a synthetic prior. Not recomputed here.",
+    });
+  }
+  if (v.delay_s != null && Number.isFinite(Number(v.delay_s))) {
+    const d = Math.abs(Number(v.delay_s));
+    let score = logisticScore(d, 0.02, 0.12);
+    let code = null;
+    if (d > 0.08) { code = "LATENCY_OUT_OF_BOUNDS"; score = Math.min(score, 0.3); }
+    checks.push({
+      name: "phase_latency",
+      score: clip01(score),
+      reason_code: code,
+      metrics: { delay_s: d },
+      note: "Caller-supplied air/vibration delay. Not recomputed here.",
+    });
+  }
+  return checks;
+}
+
 async function handleAnalyze(body) {
   body = body || {};
+  if (body.container_b64 || body.file_b64 || body.mp4_b64 || body.mp3_b64 || body.media_b64) {
+    return runtimeJson({
+      ok: false,
+      error: "Hosted /v1 does not decode container bytes. Use local `vibelock detect file.mp4` (ffmpeg or uncompressed PCM), or send pcm_b64 plus visual/video/linguistics features. Nothing was scored.",
+      label: LABEL,
+      hosted_mic: false,
+      decodes_containers: false,
+    }, 400);
+  }
   let features = body.features && typeof body.features === "object" ? { ...body.features } : null;
   let n_samples = num(features && features.n_samples, 0);
   let sr = num(body.rate, num(body.sample_rate, num(features && features.sample_rate, 16000))) | 0;
   if (sr < 8000 || sr > 48000) sr = 16000;
   let mode = "features";
+  let linguistics = (body.linguistics && typeof body.linguistics === "object") ? { ...body.linguistics } : null;
   if (!features && body.pcm_b64) {
     let bytes;
     try { bytes = b64ToBytes(body.pcm_b64); }
@@ -536,28 +845,55 @@ async function handleAnalyze(body) {
     features = featuresFromPcm(x, sr);
     n_samples = x.length;
     mode = "pcm_limited";
+    if (!linguistics) linguistics = pcmLinguistics(x, sr);
   }
   const visual = (body.visual && typeof body.visual === "object") ? body.visual : (body.image && typeof body.image === "object" ? body.image : null);
   const video = (body.video && typeof body.video === "object") ? body.video : (body.temporal && typeof body.temporal === "object" ? body.temporal : null);
   const av = (body.av && typeof body.av === "object") ? body.av : null;
+  const vibration = (body.vibration && typeof body.vibration === "object") ? body.vibration : null;
   const pitchIn = (body.pitch && typeof body.pitch === "object") ? body.pitch : null;
   if (pitchIn && features) Object.assign(features, pitchIn);
-  if (!features && !visual && !video && !av) {
-    return runtimeJson({ ok: false, error: "provide features:{rms,zcr,...} or pcm_b64+rate and/or visual/video/av", label: LABEL, hosted_mic: false, listen: "local" }, 400);
+  if (!features && !visual && !video && !av && !linguistics && !vibration) {
+    return runtimeJson({ ok: false, error: "provide features:{rms,zcr,...} or pcm_b64+rate and/or visual/video/av/linguistics", label: LABEL, hosted_mic: false, listen: "local", decodes_containers: false }, 400);
   }
   const { checks, notes } = features ? checksFromFeatures(features) : { checks: [], notes: [LABEL, HOSTED_NOTE] };
+  const vibChecks = vibrationChecks(vibration);
+  if (vibChecks.length) checks.push(...vibChecks);
+  let linguisticsStatus = "not_applicable";
+  let linguisticsNote = "No audio features, so linguistic proxies did not run.";
+  if (features || linguistics) {
+    const pack = linguisticsChecks(linguistics);
+    checks.push(...pack.checks);
+    linguisticsStatus = pack.status;
+    linguisticsNote = pack.note;
+    if (pack.note) notes.push(pack.note);
+  }
   if (visual) checks.push(...visualChecks(visual));
   if (video) checks.push(...temporalChecks(video));
   if (av) checks.push(avCheck(av));
+  if (!checks.length) {
+    return runtimeJson({ ok: false, error: "nothing measurable in that body; nothing was scored", label: LABEL, hosted_mic: false }, 400);
+  }
   const comb = combine(checks);
   if (visual) mode = video || av ? "av" : (features ? "av" : "image");
   else if (video) mode = features ? "av" : "video";
   else if (av) mode = "av";
+  else if (vibChecks.length && features) mode = "dual_channel";
   const signals = [];
   if (features) signals.push("audio");
+  if (vibChecks.length) signals.push("physics");
+  if (linguisticsStatus === "fired") signals.push("linguistics");
   if (visual) signals.push("spatial");
   if (video) signals.push("temporal");
   if (av) signals.push("av_sync");
+  const channels = channelReport(checks, {
+    audio: Boolean(features),
+    linguistics: linguisticsStatus,
+    linguisticsNote,
+    vibration: vibChecks.length > 0,
+    vibrationNote: vibChecks.length ? "" : "No body-coupled vibration metrics were submitted. Stereo is not treated as vibration.",
+    related: Boolean(visual || video || av),
+  });
   return runtimeJson({
     ok: true,
     product: PRODUCT,
@@ -565,6 +901,8 @@ async function handleAnalyze(body) {
     liveness_proof: false,
     hosted_mic: false,
     listen: "local",
+    decodes_containers: false,
+    accuracy_claim: false,
     mode,
     engine: "deepfake",
     verdict: comb.verdict,
@@ -573,6 +911,9 @@ async function handleAnalyze(body) {
     checks,
     features: features || undefined,
     signals,
+    channels,
+    format: body.format || undefined,
+    filename: body.filename || undefined,
     sample_rate: sr,
     n_samples,
     notes,
