@@ -52,7 +52,7 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     p_an.add_argument(
         "audio",
-        help="Path to WAV / PNG / PPM / .vlvd / frame folder (FLAC/MP3 if supported).",
+        help="Path to WAV, MP3, MP4, image, .vlvd, or a frame folder.",
     )
     p_an.add_argument(
         "--vibration",
@@ -68,7 +68,7 @@ def _build_parser() -> argparse.ArgumentParser:
     p_an.add_argument(
         "--video",
         default=None,
-        help="Optional frame stack (.vlvd, .npy, or a folder of PNG/PPM).",
+        help="Optional frame stack (.vlvd, .npy, MP4 when ffmpeg can read it, or a folder of PNG/PPM).",
     )
     p_an.add_argument(
         "--fps",
@@ -146,26 +146,17 @@ def _load_or_fail(path: str, target_sr: int | None, label: str):
 
 
 def _load_primary(path: str, target_sr: int | None, fps: float | None):
-    """Load WAV / image / video / frame folder. Raises FileNotFoundError or MediaError."""
-    from vibelock.media import MediaError, load_image, load_video, sniff_media
+    """Load audio, an image, a container, or a frame folder."""
+    from vibelock.containers import load_media_path
 
-    p = Path(path)
-    if not p.exists():
-        raise FileNotFoundError(f"Media file not found: {p}")
-    if p.is_dir():
-        frames, rate, meta = load_video(p, fps=fps)
-        return {"kind": "video", "frames": frames, "fps": rate, "meta": meta, "audio": None, "sr": 0, "image": None}
-    raw = p.read_bytes()
-    kind = sniff_media(raw, p.name)
-    if kind == "image":
-        img, meta = load_image(p)
-        return {"kind": "image", "image": img, "meta": meta, "audio": None, "sr": 0, "frames": None, "fps": 0.0}
-    if kind in {"video", "ndarray"}:
-        frames, rate, meta = load_video(p, fps=fps)
-        return {"kind": "video", "frames": frames, "fps": rate, "meta": meta, "audio": None, "sr": 0, "image": None}
-    # Audio (or a rejected non-media file via AudioError).
-    audio, sr, meta = load_audio_ex(path, target_sr=target_sr)
-    return {"kind": "audio", "audio": audio, "sr": sr, "meta": meta, "image": None, "frames": None, "fps": 0.0}
+    opened = load_media_path(path, target_sr=target_sr, fps=fps)
+    meta = dict(opened.get("meta") or {})
+    meta.setdefault("sha256", opened.get("sha256"))
+    meta.setdefault("filename", opened.get("filename"))
+    meta.setdefault("format", opened.get("format"))
+    meta.setdefault("decoder", opened.get("decoder"))
+    opened["meta"] = meta
+    return opened
 
 
 def _analyze_cmd(args: argparse.Namespace) -> int:
@@ -236,7 +227,14 @@ def _analyze_cmd(args: argparse.Namespace) -> int:
         frames=frames,
         fps=fps or None,
     )
+    for note in primary.get("notes") or []:
+        if note not in result.notes:
+            result.notes.append(note)
     extra: dict = {}
+    if primary.get("format"):
+        extra["format"] = primary.get("format")
+    if primary.get("decoder"):
+        extra["decoder"] = primary.get("decoder")
     if extra_image_hash:
         extra["sha256_image"] = extra_image_hash
     if extra_video_hash:

@@ -190,6 +190,17 @@ def run(*, verify: bool = False) -> dict[str, Any]:
     checks.append(_check_loopback())
     formats = ",".join(s.lstrip(".") for s in supported_suffixes())
     checks.append(_ok("formats", formats or "wav"))
+    from vibelock.containers import ffmpeg_available
+
+    if ffmpeg_available():
+        checks.append(_ok("containers", "ffmpeg on PATH; mp4/mp3/webm/mkv/ogg/avi plus uncompressed PCM MP4"))
+    else:
+        checks.append(
+            _ok(
+                "containers",
+                "ffmpeg not on PATH; uncompressed PCM MP4 (sowt/twos) only. Compressed containers fail closed.",
+            )
+        )
     if TELEMETRY:
         checks.append(_bad("telemetry", "telemetry is on"))
     else:

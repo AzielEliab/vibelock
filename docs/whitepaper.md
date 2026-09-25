@@ -261,7 +261,33 @@ center-region motion energy. Pearson correlation plus a GCC-PHAT delay
 on those envelopes emit `AV_SYNC_FAIL` when the mouth-proxy does not
 produce the waveform.
 
-## 10. Privacy
+## 10. File containers and linguistic proxies
+
+Operators can submit a media file on the local CLI and localhost UI.
+WAV, PNG, PPM, and `.vlvd` are native. Uncompressed 16-bit PCM inside
+an MP4 (`sowt` / `twos`) is demuxed in-process. MP3, AAC-in-MP4, WebM,
+MKV, OGG, MOV, and AVI are decoded only by a local `ffmpeg` subprocess
+when it is on `PATH`. If it is not, the call fails closed: no guessed
+waveform and no score.
+
+The hosted Worker does not decode those containers. Its page asks the
+browser to decode, then posts limited PCM and visual metrics to
+`POST /v1/analyze`. `/v1` does not increment the download counter.
+
+Four channels are cited on every result:
+
+| Channel | Evidence label | When it fires |
+|---|---|---|
+| physics | heuristic | Audio spectrum, phase, formants, decay, buzz, pitch |
+| linguistics | experimental | Speech-like audio long enough for rhythm, pause, or spectral-transition proxies. Not speech-to-text. |
+| vibration | measurement | Body-coupled coherence, transfer, and latency. The transfer prior is synthetic. No second channel means `insufficient`. |
+| related | heuristic | Spatial, temporal, or talking-head checks that had pixels |
+
+A subcheck without pulses, pauses, or duration does not enter the
+score. Thresholds remain engineering defaults. This section states no
+accuracy rate.
+
+## 11. Privacy
 
 - No speech-to-text.
 - No identity, enrollment, speaker embedding, or face recognition.
@@ -271,7 +297,7 @@ produce the waveform.
 - Processing is local. Hosted `/v1` accepts features or limited PCM,
   not a live microphone.
 
-## 11. What this release is
+## 12. What this release is
 
 A complete, inspectable implementation of the algorithms above, with
 synthetic tests that prove each check moves the score the right way, a

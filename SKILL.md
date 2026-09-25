@@ -7,7 +7,11 @@ description: Use when calling VibeLock hosted /v1 or installing the local packag
 
 Physics + A/V deepfake detection. Risk assessment, not courtroom proof. Author: **Aziel Eliab**.
 
-**THIS IS:** a multi-signal detector — vocal-tract / vibration physics, spatial image artifacts, temporal video flicker/flow, unnatural pitch/phase shifts, and talking-head A/V sync (local CLI + hosted advisory `/v1/analyze` and `/v1/detect`).
+**THIS IS:** a multi-signal detector — vocal-tract / vibration physics, experimental linguistic proxies (not speech-to-text), spatial image artifacts, temporal video flicker/flow, unnatural pitch/phase shifts, and talking-head A/V sync (local CLI + hosted advisory `/v1/analyze` and `/v1/detect`).
+
+File deepfake path: local `vibelock detect file.mp4` / `file.mp3` (also WAV, M4A, MOV, WebM, MKV, OGG, AVI when `ffmpeg` is on PATH; uncompressed PCM inside MP4 without ffmpeg). Hosted `/v1` does **not** decode container bytes and does **not** increment downloads. The product UI decodes common audio/video in the browser, then posts measurements.
+
+Channels in every report: `physics` (heuristic), `linguistics` (experimental), `vibration` (measurement only when a body-coupled track or caller-supplied metrics exist; otherwise `insufficient`), `related` (spatial / temporal / A/V, heuristic). No accuracy percentage. Missing evidence is insufficient, not a pass.
 
 **THIS IS NOT:** courtroom proof, a liveness detector, a live microphone, face recognition, or a claim that physics cannot be forged. Hosted `/v1` does not increment downloads or views.
 
@@ -31,8 +35,8 @@ Ops (do **not** increment downloads or views):
 
 - `GET /v1/health` — liveness
 - `GET /v1/skill` — this file
-- `POST /v1/analyze` — advisory score from audio features/PCM and/or visual/pitch/A/V features
-- `POST /v1/detect` — same engine, deepfake-oriented request body
+- `POST /v1/analyze` — advisory score from audio features/PCM and/or visual/pitch/A/V/linguistics features. Does not decode MP4/MP3 bytes.
+- `POST /v1/detect` — same engine, deepfake-oriented request body. Same channel report.
 - `GET /v1/mesh` — PROXY suite mesh status. Default OFF. QNM live|locked|isolated. QNS-CD-1.0 photon QNS1 packet transfer is stamped as a hub cite / Worker mesh cross-map (`qns_cd`). Never enables. No Node Gate. No auto-heal. No public qnsd proxy.
 - `GET /v1/mesh/nodes` — PROXY Live Nodes roster (5-minute presence). Same QNS-CD-1.0 cross-map.
 - `POST /v1/mesh/{enable,disable,join,heartbeat,leave,broadcast}` — PROXY. Bearer required to enable. Not AnonBroadcast. Not qnsd.
@@ -64,7 +68,7 @@ vibelock doctor
 vibelock detect path/to/media.png
 ```
 
-Then open http://127.0.0.1:8760 (loopback only). WAV, PNG, PPM, `.vlvd` frame stacks.
+Then open http://127.0.0.1:8760 (loopback only). WAV, PNG, PPM, `.vlvd`, and — with ffmpeg — MP3/MP4 and other common A/V containers. Uncompressed PCM MP4 works without ffmpeg.
 
 Counted download (gzip HTTP 200, no 302): https://vibelock-download-tracker.vibelock.workers.dev/download?asset=vibelock-0.3.0.tar.gz
 GitHub: https://github.com/AzielEliab/vibelock
