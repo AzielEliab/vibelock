@@ -1,15 +1,16 @@
 # VibeLock — iPhone & Android
 
-Local-first Flutter client for VibeLock. Record from the microphone,
-score with time-domain energy and zero-crossing heuristics, show a
-score and reason-code placeholders. Desktop `vibelock detect` is the
-full A/V deepfake engine (physics + image/video + pitch/phase).
+Record a short clip and see whether it looks physically consistent with a real voice.
 
-**Media authenticity advisory, not courtroom proof.** Dual-channel
-vibration and spatial/temporal detectors live on the desktop package.
-Offline. No analytics. No STT.
+**Author:** Aziel Eliab
 
-Application id: `com.azieeliab.vibelock`
+## Start
+
+1. `cd mobile && flutter create --org com.azieeliab --project-name vibelock .`
+2. `flutter pub get`
+3. `flutter run`, then tap **Record**.
+
+The phone scores time-domain energy and zero-crossings. Desktop `vibelock ui` is the full check (audio, photo, and short clip). Application id: `com.azieeliab.vibelock`
 
 ## Open in Android Studio / Xcode
 
@@ -38,8 +39,12 @@ GitHub: https://github.com/AzielEliab/vibelock
 **Forks are welcome and always allowed.**
 
 
+## Notes
+
+The phone result is a media authenticity advisory. The About panel states the courtroom limitation. Dual-channel vibration and image or video checks live on the desktop package. Offline. No analytics. No STT.
+
 ## 0.3.0
 
 Desktop engine: physics + A/V deepfake detection (PNG/PPM/VLVD + WAV).
-Giant **Add file**, **Sample photo**, **Sample deepfake**, **Export JSON report**.
-Simple / Advanced views. Kid-plain consistent / inconsistent.
+**Add file** is the primary action. **Sample photo**, **Sample deepfake**, and **Export JSON report** are under **Advanced**.
+The simple result is one sentence and a score: consistent or inconsistent.

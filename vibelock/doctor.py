@@ -224,8 +224,11 @@ def format_human(payload: dict[str, Any]) -> str:
     for row in payload.get("checks") or []:
         mark = "ok" if row.get("ok") else "FAIL"
         lines.append(f"  {row.get('name')}: {mark}  {row.get('detail')}")
-    lines.append("doctor: healthy" if payload.get("ok") else "doctor: unhealthy")
+    healthy = bool(payload.get("ok"))
+    lines.append("doctor: healthy" if healthy else "doctor: unhealthy")
     lines.append(LIMITATION)
+    if not healthy:
+        lines.append("Next: fix each FAIL line, then run vibelock doctor again.")
     return "\n".join(lines)
 
 

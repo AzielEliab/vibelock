@@ -150,12 +150,14 @@ def listen_cli(
         )
     except TetherError as exc:
         err.write(f"error: {exc}\n")
+        err.write('Try: pip install -e ".[tether]"   then   vibelock listen\n')
         return 2
     except KeyboardInterrupt:
         out.write("\nstopped (YOUR mic; samples were not retained)\n")
         return 0
     if n == 0:
         err.write("error: no windows captured\n")
+        err.write("Try: vibelock listen --seconds 3   or   vibelock ui\n")
         return 2
     out.write(
         f"listen done  windows={n}  last={last_verdict}  "

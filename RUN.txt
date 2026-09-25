@@ -1,0 +1,11 @@
+VibeLock
+Author: Aziel Eliab
+
+VibeLock checks whether a recording, a photo, or a short clip looks physically consistent with a real voice or camera.
+
+1. python -m venv .venv && . .venv/bin/activate && pip install -e .
+2. vibelock ui
+3. Open http://127.0.0.1:8760 and choose Add file.
+
+Optional: vibelock doctor
+Help: vibelock --help

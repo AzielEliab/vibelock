@@ -1,4 +1,4 @@
-include LICENSE README.md pyproject.toml
+include LICENSE README.md RUN.txt pyproject.toml
 recursive-include vibelock *.py
 recursive-include mialock *.py
 recursive-include mialock/data *
