@@ -22,6 +22,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Sequence
@@ -30,20 +31,120 @@ from vibelock import __version__
 from vibelock.debug import log as dlog
 from vibelock.io import AudioError, load_audio_ex
 from vibelock.report import build_report, dumps_report, format_report
-from vibelock.scoring import analyze, format_human
+from vibelock.scoring import analyze
+
+_NEXT_HELP = "Try: vibelock ui   or   vibelock --help"
+_NEXT_FILE = "Try: vibelock analyze recording.wav   or   vibelock ui"
+_CHOICE = re.compile(r"invalid choice: '([^']*)'")
+
+WELCOME = """\
+VibeLock checks whether a recording, a photo, or a short clip looks physically consistent with a real voice or camera.
+
+Open the app:
+  vibelock ui
+
+Or check a file:
+  vibelock analyze recording.wav
+
+Also: vibelock doctor
+Help: vibelock --help
+
+Author: Aziel Eliab
+"""
+
+HELP = """\
+vibelock — check a recording, photo, or short clip
+
+usage: vibelock <command> [options]
+
+VibeLock checks whether media looks physically consistent with a real voice or camera.
+Author: Aziel Eliab
+
+Start
+  (no command)       Welcome and the next step
+  ui, serve          Open http://127.0.0.1:8760/
+
+Common
+  analyze MEDIA      Check a WAV, PNG, PPM, .vlvd, or a common audio/video file
+  detect MEDIA       Same as analyze. Risk index, not courtroom proof.
+  doctor             Check that VibeLock can run on this machine
+  version            Print the version
+
+Advanced
+  listen             Score the default microphone in short windows
+  analyze --vibration FILE
+                     Compare a body-coupled vibration recording
+  analyze --video PATH
+                     Compare a frame stack with the audio
+  analyze --image PATH
+                     Compare a still with the audio
+  analyze --verify   Re-read the file and confirm the score and hash
+  analyze --export PATH
+                     Write a JSON report
+  --json             Machine-readable output on analyze, doctor, and listen
+
+Examples
+  vibelock
+  vibelock ui
+  vibelock analyze recording.wav
+  vibelock detect clip.mp4
+  vibelock doctor
+  vibelock analyze recording.wav --json
+
+Compressed MP3/MP4 need ffmpeg on PATH. Uncompressed PCM MP4 does not.
+Missing channel evidence stays insufficient. No accuracy rate.
+"""
+
+
+def _plain_arg_error(message: str) -> str:
+    """Turn an argparse complaint into a reason plus a next step."""
+    match = _CHOICE.search(message or "")
+    if match:
+        return f'Unknown command "{match.group(1)}". {_NEXT_HELP}'
+    text = message or "That command could not be read."
+    if "required" in text and "audio" in text:
+        return f"Add a media file. {_NEXT_FILE}"
+    if "required" in text and "cmd" in text:
+        return f"Choose a command. {_NEXT_HELP}"
+    if "invalid int value" in text and "--port" in text:
+        return "The port needs to be a whole number. Try: vibelock ui --port 8760"
+    if text.startswith("unrecognized arguments"):
+        return f"Unknown option ({text}). Try: vibelock --help"
+    reason = text[0].upper() + text[1:] if text else "That command could not be read."
+    if not reason.endswith("."):
+        reason += "."
+    return f"{reason} Try: vibelock --help"
+
+
+class HumanParser(argparse.ArgumentParser):
+    """Git-style help and plain errors. Subcommand options stay on the parser."""
+
+    def format_help(self) -> str:
+        if self.prog == "vibelock":
+            return HELP
+        return super().format_help()
+
+    def error(self, message: str) -> None:
+        sys.stderr.write(_plain_arg_error(message) + "\n")
+        raise SystemExit(2)
+
+
+def _err(message: object, hint: str = _NEXT_HELP) -> int:
+    text = str(message).rstrip()
+    if not text.lower().startswith("error:"):
+        text = f"error: {text}"
+    sys.stderr.write(text + "\n")
+    if hint and hint not in text:
+        sys.stderr.write(hint + "\n")
+    return 2
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
+    parser = HumanParser(
         prog="vibelock",
-        description=(
-            "VibeLock — physics + A/V deepfake detection "
-            "(Aziel Eliab). Audio, image, video, talking-head sync. "
-            "Advisory, not courtroom proof. "
-            "Local UI: `vibelock ui` at http://127.0.0.1:8760."
-        ),
+        description="VibeLock checks a recording, photo, or short clip. Author: Aziel Eliab.",
     )
-    sub = parser.add_subparsers(dest="cmd", required=True)
+    sub = parser.add_subparsers(dest="cmd", required=False, parser_class=HumanParser)
 
     p_an = sub.add_parser(
         "analyze",
@@ -135,13 +236,13 @@ def _load_or_fail(path: str, target_sr: int | None, label: str):
     try:
         return load_audio_ex(path, target_sr=target_sr)
     except FileNotFoundError as exc:
-        sys.stderr.write(f"error: {exc}\n")
+        _err(exc, _NEXT_FILE)
         raise SystemExit(2) from exc
     except AudioError as exc:
-        sys.stderr.write(f"error: {exc}\n")
+        _err(exc, _NEXT_FILE)
         raise SystemExit(2) from exc
     except Exception as exc:  # noqa: BLE001 — surface decode problems plainly
-        sys.stderr.write(f"error: failed to read {label}: {exc}\n")
+        _err(f"failed to read {label}: {exc}", _NEXT_FILE)
         raise SystemExit(2) from exc
 
 
@@ -166,14 +267,11 @@ def _analyze_cmd(args: argparse.Namespace) -> int:
     try:
         primary = _load_primary(args.audio, args.sr, getattr(args, "fps", None))
     except FileNotFoundError as exc:
-        sys.stderr.write(f"error: {exc}\n")
-        return 2
+        return _err(exc, _NEXT_FILE)
     except (AudioError, MediaError) as exc:
-        sys.stderr.write(f"error: {exc}\n")
-        return 2
+        return _err(exc, _NEXT_FILE)
     except Exception as exc:  # noqa: BLE001
-        sys.stderr.write(f"error: failed to read media: {exc}\n")
-        return 2
+        return _err(f"failed to read media: {exc}", _NEXT_FILE)
 
     audio = primary.get("audio")
     sr = int(primary.get("sr") or 0)
@@ -188,14 +286,11 @@ def _analyze_cmd(args: argparse.Namespace) -> int:
         try:
             vibration, _vsr, vmeta = load_audio_ex(args.vibration, target_sr=sr or args.sr)
         except FileNotFoundError as exc:
-            sys.stderr.write(f"error: {exc}\n")
-            return 2
+            return _err(exc, _NEXT_FILE)
         except AudioError as exc:
-            sys.stderr.write(f"error: {exc}\n")
-            return 2
+            return _err(exc, _NEXT_FILE)
         except Exception as exc:  # noqa: BLE001
-            sys.stderr.write(f"error: failed to read vibration: {exc}\n")
-            return 2
+            return _err(f"failed to read vibration: {exc}", _NEXT_FILE)
         vib_hash = vmeta.get("sha256")
 
     extra_image_hash = None
@@ -205,19 +300,16 @@ def _analyze_cmd(args: argparse.Namespace) -> int:
             image, imeta = load_image(args.image)
             extra_image_hash = imeta.get("sha256")
         except (FileNotFoundError, MediaError) as exc:
-            sys.stderr.write(f"error: {exc}\n")
-            return 2
+            return _err(exc, _NEXT_FILE)
     if getattr(args, "video", None) and frames is None:
         try:
             frames, fps, vmeta = load_video(args.video, fps=getattr(args, "fps", None))
             extra_video_hash = vmeta.get("sha256")
         except (FileNotFoundError, MediaError) as exc:
-            sys.stderr.write(f"error: {exc}\n")
-            return 2
+            return _err(exc, _NEXT_FILE)
 
     if audio is None and image is None and frames is None:
-        sys.stderr.write("error: nothing to analyze\n")
-        return 2
+        return _err("nothing to analyze", _NEXT_FILE)
 
     result = analyze(
         audio,
@@ -244,6 +336,7 @@ def _analyze_cmd(args: argparse.Namespace) -> int:
             again = _load_primary(args.audio, args.sr, getattr(args, "fps", None))
         except Exception as exc:  # noqa: BLE001
             sys.stderr.write(f"error: verify failed to re-read media: {exc}\n")
+            sys.stderr.write("Try the file again, or run: vibelock doctor --verify\n")
             return 1
         meta2 = again.get("meta") or {}
         result2 = analyze(
@@ -256,9 +349,11 @@ def _analyze_cmd(args: argparse.Namespace) -> int:
         )
         if meta2.get("sha256") != meta.get("sha256"):
             sys.stderr.write("error: verify failed: file hash changed between reads\n")
+            sys.stderr.write("Try the file again, or run: vibelock doctor --verify\n")
             return 1
         if abs(float(result2.score) - float(result.score)) > 1e-9:
             sys.stderr.write("error: verify failed: score did not match\n")
+            sys.stderr.write("Try the file again, or run: vibelock doctor --verify\n")
             return 1
         extra["verified"] = True
         dlog("verify ok")
@@ -289,7 +384,17 @@ def _analyze_cmd(args: argparse.Namespace) -> int:
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = _build_parser()
-    args = parser.parse_args(argv)
+    try:
+        args = parser.parse_args(argv)
+    except SystemExit as exc:
+        code = exc.code
+        if code is None or code == 0:
+            return 0
+        return int(code) if isinstance(code, int) else 2
+
+    if args.cmd is None:
+        sys.stdout.write(WELCOME)
+        return 0
 
     if args.cmd == "version":
         sys.stdout.write(f"vibelock {__version__}\n")
@@ -306,8 +411,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         try:
             serve(host=args.host, port=args.port)
         except ValueError as exc:
-            sys.stderr.write(f"error: {exc}\n")
-            return 2
+            return _err(exc, "Try: vibelock ui")
+        except OSError as exc:
+            return _err(
+                f"could not open {args.host}:{args.port} ({exc.strerror or exc})",
+                f"Try: vibelock ui --port {int(args.port) + 1}",
+            )
         return 0
 
     if args.cmd == "listen":

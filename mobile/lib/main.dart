@@ -24,7 +24,9 @@ class VibeLockApp extends StatelessWidget {
     return MaterialApp(
       title: 'VibeLock',
       debugShowCheckedModeBanner: false,
-      theme: buildAppTheme(),
+      theme: buildLightTheme(),
+      darkTheme: buildDarkTheme(),
+      themeMode: ThemeMode.system,
       home: const RecordPage(),
     );
   }
@@ -72,7 +74,8 @@ class _RecordPageState extends State<RecordPage> {
       if (!ok) {
         setState(() {
           _busy = false;
-          _status = 'Microphone permission denied.';
+          _status =
+              'Microphone permission denied. Allow the microphone, or open Advanced and choose Add file.';
         });
         return;
       }
@@ -93,7 +96,7 @@ class _RecordPageState extends State<RecordPage> {
     } catch (e) {
       setState(() {
         _busy = false;
-        _status = 'Could not start recorder: $e';
+        _status = 'Could not start the recorder: $e. Try again, or open Advanced and choose Add file.';
       });
     }
   }
@@ -139,7 +142,7 @@ class _RecordPageState extends State<RecordPage> {
       if (path == null) {
         setState(() {
           _busy = false;
-          _status = 'No file produced.';
+          _status = 'No recording was saved. Tap Record and try again.';
         });
         return;
       }
@@ -176,7 +179,7 @@ class _RecordPageState extends State<RecordPage> {
       if (picked == null || picked.files.isEmpty) {
         setState(() {
           _busy = false;
-          _status = 'No file added.';
+          _status = 'No file added. Choose a WAV, or tap Record.';
         });
         return;
       }
@@ -188,7 +191,7 @@ class _RecordPageState extends State<RecordPage> {
       if (bytes == null) {
         setState(() {
           _busy = false;
-          _status = 'Could not read that file.';
+          _status = 'Could not read that file. Try another WAV.';
         });
         return;
       }
@@ -209,7 +212,7 @@ class _RecordPageState extends State<RecordPage> {
   Future<void> _export() async {
     final result = _result;
     if (result == null) {
-      setState(() => _status = 'Add a file first, then export.');
+      setState(() => _status = 'Add a file first, then export. Open Advanced and choose Add file.');
       return;
     }
     try {
@@ -239,51 +242,33 @@ class _RecordPageState extends State<RecordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final recording = _status == 'Recording… tap Stop when done.';
     return Scaffold(
-      appBar: AppBar(title: const Text('VibeLock')),
+      appBar: AppBar(
+        title: const Text('VibeLock'),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16),
+            child: Center(child: Text('Aziel Eliab')),
+          ),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
           Text(
-            'Sound can be forged. Physics is harder to fake.',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: kGold,
-                ),
+            'Check a recording',
+            style: Theme.of(context).textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
-          const Text(kLimitation),
+          const Text(
+            'VibeLock checks whether a short recording looks physically consistent with a real voice.',
+          ),
           const SizedBox(height: 20),
-          SizedBox(
-            height: 88,
-            child: FilledButton(
-              onPressed: _busy ? null : _addFile,
-              child: const Text('Add file', style: TextStyle(fontSize: 28)),
-            ),
-          ),
-          const SizedBox(height: 8),
           FilledButton.icon(
             onPressed: _busy ? null : _tap,
-            icon: const Icon(Icons.mic),
-            label: const Text('Record / Stop'),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: _busy ? null : _demo,
-            child: const Text('Sample tone (no mic)'),
-          ),
-          const SizedBox(height: 8),
-          OutlinedButton(
-            onPressed: _result == null ? null : _export,
-            child: const Text('Export JSON report'),
-          ),
-          const SizedBox(height: 16),
-          SegmentedButton<bool>(
-            segments: const [
-              ButtonSegment(value: false, label: Text('Simple')),
-              ButtonSegment(value: true, label: Text('Advanced')),
-            ],
-            selected: {_advanced},
-            onSelectionChanged: (s) => setState(() => _advanced = s.first),
+            icon: Icon(recording ? Icons.stop : Icons.mic),
+            label: Text(recording ? 'Stop' : 'Record'),
           ),
           if (_status != null) ...[
             const SizedBox(height: 16),
@@ -298,6 +283,51 @@ class _RecordPageState extends State<RecordPage> {
             const SizedBox(height: 24),
             _ScoreCard(result: _result!, advanced: _advanced),
           ],
+          const SizedBox(height: 12),
+          ExpansionTile(
+            title: const Text('Advanced'),
+            onExpansionChanged: (open) => setState(() => _advanced = open),
+            children: [
+              const Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 8),
+                  child: Text(
+                    'Simple shows one sentence and a score. Open this section for a file, a sample, export, and checks.',
+                  ),
+                ),
+              ),
+              OutlinedButton(
+                onPressed: _busy ? null : _addFile,
+                child: const Text('Add file'),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton(
+                onPressed: _busy ? null : _demo,
+                child: const Text('Sample tone (no mic)'),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton(
+                onPressed: _result == null ? null : _export,
+                child: const Text('Export JSON report'),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+          ExpansionTile(
+            title: const Text('About'),
+            children: const [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    'Author Aziel Eliab. $kLimitation Reading stays on this phone.',
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

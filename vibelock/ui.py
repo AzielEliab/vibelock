@@ -36,158 +36,197 @@ PAGE = r"""<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>VibeLock</title>
 <style>
   :root {
-    --bg: #0c1118;
-    --card: #141c27;
-    --ink: #e8eef6;
-    --muted: #8fa0b5;
-    --line: #243044;
-    --accent: #3ec6b0;
-    --accent-dim: #1b4f48;
-    --warn: #e0b46a;
-    --bad: #e07a7a;
-    --ok: #7dcea0;
+    color-scheme: light;
+    --bg: #f6f3ec;
+    --card: #fffdf8;
+    --ink: #1c1915;
+    --muted: #5c564c;
+    --line: #e3d9c6;
+    --accent: #c9a227;
+    --on-accent: #1a1404;
+    --ok: #0f6b3c;
+    --warn: #8a4b08;
+    --bad: #9b2c2c;
+    --track: #efe8da;
+    --shadow: 0 1px 2px rgba(28, 25, 21, 0.06);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #12110e;
+      --card: #1c1b17;
+      --ink: #f4f0e6;
+      --muted: #c8bfb0;
+      --line: #3d3830;
+      --accent: #c9a227;
+      --on-accent: #1a1404;
+      --ok: #8fd4ae;
+      --warn: #e0b46a;
+      --bad: #f0a0a0;
+      --track: #2a2722;
+      --shadow: none;
+    }
   }
   * { box-sizing: border-box; }
-  html, body { margin: 0; background: var(--bg); color: var(--ink);
-    font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif; }
-  body { min-height: 100vh; }
-  main { max-width: 42rem; margin: 0 auto; padding: 2.4rem 1.25rem 4rem; }
-  header { margin-bottom: 1.4rem; }
-  .mark { font-size: 0.72rem; letter-spacing: 0.22em; text-transform: uppercase;
-    color: var(--accent); margin: 0 0 0.45rem; }
-  h1 { font-weight: 500; letter-spacing: 0.04em; font-size: 2.1rem; margin: 0 0 0.4rem; }
-  .motto { font-style: italic; color: var(--muted); margin: 0; }
-  .local { display: inline-block; margin-top: 0.85rem; font-size: 0.78rem;
-    letter-spacing: 0.04em; color: var(--muted); border: 1px solid var(--line);
-    padding: 0.2rem 0.55rem; border-radius: 999px; font-family: ui-monospace, monospace; }
-  .limit { margin: 1rem 0 0; color: var(--warn); font-size: 0.95rem; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px;
-    padding: 1.15rem 1.2rem 1.25rem; margin: 1.1rem 0; }
-  h2 { font-size: 1.02rem; font-weight: 500; margin: 0 0 0.75rem; letter-spacing: 0.03em; }
-  p.help { color: var(--muted); font-size: 0.92rem; margin: 0 0 0.9rem; }
-  label { display: block; font-size: 0.82rem; color: var(--muted); margin: 0.55rem 0 0.28rem; }
-  input[type=file], select { width: 100%; background: #0c1118; color: var(--ink);
-    border: 1px solid var(--line); padding: 0.45rem 0.55rem; border-radius: 6px; }
-  .row { display: flex; gap: 0.7rem; flex-wrap: wrap; align-items: center; margin-top: 0.9rem; }
-  button { font-family: inherit; cursor: pointer; border-radius: 8px; padding: 0.55rem 1.1rem;
-    border: 1px solid var(--accent); background: var(--accent-dim); color: var(--ink); }
-  button.primary { background: var(--accent); color: #06221e; font-weight: 600; border: 0; }
-  button.ghost { background: transparent; color: var(--muted); border-color: var(--line); }
-  button:disabled { opacity: 0.5; cursor: wait; }
-  .addfile { display: flex; align-items: center; justify-content: center; text-align: center;
-    width: 100%; min-height: 9.5rem; font-size: 2rem; font-weight: 650; letter-spacing: 0.02em;
-    border: 2px dashed var(--accent); background: var(--accent-dim); color: var(--ink);
-    border-radius: 14px; cursor: pointer; margin: 0.2rem 0 0.6rem; }
-  .addfile:hover { filter: brightness(1.08); }
-  .views { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
-  .views button { border: 0; border-radius: 0; padding: 0.35rem 0.9rem; background: transparent; color: var(--muted); }
-  .views button.on { background: var(--accent); color: #06221e; font-weight: 650; }
-  .score-wrap { display: flex; align-items: baseline; gap: 0.85rem; margin: 0.4rem 0 0.5rem; }
-  .score { font-size: 3rem; font-variant-numeric: tabular-nums; letter-spacing: -0.03em; }
-  .mode { color: var(--muted); font-family: ui-monospace, monospace; font-size: 0.85rem; }
-  .plain { font-size: 1.35rem; margin: 0.4rem 0 0.8rem; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body {
+    min-height: 100vh;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  main { max-width: 40rem; margin: 0 auto; padding: 1.75rem 1.25rem 3.5rem; }
+  .top {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.25rem;
+  }
+  .product { margin: 0; font-size: 1.05rem; font-weight: 650; letter-spacing: 0.01em; }
+  .author { margin: 0.1rem 0 0; color: var(--muted); font-size: 0.92rem; }
+  .local {
+    margin: 0; color: var(--muted); font-size: 0.85rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+    padding: 1.25rem 1.3rem 1.35rem; margin: 0.9rem 0;
+    box-shadow: var(--shadow);
+  }
+  h1 { font-size: 1.85rem; font-weight: 650; letter-spacing: -0.02em; margin: 0 0 0.45rem; line-height: 1.2; }
+  h2 { font-size: 1.05rem; font-weight: 650; margin: 0 0 0.65rem; }
+  .lede { margin: 0 0 1.15rem; font-size: 1.05rem; max-width: 38rem; }
+  p.help { color: var(--muted); font-size: 0.95rem; margin: 0.75rem 0 0; }
+  label { display: block; font-size: 0.92rem; color: var(--muted); margin: 0.85rem 0 0.35rem; }
+  input[type=file] {
+    display: block; width: 100%; max-width: 100%; min-width: 0;
+    background: var(--bg); color: var(--ink);
+    border: 1px solid var(--line); padding: 0.55rem 0.65rem; border-radius: 8px;
+  }
+  .row { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-top: 0.9rem; }
+  button, summary {
+    font-family: inherit; font-size: 1rem; cursor: pointer;
+  }
+  button {
+    border-radius: 10px; padding: 0.55rem 0.95rem;
+    border: 1px solid var(--line); background: transparent; color: var(--ink);
+  }
+  button.primary {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: min(100%, 16rem); min-height: 3rem; padding: 0.7rem 1.2rem;
+    background: var(--accent); color: var(--on-accent); font-weight: 700;
+    border: 1px solid #a68516; font-size: 1.05rem;
+  }
+  button.ghost { background: transparent; color: var(--ink); }
+  button:disabled { opacity: 0.55; cursor: wait; }
+  details { padding: 0.15rem 0; }
+  summary {
+    font-weight: 650; padding: 0.15rem 0; list-style: none;
+    display: flex; align-items: center; gap: 0.45rem;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before { content: ""; width: 0.45rem; height: 0.45rem; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted); transform: rotate(-45deg); }
+  details[open] summary::before { transform: rotate(45deg); margin-top: -0.2rem; }
+  .scoreline { margin: 0.2rem 0 0.7rem; color: var(--muted); }
+  .score { color: var(--ink); font-size: 1.75rem; font-variant-numeric: tabular-nums; font-weight: 650; }
+  .mode { color: var(--muted); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.85rem; }
+  .plain { font-size: 1.28rem; margin: 0.15rem 0 0.7rem; line-height: 1.35; }
   .plain.ok { color: var(--ok); }
   .plain.bad { color: var(--warn); }
-  .bar { height: 8px; background: #0c1118; border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
-  .bar > span { display: block; height: 100%; background: var(--accent); }
+  .bar { height: 8px; background: var(--track); border-radius: 99px; overflow: hidden; border: 1px solid var(--line); }
+  .bar > span { display: block; height: 100%; background: var(--accent); width: 0%; }
   .codes { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.85rem 0; }
-  .code { font-family: ui-monospace, monospace; font-size: 0.75rem; padding: 0.2rem 0.45rem;
+  .code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.75rem; padding: 0.2rem 0.45rem;
     border-radius: 4px; border: 1px solid var(--line); color: var(--warn); }
   .code.ok { color: var(--ok); }
   .checks { list-style: none; padding: 0; margin: 0.6rem 0 0; }
   .checks li { display: flex; justify-content: space-between; gap: 1rem;
-    font-family: ui-monospace, monospace; font-size: 0.8rem; padding: 0.28rem 0;
-    border-bottom: 1px solid #1c2736; }
-  .hash { font-family: ui-monospace, monospace; font-size: 0.72rem; color: var(--muted); word-break: break-all; }
-  .err { color: var(--bad); }
-  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
-    overflow: hidden; clip: rect(0,0,0,0); border: 0; }
-  footer { margin-top: 2rem; color: #6d7c8f; font-size: 0.8rem; }
-  footer code { color: var(--muted); }
-  .adv-only.hidden, .simple-only.hidden { display: none; }
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.8rem; padding: 0.28rem 0;
+    border-bottom: 1px solid var(--line); }
+  .hash { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.75rem; color: var(--muted); word-break: break-all; }
+  .err { color: var(--bad); margin: 0.6rem 0; }
+  .sr-only {
+    position: fixed; left: 0; top: 0; width: 1px; height: 1px; min-width: 0; max-width: 1px;
+    padding: 0; margin: 0; overflow: hidden; clip-path: inset(50%); border: 0; opacity: 0;
+  }
+  footer { margin-top: 1.5rem; color: var(--muted); font-size: 0.85rem; }
+  :focus-visible {
+    outline: 2px solid #c9a227;
+    outline-offset: 3px;
+  }
+  @media (max-width: 480px) {
+    main { padding: 1.15rem 1rem 2.75rem; }
+    h1 { font-size: 1.6rem; }
+    button.primary, .row button, input[type=file] { width: 100%; }
+    .row { flex-direction: column; align-items: stretch; }
+  }
 </style>
 </head>
 <body>
 <main>
-  <header>
-    <p class="mark">Aziel Eliab · September 2026</p>
-    <h1>VibeLock</h1>
-    <p class="motto">Sound can be forged. Pixels can be forged. Physics is harder to fake.</p>
-    <span class="local">localhost · 127.0.0.1 · never uploaded · no telemetry</span>
-    <p class="limit">This is a media authenticity advisory (audio, image, and video), not courtroom proof.</p>
+  <header class="top">
+    <div>
+      <p class="product">VibeLock</p>
+      <p class="author">Aziel Eliab</p>
+    </div>
+    <p class="local">127.0.0.1</p>
   </header>
 
   <section class="card">
-    <h2>Add media</h2>
-    <p class="help">Tap the giant button. Audio, a photo, or a frame stack. Your file stays on this computer. Nothing is sent to the internet.</p>
-    <input id="air" class="sr-only" type="file" accept=".wav,.png,.ppm,audio/wav,image/png">
-    <button class="addfile" id="add" type="button">Add file</button>
-    <p class="help" id="formats">WAV / PNG / PPM</p>
-    <label class="adv-only hidden">Vibration WAV (optional)</label>
-    <input id="vib" class="adv-only hidden" type="file" accept=".wav,audio/wav">
-    <div class="row">
-      <button class="ghost" id="tone" type="button">Sample tone</button>
-      <button class="ghost" id="photo" type="button">Sample photo</button>
-      <button class="ghost" id="fake" type="button">Sample deepfake</button>
-      <button class="ghost adv-only hidden" id="synth" type="button">Generate synthetic pair</button>
-    </div>
-  </section>
-
-  <section class="card">
-    <h2>View</h2>
-    <div class="views" role="group" aria-label="Simple or advanced">
-      <button type="button" id="view-simple" class="on">Simple</button>
-      <button type="button" id="view-advanced">Advanced</button>
-    </div>
-    <p class="help">Simple shows one score and consistent / inconsistent. Advanced shows hashes and checks.</p>
+    <h1>Check a file</h1>
+    <p class="lede">VibeLock checks whether a recording, a photo, or a short clip looks physically consistent with a real voice or camera.</p>
+    <input id="air" class="sr-only" tabindex="-1" type="file" accept=".wav,.png,.ppm,audio/wav,image/png">
+    <button class="primary" id="add" type="button">Add file</button>
+    <p class="help" id="formats">WAV / PNG / PPM. The file stays on this computer.</p>
   </section>
 
   <section class="card" id="result" hidden>
     <h2>Result</h2>
-    <div class="score-wrap">
-      <div class="score" id="score">—</div>
-      <div class="mode" id="mode"></div>
-    </div>
     <p class="plain" id="plain"></p>
+    <p class="scoreline">Score <span class="score" id="score">—</span></p>
     <p class="help" id="channels"></p>
-    <div class="bar"><span id="bar" style="width:0%"></span></div>
-    <div class="adv-only hidden">
-      <div class="codes" id="codes"></div>
-      <p class="hash" id="hash"></p>
-      <ul class="checks" id="checks"></ul>
-      <p class="help" id="notes"></p>
-    </div>
+    <div class="bar" aria-hidden="true"><span id="bar"></span></div>
     <p class="help" id="limit-again"></p>
-    <div class="row">
-      <button class="primary" id="export" type="button">Export JSON report</button>
-    </div>
   </section>
-  <p class="err" id="err" hidden></p>
+  <p class="err" id="err" role="alert" hidden></p>
+
+  <details class="card" id="advanced">
+    <summary>Advanced</summary>
+    <p class="help">Simple shows one sentence, a score, and which signal channels had evidence (consistent or inconsistent). A channel without evidence stays insufficient. Advanced adds hashes, checks, sample files, and export. The score is a risk index, not an accuracy rate.</p>
+    <label for="vib">Vibration WAV (optional)</label>
+    <input id="vib" type="file" accept=".wav,audio/wav">
+    <div class="row">
+      <button class="ghost" id="tone" type="button">Sample tone</button>
+      <button class="ghost" id="photo" type="button">Sample photo</button>
+      <button class="ghost" id="fake" type="button">Sample deepfake</button>
+      <button class="ghost" id="synth" type="button">Generate synthetic pair</button>
+    </div>
+    <p class="mode" id="mode"></p>
+    <div class="codes" id="codes"></div>
+    <p class="hash" id="hash"></p>
+    <ul class="checks" id="checks"></ul>
+    <p class="help" id="notes"></p>
+    <div class="row">
+      <button class="ghost" id="export" type="button">Export JSON report</button>
+    </div>
+  </details>
+
+  <details class="card">
+    <summary>About</summary>
+    <p>Author Aziel Eliab. VibeLock __VERSION__.</p>
+    <p>This is a media authenticity advisory (audio, image, and video), not courtroom proof. The score is a risk index, not an accuracy rate.</p>
+    <p>Reading happens on this computer. The page does not send the file anywhere, and it does not record telemetry.</p>
+  </details>
 
   <footer>
-    VibeLock __VERSION__ · Apache-2.0 · forks welcome
-    · <code>vibelock ui</code>
-    · advisory, not courtroom proof
+    VibeLock __VERSION__ · Aziel Eliab
   </footer>
 </main>
 <script>
 (function () {
   const $ = (id) => document.getElementById(id);
   let last = null;
-  let advanced = false;
-  let accept = ".wav,audio/wav";
-
-  function setView(isAdvanced) {
-    advanced = isAdvanced;
-    $("view-simple").classList.toggle("on", !advanced);
-    $("view-advanced").classList.toggle("on", advanced);
-    document.querySelectorAll(".adv-only").forEach((el) => {
-      el.classList.toggle("hidden", !advanced);
-    });
-  }
 
   function b64(file) {
     return new Promise((resolve, reject) => {
@@ -208,7 +247,7 @@ PAGE = r"""<!DOCTYPE html>
     $("result").hidden = false;
     const s = Number(data.score);
     $("score").textContent = s.toFixed(3);
-    $("mode").textContent = data.mode || "";
+    $("mode").textContent = data.verdict ? ((data.mode || "") + " · " + data.verdict) : (data.mode || "");
     $("bar").style.width = Math.round(s * 100) + "%";
     const plain = data.plain_sentence || (data.plain === "consistent"
       ? "This recording looks consistent with a real voice."
@@ -220,7 +259,6 @@ PAGE = r"""<!DOCTYPE html>
       ? channels.map((c) => c.name + " " + c.status + (c.evidence && c.evidence !== "none" ? " (" + c.evidence + ")" : "")).join(" · ")
       : "";
     $("limit-again").textContent = data.limitation || "This is a media authenticity advisory (audio, image, and video), not courtroom proof.";
-    if (data.verdict) $("mode").textContent = (data.mode || "") + " · " + data.verdict;
     const codes = data.reason_codes || [];
     const box = $("codes");
     box.innerHTML = "";
@@ -247,15 +285,22 @@ PAGE = r"""<!DOCTYPE html>
     (data.checks || []).forEach((ch) => {
       const li = document.createElement("li");
       const flag = ch.reason_code ? "  [" + ch.reason_code + "]" : "";
-      li.innerHTML = "<span>" + ch.name + flag + "</span><span>" + Number(ch.score).toFixed(3) + "</span>";
+      const name = document.createElement("span");
+      name.textContent = ch.name + flag;
+      const num = document.createElement("span");
+      num.textContent = Number(ch.score).toFixed(3);
+      li.appendChild(name);
+      li.appendChild(num);
       ul.appendChild(li);
     });
     $("notes").textContent = (data.notes || []).join(" ");
+    $("result").scrollIntoView({behavior: "smooth", block: "nearest"});
   }
 
   function fail(msg) {
+    const text = String(msg || "Something went wrong.");
     $("err").hidden = false;
-    $("err").textContent = msg;
+    $("err").textContent = /try/i.test(text) ? text : (text + " Try Add file again.");
   }
 
   async function post(url, body) {
@@ -272,6 +317,7 @@ PAGE = r"""<!DOCTYPE html>
   async function runFile(file) {
     if (!file) { fail("Add a file first. WAV, PNG, or PPM is always ok."); return; }
     $("add").disabled = true;
+    $("add").textContent = "Checking…";
     try {
       const name = String(file.name || "").toLowerCase();
       const blob = await b64(file);
@@ -281,7 +327,10 @@ PAGE = r"""<!DOCTYPE html>
       if (vib) payload.vibration_b64 = await b64(vib);
       show(await post("/api/analyze", payload));
     } catch (e) { fail(String(e.message || e)); }
-    finally { $("add").disabled = false; }
+    finally {
+      $("add").disabled = false;
+      $("add").textContent = "Add file";
+    }
   }
 
   function playBeep() {
@@ -303,8 +352,6 @@ PAGE = r"""<!DOCTYPE html>
 
   $("add").onclick = () => $("air").click();
   $("air").onchange = () => runFile($("air").files[0]);
-  $("view-simple").onclick = () => setView(false);
-  $("view-advanced").onclick = () => setView(true);
   $("tone").onclick = async () => {
     $("tone").disabled = true;
     playBeep();
@@ -341,13 +388,11 @@ PAGE = r"""<!DOCTYPE html>
   };
 
   fetch("/api/capabilities").then((r) => r.json()).then((c) => {
-    accept = c.accept || accept;
+    const accept = c.accept || ".wav,audio/wav";
     $("air").accept = accept;
     const names = (c.formats || ["wav"]).map((s) => String(s).replace(".", "").toUpperCase());
-    $("formats").textContent = names.join(" / ") + " · max " + Math.round((c.max_bytes || 0) / (1024*1024)) + " MB";
+    $("formats").textContent = names.join(" / ") + " · max " + Math.round((c.max_bytes || 0) / (1024*1024)) + " MB · stays on this computer";
   }).catch(() => {});
-
-  setView(false);
 })();
 </script>
 </body>
@@ -429,9 +474,26 @@ class Handler(BaseHTTPRequestHandler):
             raise ValueError("expected a JSON object")
         return data
 
+    def _wants_json(self) -> bool:
+        """True when the client asked for JSON ahead of HTML.
+
+        Browsers send text/html first, so the page stays the human default.
+        """
+        accept = (self.headers.get("Accept") or "").lower()
+        if "application/json" not in accept:
+            return False
+        html_at = accept.find("text/html")
+        json_at = accept.find("application/json")
+        if html_at < 0:
+            return True
+        return json_at < html_at
+
     def do_GET(self) -> None:  # noqa: N802
         path = urlparse(self.path).path
         if path in ("/", "/index.html"):
+            if self._wants_json():
+                self._json(200, capabilities())
+                return
             body = PAGE.encode("utf-8")
             self._send(200, body, "text/html; charset=utf-8")
             return
@@ -441,7 +503,7 @@ class Handler(BaseHTTPRequestHandler):
         if path == "/api/capabilities":
             self._json(200, capabilities())
             return
-        self._json(404, {"error": "not found"})
+        self._json(404, {"error": "not found", "hint": "Open / or GET /api/capabilities"})
 
     def do_POST(self) -> None:  # noqa: N802
         path = urlparse(self.path).path
@@ -521,7 +583,7 @@ class Handler(BaseHTTPRequestHandler):
                     fps = fps or file_fps
                     digest = digest or sha256_bytes(raw)
                 if audio is None and image is None and frames is None:
-                    self._json(400, {"error": "Add a file first."})
+                    self._json(400, {"error": "Add a file first. Choose Add file, or open Advanced for a sample."})
                     return
                 result = analyze(audio, sr or None, vibration=vibration, image=image, frames=frames, fps=fps or None)
                 for note in container_notes:
@@ -561,9 +623,7 @@ def make_server(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> Threading
 def serve(host: str = DEFAULT_HOST, port: int = DEFAULT_PORT) -> None:
     httpd = make_server(host, port)
     url = f"http://{host}:{port}/"
-    sys.stdout.write(f"VibeLock UI  {url}\n")
-    sys.stdout.write("Local only. Audio is not retained and never leaves this process.\n")
-    sys.stdout.write(LIMITATION + "\n")
+    sys.stdout.write(f"Open {url}\n")
     sys.stdout.flush()
     try:
         httpd.serve_forever()

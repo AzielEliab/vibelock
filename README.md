@@ -1,13 +1,19 @@
 # VibeLock
 
-Physics + A/V deepfake detection.
+VibeLock checks whether a recording, a photo, or a short clip looks physically consistent with a real voice or camera.
 
 **Author:** Aziel Eliab
-**Date:** September 2026 (speech physics: July 2026)
 **License:** [Apache-2.0](LICENSE)
 
-> Sound can be forged. Pixels can be forged. Physics is harder to fake.
+## Start
 
+1. `python -m venv .venv && . .venv/bin/activate && pip install -e .`
+2. `vibelock ui`
+3. Open http://127.0.0.1:8760 and choose **Add file**.
+
+Optional: `vibelock doctor`
+
+The same three steps are in [RUN.txt](RUN.txt).
 
 ## One-click install
 
@@ -54,11 +60,11 @@ Isolated counter: Worker `vibelock-download-tracker`, KV `VIBELOCK_DOWNLOADS`. N
 
 ## Quick start
 
-1. Install: `python -m venv .venv && source .venv/bin/activate && pip install -e ".[dev]"`
-2. Open the local UI: `vibelock ui`
-3. In the browser at http://127.0.0.1:8760, tap **Add file** (WAV / PNG / PPM / `.vlvd`; MP3/MP4 and other common A/V when `ffmpeg` is on PATH; uncompressed PCM MP4 without it), then **Export JSON report**. Optional check: `vibelock doctor --verify`.
+Follow **Start** at the top of this file. After `vibelock ui`, choose **Add file**. WAV, PNG, PPM, and `.vlvd` always work. MP3, MP4, M4A, MOV, WebM, MKV, OGG, and AVI work when `ffmpeg` is on PATH. Uncompressed PCM inside MP4 (`sowt` / `twos`) works without ffmpeg. FLAC also decodes when this build can read it. The result cites physics, linguistics, vibration, and related. A channel without evidence stays insufficient. The score is a risk index, not an accuracy rate and not courtroom proof. Hashes and **Export JSON report** are under **Advanced**.
 
-Loopback only (`127.0.0.1`). No CDN, no telemetry. This is a **media authenticity advisory, not courtroom proof.**
+Optional check: `vibelock doctor --verify`.
+
+Loopback only (`127.0.0.1`). The file stays on this computer.
 
 Counted download: [https://vibelock-download-tracker.vibelock.workers.dev/](https://vibelock-download-tracker.vibelock.workers.dev/)
 
@@ -210,9 +216,11 @@ vibelock ui                # localhost UI on 127.0.0.1:8760
 
 ## Local UI
 
-Local UI: `pip install -e . && vibelock ui` then open http://127.0.0.1:8760
+`vibelock ui` prints `Open http://127.0.0.1:8760/`.
 
-Binds to `127.0.0.1` only. Self-contained HTML (no CDN, no tracking, no telemetry). Giant **Add file** (WAV / PNG / PPM / `.vlvd`, MP3/MP4/WebM/MOV and other containers this build can decode, FLAC when a decoder is present), **Sample tone**, **Sample photo**, **Sample deepfake**, **Export JSON report** (hashes, scores, channels, limitation). **Simple** view: one score, channel status, and kid-plain *consistent* / *inconsistent*. **Advanced** view: hashes and per-check codes. Hard max size; truncated or foreign files are rejected in plain language without crashing. Compressed containers without ffmpeg fail closed.
+Binds to `127.0.0.1` only. Self-contained HTML (no CDN, no telemetry). The page follows the system light or dark setting. One primary action: **Add file** (WAV / PNG / PPM / `.vlvd`; MP3/MP4/WebM/MOV and other containers this build can decode; FLAC when a decoder is present; uncompressed PCM MP4 without ffmpeg). **Advanced** (collapsed) holds the vibration file, **Sample tone**, **Sample photo**, **Sample deepfake**, hashes, checks, and **Export JSON report**. The simple result is one sentence, a score, and which signal channels had evidence (*consistent* / *inconsistent*). A channel without evidence stays insufficient. The score is a risk index, not an accuracy rate. Hard max size; truncated or foreign files are rejected in plain language, with a next step, and the process keeps running. Compressed containers without ffmpeg fail closed.
+
+The About panel states the courtroom limitation.
 
 ```bash
 vibelock ui --host 127.0.0.1 --port 8760

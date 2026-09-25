@@ -27,6 +27,7 @@ python -m pip install -e .
 
 echo
 echo "Installed VibeLock."
-echo "Run:  vibelock ui"
-echo "Then open http://127.0.0.1:8760  (loopback only)"
+echo "1. You are in the VibeLock folder."
+echo "2. Run:  vibelock ui"
+echo "3. Open http://127.0.0.1:8760 and choose Add file."
 echo "Author: Aziel Eliab."
